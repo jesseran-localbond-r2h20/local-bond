@@ -1,0 +1,398 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Local Bond — Shop where you belong</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Overpass:ital,wght@0,300;0,400;0,600;0,700;0,800;1,400&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --paper:#FFFCEB;
+    --surface:#FFFFFF;
+    --coral:#EA4B40;
+    --coral-deep:#D13C32;
+    --ink:#1A1A17;
+    --ink-soft:#6E6E5E;
+    --tier1:#2F6B4F;
+    --tier2:#6FA088;
+    --tier3:#C2C3B4;
+    --leaf-soft:#EEF5EE;
+    --line:#ECE5CC;
+    --line-soft:#F4EFDC;
+    --radius:14px;
+    --shadow:0 1px 2px rgba(26,26,23,.04), 0 6px 22px rgba(26,26,23,.06);
+    --display:'Overpass', system-ui, sans-serif;
+    --body:'Overpass', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  html,body{background:var(--paper);color:var(--ink);font-family:var(--body);-webkit-font-smoothing:antialiased}
+  body{display:flex;justify-content:center;min-height:100vh}
+  .app{width:100%;max-width:440px;min-height:100vh;background:var(--paper);display:flex;flex-direction:column;position:relative}
+
+  /* Header */
+  header{padding:24px 22px 16px;position:sticky;top:0;background:linear-gradient(var(--paper) 80%, rgba(255,252,235,0));z-index:20}
+  .brand{display:flex;align-items:center;gap:12px}
+  .bamboo{width:36px;height:40px;color:var(--ink);flex:none}
+  .brand-text{display:flex;flex-direction:column;line-height:1}
+  .wordmark{font-family:var(--display);font-weight:800;font-size:27px;color:var(--coral);letter-spacing:-.01em}
+  .tagline{font-size:12.5px;color:var(--ink-soft);margin-top:3px;letter-spacing:.01em}
+
+  /* Search */
+  .search-wrap{padding:8px 22px 0}
+  .search{display:flex;align-items:center;gap:10px;background:var(--surface);border:1.5px solid var(--line);border-radius:var(--radius);padding:0 14px;box-shadow:var(--shadow);transition:border-color .15s, box-shadow .15s}
+  .search:focus-within{border-color:var(--coral);box-shadow:0 0 0 4px rgba(234,75,64,.12)}
+  .search svg{flex:none;color:var(--ink-soft)}
+  .search input{flex:1;border:none;outline:none;background:none;font-family:var(--body);font-size:16px;color:var(--ink);padding:15px 0}
+  .search input::placeholder{color:#B3B09A}
+  .clear{border:none;background:none;color:#B3B09A;cursor:pointer;font-size:20px;line-height:1;padding:4px;display:none}
+  .clear:hover{color:var(--ink)}
+
+  /* Example chips */
+  .chips{display:flex;flex-wrap:wrap;gap:8px;padding:14px 22px 4px}
+  .chip-label{width:100%;font-size:11px;text-transform:uppercase;letter-spacing:.09em;color:#B3B09A;font-weight:700;margin-bottom:3px}
+  .chip{font-family:var(--body);font-size:13px;color:var(--ink);background:var(--surface);border:1px solid var(--line);border-radius:999px;padding:7px 13px;cursor:pointer;transition:background .12s,border-color .12s,color .12s}
+  .chip:hover{background:var(--coral);border-color:var(--coral);color:#fff}
+
+  /* Results */
+  .results{padding:18px 22px 40px;flex:1}
+  .matched-head{display:flex;align-items:baseline;justify-content:space-between;margin:6px 2px 14px;gap:12px}
+  .matched-label{font-size:11px;text-transform:uppercase;letter-spacing:.08em;color:var(--ink-soft);font-weight:700}
+  .matched-name{font-family:var(--display);font-weight:700;font-size:22px;color:var(--ink);line-height:1.1;margin-top:3px}
+  .count{font-size:12.5px;color:var(--ink-soft);white-space:nowrap}
+
+  /* Vendor card */
+  .card{position:relative;background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);padding:16px 16px 14px 20px;margin-bottom:12px;box-shadow:var(--shadow);overflow:hidden}
+  .spine{position:absolute;left:0;top:0;bottom:0}
+  .t1 .spine{width:7px;background:var(--tier1)}
+  .t2 .spine{width:5px;background:var(--tier2)}
+  .t3 .spine{width:3px;background:var(--tier3)}
+  .card-top{display:flex;align-items:flex-start;justify-content:space-between;gap:10px}
+  .biz{font-family:var(--display);font-weight:600;font-size:16.5px;color:var(--ink);line-height:1.15}
+  .badge{flex:none;font-size:10px;font-weight:700;letter-spacing:.04em;text-transform:uppercase;padding:4px 9px;border-radius:999px;margin-top:2px}
+  .t1 .badge{background:rgba(47,107,79,.12);color:var(--tier1)}
+  .t2 .badge{background:rgba(111,160,136,.20);color:#3F7A5E}
+  .t3 .badge{background:rgba(150,150,130,.18);color:#6E6E5E}
+.highlight{display:inline-flex;align-items:center;gap:5px;font-size:10.5px;font-weight:700;letter-spacing:.03em;text-transform:uppercase;color:#fff;background:var(--coral);padding:4px 10px;border-radius:999px;margin-top:8px}
+  .highlight svg{width:11px;height:11px;flex:none}
+  .loc{display:flex;align-items:center;gap:5px;font-size:13px;color:var(--ink-soft);margin-top:6px}
+  .loc svg{flex:none}
+  .impact{font-size:13.5px;line-height:1.5;color:var(--ink);background:var(--leaf-soft);border-radius:9px;padding:10px 12px;margin-top:11px;border-left:2.5px solid var(--tier2)}
+  .actions{display:flex;gap:8px;margin-top:12px}
+  .btn{flex:1;text-align:center;text-decoration:none;font-family:var(--body);font-size:13.5px;font-weight:700;padding:10px;border-radius:9px;transition:background .12s,border-color .12s;cursor:pointer}
+  .btn-primary{background:var(--coral);color:#fff}
+  .btn-primary:hover{background:var(--coral-deep)}
+  .btn-ghost{background:none;border:1.5px solid var(--line);color:var(--ink)}
+  .btn-ghost:hover{border-color:var(--coral);background:var(--line-soft)}
+
+  /* Did you mean */
+  .alts{margin:20px 2px 0;padding-top:18px;border-top:1px solid var(--line)}
+  .alts-label{font-size:11px;text-transform:uppercase;letter-spacing:.08em;color:var(--ink-soft);font-weight:700;margin-bottom:9px}
+
+  /* Empty / start states */
+  .state{text-align:center;padding:44px 26px;color:var(--ink-soft)}
+  .state .mark{width:42px;height:47px;margin:0 auto 16px;color:var(--tier2)}
+  .state h3{font-family:var(--display);font-weight:600;font-size:18px;color:var(--ink);margin-bottom:6px}
+  .state p{font-size:14px;line-height:1.55;max-width:290px;margin:0 auto}
+
+  /* Match detail (test mode) */
+  .devbar{display:flex;align-items:center;justify-content:space-between;padding:11px 22px;border-top:1px solid var(--line);background:var(--line-soft)}
+  .devbar span{font-size:12px;color:var(--ink-soft)}
+  .toggle{position:relative;width:38px;height:22px;background:#D6D1B8;border-radius:999px;cursor:pointer;transition:background .15s;border:none;flex:none}
+  .toggle.on{background:var(--coral)}
+  .toggle::after{content:"";position:absolute;top:2px;left:2px;width:18px;height:18px;background:#fff;border-radius:50%;transition:transform .15s}
+  .toggle.on::after{transform:translateX(16px)}
+  .why{font-size:11.5px;color:var(--ink-soft);margin:0 2px 12px;font-family:ui-monospace,SFMono-Regular,Menlo,monospace;background:var(--line-soft);border:1px solid var(--line);border-radius:7px;padding:8px 10px}
+</style>
+</head>
+<body>
+<div class="app">
+  <header>
+    <div class="brand">
+      <svg class="bamboo" viewBox="0 0 100 112" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+  <g fill="currentColor">
+    <rect x="37" y="6"  width="16" height="27" rx="4"/>
+    <rect x="37" y="37" width="16" height="30" rx="4"/>
+    <rect x="37" y="71" width="16" height="35" rx="4"/>
+    <rect x="57" y="46" width="15" height="28" rx="4"/>
+    <rect x="57" y="78" width="15" height="28" rx="4"/>
+    <g transform="translate(37,35)">
+      <path transform="rotate(238) scale(26)" d="M0 0 Q0.4 -0.13 1 0 Q0.4 0.13 0 0 z"/>
+      <path transform="rotate(210) scale(31)" d="M0 0 Q0.4 -0.13 1 0 Q0.4 0.13 0 0 z"/>
+      <path transform="rotate(186) scale(34)" d="M0 0 Q0.4 -0.13 1 0 Q0.4 0.13 0 0 z"/>
+      <path transform="rotate(158) scale(27)" d="M0 0 Q0.4 -0.13 1 0 Q0.4 0.13 0 0 z"/>
+    </g>
+    <g transform="translate(72,76)">
+      <path transform="rotate(-12) scale(31)" d="M0 0 Q0.4 -0.13 1 0 Q0.4 0.13 0 0 z"/>
+      <path transform="rotate(16) scale(27)" d="M0 0 Q0.4 -0.13 1 0 Q0.4 0.13 0 0 z"/>
+      <path transform="rotate(44) scale(22)" d="M0 0 Q0.4 -0.13 1 0 Q0.4 0.13 0 0 z"/>
+    </g>
+  </g>
+</svg>
+      <div class="brand-text">
+        <div class="wordmark">Local Bond</div>
+        <div class="tagline">shop where you belong</div>
+      </div>
+    </div>
+  </header>
+
+  <div class="search-wrap">
+    <div class="search">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><path d="m21 21-4.3-4.3"/></svg>
+      <input id="q" type="text" placeholder="What are you looking to buy?" autocomplete="off" spellcheck="false">
+      <button class="clear" id="clear" aria-label="Clear">&times;</button>
+    </div>
+  </div>
+
+  <div class="chips" id="chips">
+    <div class="chip-label">Try searching</div>
+  </div>
+
+  <div class="results" id="results"></div>
+
+  <div class="devbar">
+    <span>Show how each result matched</span>
+    <button class="toggle" id="devToggle" aria-label="Toggle match details"></button>
+  </div>
+</div>
+
+<script>
+/* ============================================================
+   LOCAL BOND — SEARCH ENGINE (deterministic core)
+   Phase 2 of build. AI fallback slots into aiFallback() next.
+   ============================================================ */
+
+const DATA = {
+  "pilot": { "city": "Petaluma", "zip": "94952" },
+  "products": [
+    {"id":"P001","category":"Kitchen & Home","name":"Air Purifier","keywords":["air purifier","air filter","air cleaner","hepa filter","hepa purifier","room purifier","air purification","allergen filter","smoke filter","dust filter","purifier","air quality"],"vendors":[{"name":"Friedman's Home Improvement","tier":1,"label":"Locally Rooted","impact":"Family-owned in Petaluma since 1946 — three generations of Friedmans and nearly 500 local jobs.","city":"Petaluma","website":"https://www.friedmanshome.com/","maps":"https://maps.app.goo.gl/rXySy5byz9WtuKvPA"},{"name":"Costco","tier":2,"label":"Community Present","impact":"Costco pays above-market wages and provides full benefits — your purchase supports better jobs locally.","city":"Rohnert Park","website":"https://www.costco.com/w/-/CA/rohnert-park/659","maps":"https://maps.app.goo.gl/oCKShZcoKoR1We1g6"}]},
+    {"id":"P002","category":"Kitchen & Home","name":"Knife Set","keywords":["knife set","kitchen knives","knives","chef knife","cutlery","kitchen knife set","cooking knives","knife block","chef's knife","paring knife","knife"],"vendors":[{"name":"Tomasini's Rex Ace Hardware & Country Store","tier":1,"label":"Locally Rooted","impact":"Locally owned since 1907 — one of Petaluma's oldest businesses, still run by neighbors who know you by name.","city":"Petaluma","website":"https://www.acehardware.com/store-details/00918","maps":"https://maps.app.goo.gl/ZvSjoWbWDFKco9VA7"},{"name":"i Leoni","tier":1,"label":"Locally Rooted","impact":"Family-owned in downtown Petaluma since 2004 — three generations of Leonis bringing quality kitchen and home goods to the community.","city":"Petaluma","website":"https://ileoni.com/","maps":"https://maps.app.goo.gl/m1GGNztTcDDSNa4S7"},{"name":"Costco","tier":2,"label":"Community Present","impact":"Costco pays above-market wages and provides full benefits — your purchase supports better jobs locally.","city":"Rohnert Park","website":"https://www.costco.com/w/-/CA/rohnert-park/659","maps":"https://maps.app.goo.gl/oCKShZcoKoR1We1g6"}]},
+    {"id":"P003","category":"Kitchen & Home","name":"Hanging Organizer Set","keywords":["hanging organizer","closet organizer","storage organizer","hanging storage","closet storage","organizer set","hanging shelves","closet shelves","storage solution","organizer","hanging closet organizer"],"vendors":[{"name":"Costco","tier":2,"label":"Community Present","impact":"Costco pays above-market wages and provides full benefits — your purchase supports better jobs locally.","city":"Rohnert Park","website":"https://www.costco.com/w/-/CA/rohnert-park/659","maps":"https://maps.app.goo.gl/oCKShZcoKoR1We1g6"},{"name":"HomeGoods","tier":3,"label":"Local Impact","impact":"Shopping here keeps sales tax and wages in Petaluma — more community impact than a delivery box.","city":"Petaluma","website":"https://www.homegoods.com/store-details/Petaluma-CA-94952/598","maps":"https://maps.app.goo.gl/KP6FBsRmN6XTXdor7"},{"name":"Dollar Tree","tier":3,"label":"Local Impact","impact":"Local jobs, local tax dollars — even a small purchase here does more for Petaluma than Amazon.","city":"Petaluma","website":"https://locations.dollartree.com/ca/petaluma/40-e-washington-street","maps":"https://maps.app.goo.gl/3oJ9oPjE4vw51EFE8"}]},
+    {"id":"P004","category":"Electronics","name":"Portable Bluetooth Speaker","keywords":["bluetooth speaker","portable speaker","wireless speaker","portable bluetooth speaker","speaker","bt speaker","outdoor speaker","waterproof speaker","rechargeable speaker","mini speaker"],"vendors":[{"name":"Tomasini's Rex Ace Hardware & Country Store","tier":1,"label":"Locally Rooted","impact":"Locally owned since 1907 — one of Petaluma's oldest businesses, still run by neighbors who know you by name.","city":"Petaluma","website":"https://www.acehardware.com/store-details/00918","maps":"https://maps.app.goo.gl/ZvSjoWbWDFKco9VA7"},{"name":"Costco","tier":2,"label":"Community Present","impact":"Costco pays above-market wages and provides full benefits — your purchase supports better jobs locally.","city":"Rohnert Park","website":"https://www.costco.com/w/-/CA/rohnert-park/659","maps":"https://maps.app.goo.gl/oCKShZcoKoR1We1g6"},{"name":"Big 5 Sporting Goods","tier":2,"label":"Community Present","impact":"Regional chain with a local footprint — keeps more dollars in Petaluma than buying online.","city":"Petaluma","website":"https://www.big5sportinggoods.com/store/index.jsp","maps":"https://maps.app.goo.gl/zFZwHbDdwypy7E4m7"}]},
+    {"id":"P005","category":"Electronics","name":"Bluetooth Headphones","keywords":["bluetooth headphones","wireless headphones","headphones","earbuds","wireless earbuds","bluetooth earbuds","headset","over ear headphones","noise cancelling headphones","earphones","bt headphones"],"vendors":[{"name":"Costco","tier":2,"label":"Community Present","impact":"Costco pays above-market wages and provides full benefits — your purchase supports better jobs locally.","city":"Rohnert Park","website":"https://www.costco.com/w/-/CA/rohnert-park/659","maps":"https://maps.app.goo.gl/oCKShZcoKoR1We1g6"},{"name":"Kohl's","tier":3,"label":"Local Impact","impact":"Local employment and sales tax stay in Petaluma — a stronger community choice than ordering online.","city":"Petaluma","website":"https://www.kohls.com/stores/ca/petaluma-760.shtml","maps":"https://maps.app.goo.gl/EbhYsQve7exTo6kY8"},{"name":"Staples","tier":3,"label":"Local Impact","impact":"Local store means local paychecks and tax revenue — your purchase does more here than on Amazon.","city":"Petaluma","website":"https://stores.staples.com/ca/petaluma/207-south-mcdowell-blvd","maps":"https://maps.app.goo.gl/64qkCEpx3YTwww7e8"}]},
+    {"id":"P006","category":"Electronics","name":"Portable Monitor for Laptop","keywords":["portable monitor","laptop monitor","external monitor","second screen","portable screen","usb monitor","travel monitor","laptop screen","portable display","monitor","external display"],"vendors":[{"name":"Staples","tier":3,"label":"Local Impact","impact":"Local store means local paychecks and tax revenue — your purchase does more here than on Amazon.","city":"Petaluma","website":"https://stores.staples.com/ca/petaluma/207-south-mcdowell-blvd","maps":"https://maps.app.goo.gl/64qkCEpx3YTwww7e8"},{"name":"Target","tier":3,"label":"Local Impact","impact":"A local Target still means local jobs and sales tax — a better community choice than Amazon.","city":"Petaluma","website":"https://www.target.com/sl/petaluma/2601","maps":"https://maps.app.goo.gl/77Uqf1F2Kq7efQZq8"},{"name":"Office Depot","tier":3,"label":"Local Impact","impact":"Local presence means local employment — a better community choice than clicking away.","city":"Rohnert Park","website":"https://www.officedepot.com/storelocator/ca/rohnert-park/office-depot-2256","maps":"https://maps.app.goo.gl/hg76yaEwmijT5XHK6"}]},
+    {"id":"P007","category":"Pet Supplies","name":"Dog Hip & Joint Supplement","keywords":["dog joint supplement","hip and joint","dog hip supplement","joint supplement dog","dog glucosamine","dog mobility","dog arthritis supplement","dog joint health","dog supplement","pet joint supplement","dog vitamins"],"vendors":[{"name":"Rivertown Feed & Pet Country Store","tier":1,"label":"Locally Rooted","impact":"A Lewis family business rooted in Petaluma's agricultural history — locally owned and actively supporting 4-H, FFA, and community rescues.","city":"Petaluma","website":"https://rivertownfeed.com/","maps":"https://maps.app.goo.gl/wNA1m4auJ9vC3Ru18"},{"name":"Tractor Supply","tier":2,"label":"Community Present","impact":"National retailer with a meaningful local presence — local jobs and sales tax stay in Petaluma.","city":"Petaluma","website":"https://www.tractorsupply.com/tsc/store_Petaluma-CA-94954_1588","maps":"https://maps.app.goo.gl/uEN6RuZv35458s2b8"},{"name":"Wilco Farm Store","tier":2,"label":"Community Present","impact":"Regional farm co-op with strong community values — a better choice for rural and pet supply needs.","city":"Petaluma","website":"https://www.farmstore.com/","maps":"https://maps.app.goo.gl/pLst2t4JECs1Nswi9"}]},
+    {"id":"P008","category":"Pet Supplies","name":"Pet Grooming Vacuum with Clipper & Nail Grinder","keywords":["pet grooming vacuum","dog grooming kit","pet clipper","dog clippers","pet nail grinder","dog grooming vacuum","grooming kit","pet grooming kit","dog hair vacuum","pet hair clipper","dog nail grinder","grooming vacuum"],"vendors":[{"name":"Rivertown Feed & Pet Country Store","tier":1,"label":"Locally Rooted","impact":"A Lewis family business rooted in Petaluma's agricultural history — locally owned and actively supporting 4-H, FFA, and community rescues.","city":"Petaluma","website":"https://rivertownfeed.com/","maps":"https://maps.app.goo.gl/wNA1m4auJ9vC3Ru18"},{"name":"Tractor Supply","tier":2,"label":"Community Present","impact":"National retailer with a meaningful local presence — local jobs and sales tax stay in Petaluma.","city":"Petaluma","website":"https://www.tractorsupply.com/tsc/store_Petaluma-CA-94954_1588","maps":"https://maps.app.goo.gl/uEN6RuZv35458s2b8"},{"name":"Target","tier":3,"label":"Local Impact","impact":"A local Target still means local jobs and sales tax — a better community choice than Amazon.","city":"Petaluma","website":"https://www.target.com/sl/petaluma/2601","maps":"https://maps.app.goo.gl/77Uqf1F2Kq7efQZq8"}]},
+    {"id":"P009","category":"Pet Supplies","name":"Small Dog Collar","keywords":["dog collar","small dog collar","puppy collar","pet collar","small collar","adjustable dog collar","dog collar small","collar"],"vendors":[{"name":"Rivertown Feed & Pet Country Store","tier":1,"label":"Locally Rooted","impact":"A Lewis family business rooted in Petaluma's agricultural history — locally owned and actively supporting 4-H, FFA, and community rescues.","city":"Petaluma","website":"https://rivertownfeed.com/","maps":"https://maps.app.goo.gl/wNA1m4auJ9vC3Ru18"},{"name":"Wilco Farm Store","tier":2,"label":"Community Present","impact":"Regional farm co-op with strong community values — a better choice for rural and pet supply needs.","city":"Petaluma","website":"https://www.farmstore.com/","maps":"https://maps.app.goo.gl/pLst2t4JECs1Nswi9"},{"name":"Our Best Friends","tier":1,"label":"Locally Rooted","impact":"Serving PETaluma's pets and their people since 1998 — locally owned and still the community's favorite pet destination.","city":"Petaluma","website":"http://obfpetaluma.com/index.html","maps":"https://maps.app.goo.gl/PEK165TVNCXgpPas6"}]},
+    {"id":"P010","category":"Sports & Outdoors","name":"Sports Water Bottle","keywords":["water bottle","sports water bottle","reusable water bottle","sports bottle","insulated water bottle","gym water bottle","drink bottle","hydration bottle","stainless steel water bottle","bottle"],"vendors":[{"name":"Dick's Sporting Goods","tier":2,"label":"Community Present","impact":"Local store, local jobs — your purchase generates Petaluma sales tax and employment.","city":"Petaluma","website":"https://stores.dickssportinggoods.com/ca/petaluma/1048/","maps":"https://maps.app.goo.gl/dVjWubvPEGqWLE7v7"},{"name":"Big 5 Sporting Goods","tier":2,"label":"Community Present","impact":"Regional chain with a local footprint — keeps more dollars in Petaluma than buying online.","city":"Petaluma","website":"https://www.big5sportinggoods.com/store/index.jsp","maps":"https://maps.app.goo.gl/zFZwHbDdwypy7E4m7"},{"name":"Tomasini's Rex Ace Hardware & Country Store","tier":1,"label":"Locally Rooted","impact":"Locally owned since 1907 — one of Petaluma's oldest businesses, still run by neighbors who know you by name.","city":"Petaluma","website":"https://www.acehardware.com/store-details/00918","maps":"https://maps.app.goo.gl/ZvSjoWbWDFKco9VA7"}]},
+    {"id":"P011","category":"Sports & Outdoors","name":"Treadmill","keywords":["treadmill","running machine","exercise treadmill","home treadmill","folding treadmill","cardio machine","walking machine","fitness treadmill"],"vendors":[{"name":"Dick's Sporting Goods","tier":2,"label":"Community Present","impact":"Local store, local jobs — your purchase generates Petaluma sales tax and employment.","city":"Petaluma","website":"https://stores.dickssportinggoods.com/ca/petaluma/1048/","maps":"https://maps.app.goo.gl/dVjWubvPEGqWLE7v7"},{"name":"Big 5 Sporting Goods","tier":2,"label":"Community Present","impact":"Regional chain with a local footprint — keeps more dollars in Petaluma than buying online.","city":"Petaluma","website":"https://www.big5sportinggoods.com/store/index.jsp","maps":"https://maps.app.goo.gl/zFZwHbDdwypy7E4m7"},{"name":"Costco","tier":2,"label":"Community Present","impact":"Costco pays above-market wages and provides full benefits — your purchase supports better jobs locally.","city":"Rohnert Park","website":"https://www.costco.com/w/-/CA/rohnert-park/659","maps":"https://maps.app.goo.gl/oCKShZcoKoR1We1g6"}]},
+    {"id":"P012","category":"Sports & Outdoors","name":"Sleeping Pad","keywords":["sleeping pad","camping pad","sleeping mat","camping mat","inflatable pad","backpacking pad","camp mattress","foam pad","ground pad","sleep pad","camping mattress"],"vendors":[{"name":"REI","tier":2,"label":"Community Present","impact":"REI is a consumer co-op — profits stay within the membership community, not with outside shareholders.","city":"Santa Rosa","website":"https://www.rei.com/stores/santa-rosa","maps":"https://maps.app.goo.gl/SPha3qvLVXaZCgoM6"},{"name":"Dick's Sporting Goods","tier":2,"label":"Community Present","impact":"Local store, local jobs — your purchase generates Petaluma sales tax and employment.","city":"Petaluma","website":"https://stores.dickssportinggoods.com/ca/petaluma/1048/","maps":"https://maps.app.goo.gl/dVjWubvPEGqWLE7v7"},{"name":"Costco","tier":2,"label":"Community Present","impact":"Costco pays above-market wages and provides full benefits — your purchase supports better jobs locally.","city":"Rohnert Park","website":"https://www.costco.com/w/-/CA/rohnert-park/659","maps":"https://maps.app.goo.gl/oCKShZcoKoR1We1g6"}]},
+    {"id": "P013", "category": "Household & Personal Care", "name": "Laundry Detergent", "keywords": ["laundry detergent", "laundry soap", "detergent", "laundry", "washing detergent", "clothes detergent", "laundry pods", "liquid detergent"], "vendors": [{"name": "Refill Mercantile", "tier": 1, "label": "Locally Rooted", "highlight": "Not on Amazon", "impact": "Locally owned in the Great Petaluma Mill — bring your own containers and refill everyday essentials, waste-free.", "city": "Petaluma", "website": "https://www.refillmercantile.com/", "maps": "https://maps.app.goo.gl/4DWCAQkNvSFG8pQb6"}, {"name": "Costco", "tier": 2, "label": "Community Present", "impact": "Costco pays above-market wages and provides full benefits — your purchase supports better jobs locally.", "city": "Rohnert Park", "website": "https://www.costco.com/w/-/CA/rohnert-park/659", "maps": "https://maps.app.goo.gl/oCKShZcoKoR1We1g6"}, {"name": "Target", "tier": 3, "label": "Local Impact", "impact": "A local Target still means local jobs and sales tax — a better community choice than Amazon.", "city": "Petaluma", "website": "https://www.target.com/sl/petaluma/2601", "maps": "https://maps.app.goo.gl/77Uqf1F2Kq7efQZq8"}]},
+    {"id": "P014", "category": "Household & Personal Care", "name": "Dish Soap", "keywords": ["dish soap", "dishwashing liquid", "dish detergent", "dish washing", "dishsoap", "dish", "washing up liquid"], "vendors": [{"name": "Refill Mercantile", "tier": 1, "label": "Locally Rooted", "highlight": "Not on Amazon", "impact": "Locally owned in the Great Petaluma Mill — bring your own containers and refill everyday essentials, waste-free.", "city": "Petaluma", "website": "https://www.refillmercantile.com/", "maps": "https://maps.app.goo.gl/4DWCAQkNvSFG8pQb6"}, {"name": "Costco", "tier": 2, "label": "Community Present", "impact": "Costco pays above-market wages and provides full benefits — your purchase supports better jobs locally.", "city": "Rohnert Park", "website": "https://www.costco.com/w/-/CA/rohnert-park/659", "maps": "https://maps.app.goo.gl/oCKShZcoKoR1We1g6"}, {"name": "Target", "tier": 3, "label": "Local Impact", "impact": "A local Target still means local jobs and sales tax — a better community choice than Amazon.", "city": "Petaluma", "website": "https://www.target.com/sl/petaluma/2601", "maps": "https://maps.app.goo.gl/77Uqf1F2Kq7efQZq8"}]},
+    {"id": "P015", "category": "Household & Personal Care", "name": "Shower Gel", "keywords": ["shower gel", "body wash", "shower soap", "bodywash", "body soap", "shower", "wash"], "vendors": [{"name": "Refill Mercantile", "tier": 1, "label": "Locally Rooted", "highlight": "Not on Amazon", "impact": "Locally owned in the Great Petaluma Mill — bring your own containers and refill everyday essentials, waste-free.", "city": "Petaluma", "website": "https://www.refillmercantile.com/", "maps": "https://maps.app.goo.gl/4DWCAQkNvSFG8pQb6"}, {"name": "Target", "tier": 3, "label": "Local Impact", "impact": "A local Target still means local jobs and sales tax — a better community choice than Amazon.", "city": "Petaluma", "website": "https://www.target.com/sl/petaluma/2601", "maps": "https://maps.app.goo.gl/77Uqf1F2Kq7efQZq8"}, {"name": "Costco", "tier": 2, "label": "Community Present", "impact": "Costco pays above-market wages and provides full benefits — your purchase supports better jobs locally.", "city": "Rohnert Park", "website": "https://www.costco.com/w/-/CA/rohnert-park/659", "maps": "https://maps.app.goo.gl/oCKShZcoKoR1We1g6"}]},
+    {"id": "P016", "category": "Household & Personal Care", "name": "Shampoo", "keywords": ["shampoo", "hair wash", "shampoo bar", "hair care", "shampoo and conditioner", "hair soap"], "vendors": [{"name": "Refill Mercantile", "tier": 1, "label": "Locally Rooted", "highlight": "Not on Amazon", "impact": "Locally owned in the Great Petaluma Mill — bring your own containers and refill everyday essentials, waste-free.", "city": "Petaluma", "website": "https://www.refillmercantile.com/", "maps": "https://maps.app.goo.gl/4DWCAQkNvSFG8pQb6"}, {"name": "Costco", "tier": 2, "label": "Community Present", "impact": "Costco pays above-market wages and provides full benefits — your purchase supports better jobs locally.", "city": "Rohnert Park", "website": "https://www.costco.com/w/-/CA/rohnert-park/659", "maps": "https://maps.app.goo.gl/oCKShZcoKoR1We1g6"}, {"name": "Kohl's", "tier": 3, "label": "Local Impact", "impact": "Local employment and sales tax stay in Petaluma — a stronger community choice than ordering online.", "city": "Petaluma", "website": "https://www.kohls.com/stores/ca/petaluma-760.shtml", "maps": "https://maps.app.goo.gl/EbhYsQve7exTo6kY8"}]}
+  ]
+};
+
+/* ---------- text helpers ---------- */
+function normalize(s){return s.toLowerCase().trim().replace(/[^\w\s]/g," ").replace(/\s+/g," ").trim();}
+function tokens(s){return normalize(s).split(" ").filter(Boolean);}
+
+// Lightweight edit distance for single-typo tolerance
+function editDistance(a,b){
+  const m=a.length,n=b.length;
+  if(Math.abs(m-n)>2)return 3;
+  const d=Array.from({length:m+1},(_,i)=>[i,...Array(n).fill(0)]);
+  for(let j=0;j<=n;j++)d[0][j]=j;
+  for(let i=1;i<=m;i++)for(let j=1;j<=n;j++){
+    const cost=a[i-1]===b[j-1]?0:1;
+    d[i][j]=Math.min(d[i-1][j]+1,d[i][j-1]+1,d[i-1][j-1]+cost);
+  }
+  return d[m][n];
+}
+
+/* ---------- the matcher ---------- */
+// Returns a score 0–100 for how well a query matches one product.
+// Candidates are weighted by source: keywords are the real signal,
+// the product name slightly less, and category is only a weak nudge
+// (many products share a category, so a category-word alone shouldn't
+// surface a product as a confident match).
+function scoreProduct(query, product){
+  const nQ=normalize(query);
+  if(!nQ) return {score:0, reason:"empty"};
+  const qTokens=tokens(query);
+  let best=0, reason="";
+
+  const candidates=[
+    ...product.keywords.map(k=>({text:k, w:1.0})),
+    {text:product.name.toLowerCase(), w:0.95},
+    {text:product.category.toLowerCase(), w:0.45}
+  ];
+
+  for(const {text:cand, w} of candidates){
+    const nC=normalize(cand);
+    if(!nC) continue;
+
+    // 1. exact phrase match — strongest signal
+    if(nQ===nC){ const s=100*w; if(s>best){best=s;reason=`exact match on "${cand}"`;} continue; }
+    // 2. one string contains the other
+    if(nQ.includes(nC)||nC.includes(nQ)){
+      const s=82*w; if(s>best){best=s;reason=`phrase match on "${cand}"`;}
+      continue;
+    }
+    // 3. token overlap
+    const cTokens=tokens(cand);
+    const shared=qTokens.filter(t=>cTokens.includes(t));
+    if(shared.length){
+      const s=(45+35*(shared.length/Math.max(qTokens.length,cTokens.length)))*w;
+      if(s>best){best=s;reason=`shared word${shared.length>1?"s":""}: ${shared.join(", ")}`;}
+    }
+    // 4. fuzzy single-word (typo) match
+    for(const qt of qTokens){
+      if(qt.length<4)continue;
+      for(const ct of cTokens){
+        if(ct.length<4)continue;
+        const dist=editDistance(qt,ct);
+        if(dist===1){const s=58*w;if(s>best){best=s;reason=`close spelling: "${qt}" ≈ "${ct}"`;}}
+        else if(dist===2&&Math.max(qt.length,ct.length)>=6){const s=42*w;if(s>best){best=s;reason=`approx spelling: "${qt}" ≈ "${ct}"`;}}
+      }
+    }
+  }
+  return {score:Math.round(best), reason};
+}
+
+const THRESHOLD=40;        // below this, not a confident match
+const ALT_THRESHOLD=55;    // other products this strong are offered as "did you mean"
+
+function search(query){
+  const scored=DATA.products
+    .map(p=>({product:p, ...scoreProduct(query,p)}))
+    .filter(r=>r.score>=THRESHOLD)
+    .sort((a,b)=>b.score-a.score);
+  return scored;
+}
+
+/* ---------- AI fallback (next step — not yet wired) ----------
+   When search() returns nothing, we'll send the query + product
+   list to the Claude API and let it pick the best product id.
+   Kept as a clearly-marked stub so the core stays testable offline. */
+async function aiFallback(query){
+  return null; // to be implemented next session, with your go-ahead
+}
+
+/* ---------- vendor ranking within a matched product ----------
+   Tier first (1 → 3). Proximity is the next layer once we add
+   geocoding; for now Petaluma sorts ahead of nearby towns. */
+function rankVendors(vendors){
+  const cityRank=c=>c==="Petaluma"?0:1;
+  return [...vendors].sort((a,b)=> a.tier-b.tier || cityRank(a.city)-cityRank(b.city));
+}
+
+/* ---------- rendering ---------- */
+const resultsEl=document.getElementById("results");
+const qEl=document.getElementById("q");
+const clearEl=document.getElementById("clear");
+
+function locText(city){
+  return city==="Petaluma" ? "In Petaluma" : "Nearby · "+city;
+}
+
+function vendorCard(v, showWhy, why){
+  return `
+  <div class="card t${v.tier}">
+    <div class="spine"></div>
+    <div class="card-top">
+      <div class="biz">${v.name}</div>
+      <div class="badge">${v.label}</div>
+    </div>
+    ${v.highlight ? `<div class="highlight"><svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 2C7.5 6 4.5 9.8 4.5 14a7.5 7.5 0 0 0 15 0c0-4.2-3-8-7.5-12z"/></svg>${v.highlight}</div>` : ""}
+    <div class="loc">
+      <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M12 21s-7-5.5-7-11a7 7 0 0 1 14 0c0 5.5-7 11-7 11z"/><circle cx="12" cy="10" r="2.4"/></svg>
+      ${locText(v.city)}
+    </div>
+    <div class="impact">${v.impact}</div>
+    <div class="actions">
+      <a class="btn btn-primary" href="${v.maps}" target="_blank" rel="noopener">Directions</a>
+      <a class="btn btn-ghost" href="${v.website}" target="_blank" rel="noopener">Visit site</a>
+    </div>
+  </div>`;
+}
+
+function render(query){
+  const matches=search(query);
+
+  if(!query.trim()){
+    resultsEl.innerHTML=`
+      <div class="state">
+        <svg class="mark" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M12 21s-7-5.5-7-11a7 7 0 0 1 14 0c0 5.5-7 11-7 11z"/><circle cx="12" cy="10" r="2.5"/></svg>
+        <h3>Find it close to home</h3>
+        <p>Search for something you'd normally buy online — we'll show you where to get it near Petaluma.</p>
+      </div>`;
+    return;
+  }
+
+  if(!matches.length){
+    resultsEl.innerHTML=`
+      <div class="state">
+        <svg class="mark" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="11" cy="11" r="7"/><path d="m21 21-4.3-4.3"/></svg>
+        <h3>Not in our pilot yet</h3>
+        <p>Local Bond is starting with a focused set of products in Petaluma. We're adding more all the time — and smarter matching is coming next.</p>
+      </div>`;
+    return;
+  }
+
+  const top=matches[0];
+  const showWhy=document.querySelector(".app").classList.contains("show-why");
+  const vendors=rankVendors(top.product.vendors);
+
+  let html=`
+    <div class="matched-head">
+      <div>
+        <div class="matched-label">${top.product.category}</div>
+        <div class="matched-name">${top.product.name}</div>
+      </div>
+      <div class="count">${vendors.length} local option${vendors.length>1?"s":""}</div>
+    </div>`;
+
+  if(showWhy){
+    html+=`<div class="why" style="display:block">match score ${top.score}/100 — ${top.reason}</div>`;
+  }
+
+  html+=vendors.map(v=>vendorCard(v)).join("");
+
+  // "Did you mean" — other strong product matches
+  const alts=matches.slice(1).filter(m=>m.score>=ALT_THRESHOLD).slice(0,3);
+  if(alts.length){
+    html+=`<div class="alts"><div class="alts-label">Did you mean</div><div class="chips" style="padding:0">`;
+    html+=alts.map(a=>`<button class="chip" data-q="${a.product.name}">${a.product.name}</button>`).join("");
+    html+=`</div></div>`;
+  }
+
+  resultsEl.innerHTML=html;
+
+  resultsEl.querySelectorAll(".chip[data-q]").forEach(c=>{
+    c.addEventListener("click",()=>{qEl.value=c.dataset.q;onInput();});
+  });
+}
+
+/* ---------- example chips ---------- */
+const EXAMPLES=["air purifier","dish soap","dog collar","shampoo","headphones","speakr"];
+const chipsEl=document.getElementById("chips");
+EXAMPLES.forEach(ex=>{
+  const b=document.createElement("button");
+  b.className="chip";b.textContent=ex;
+  b.addEventListener("click",()=>{qEl.value=ex;onInput();});
+  chipsEl.appendChild(b);
+});
+
+/* ---------- wiring ---------- */
+let timer=null;
+function onInput(){
+  clearEl.style.display=qEl.value?"block":"none";
+  clearTimeout(timer);
+  timer=setTimeout(()=>render(qEl.value),120);
+}
+qEl.addEventListener("input",onInput);
+clearEl.addEventListener("click",()=>{qEl.value="";onInput();qEl.focus();});
+
+document.getElementById("devToggle").addEventListener("click",e=>{
+  e.target.classList.toggle("on");
+  document.querySelector(".app").classList.toggle("show-why");
+  render(qEl.value);
+});
+
+render("");
+</script>
+</body>
+</html>

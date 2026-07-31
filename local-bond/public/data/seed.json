@@ -1,0 +1,1097 @@
+{
+  "meta": {
+    "version": "1.0",
+    "pilot_zip": "94952",
+    "pilot_city": "Petaluma",
+    "pilot_state": "CA",
+    "source_sheet": "https://docs.google.com/spreadsheets/d/1yDQJYUiOokfCXnbdZtwsFCQqqvhElN7MVCGfmEo0v2I",
+    "last_updated": "2026-07-07"
+  },
+  "businesses": [
+    {
+      "id": "B001",
+      "name": "Friedman's Home Improvement",
+      "tier": 1,
+      "display_label": "Locally Rooted",
+      "impact_line": "Family-owned in Petaluma since 1946 — three generations of Friedmans and nearly 500 local jobs.",
+      "address": "429 N McDowell Blvd, Petaluma, CA 94954",
+      "zip": "94954",
+      "phone": "(707) 774-8400",
+      "website": "https://www.friedmanshome.com/",
+      "maps_url": "https://maps.app.goo.gl/rXySy5byz9WtuKvPA"
+    },
+    {
+      "id": "B002",
+      "name": "Rivertown Feed & Pet Country Store",
+      "tier": 1,
+      "display_label": "Locally Rooted",
+      "impact_line": "A Lewis family business rooted in Petaluma's agricultural history — locally owned and actively supporting 4-H, FFA, and community rescues.",
+      "address": "200 1st St, Petaluma, CA 94952",
+      "zip": "94952",
+      "phone": "(707) 762-4505",
+      "website": "https://rivertownfeed.com/",
+      "maps_url": "https://maps.app.goo.gl/wNA1m4auJ9vC3Ru18"
+    },
+    {
+      "id": "B003",
+      "name": "Tomasini's Rex Ace Hardware & Country Store",
+      "tier": 1,
+      "display_label": "Locally Rooted",
+      "impact_line": "Locally owned since 1907 — one of Petaluma's oldest businesses, still run by neighbors who know you by name.",
+      "address": "313 B St, Petaluma, CA 94952",
+      "zip": "94952",
+      "phone": "(707) 762-7355",
+      "website": "https://www.acehardware.com/store-details/00918",
+      "maps_url": "https://maps.app.goo.gl/ZvSjoWbWDFKco9VA7"
+    },
+    {
+      "id": "B004",
+      "name": "i Leoni",
+      "tier": 1,
+      "display_label": "Locally Rooted",
+      "impact_line": "Family-owned in downtown Petaluma since 2004 — three generations of Leonis bringing quality kitchen and home goods to the community.",
+      "address": "120 Kentucky St, Petaluma, CA 94952",
+      "zip": "94952",
+      "phone": "(707) 762-9611",
+      "website": "https://ileoni.com/",
+      "maps_url": "https://maps.app.goo.gl/m1GGNztTcDDSNa4S7"
+    },
+    {
+      "id": "B005",
+      "name": "Our Best Friends",
+      "tier": 1,
+      "display_label": "Locally Rooted",
+      "impact_line": "Serving PETaluma's pets and their people since 1998 — locally owned and still the community's favorite pet destination.",
+      "address": "2200 Petaluma Blvd N Ste 805, Petaluma, CA 94954",
+      "zip": "94952",
+      "phone": "(707) 763-6560",
+      "website": "http://obfpetaluma.com/index.html",
+      "maps_url": "https://maps.app.goo.gl/PEK165TVNCXgpPas6"
+    },
+    {
+      "id": "B006",
+      "name": "Costco",
+      "tier": 2,
+      "display_label": "Community Present",
+      "impact_line": "Costco pays above-market wages and provides full benefits — your purchase supports better jobs locally.",
+      "address": "5901 Redwood Dr, Rohnert Park, CA 94928",
+      "zip": "94928",
+      "phone": "(707) 540-9113",
+      "website": "https://www.costco.com/w/-/CA/rohnert-park/659",
+      "maps_url": "https://maps.app.goo.gl/oCKShZcoKoR1We1g6"
+    },
+    {
+      "id": "B007",
+      "name": "REI",
+      "tier": 2,
+      "display_label": "Community Present",
+      "impact_line": "REI is a consumer co-op — profits stay within the membership community, not with outside shareholders.",
+      "address": "2715 Santa Rosa Ave, Santa Rosa, CA 95407",
+      "zip": "95407",
+      "phone": "(707) 540-9025",
+      "website": "https://www.rei.com/stores/santa-rosa",
+      "maps_url": "https://maps.app.goo.gl/SPha3qvLVXaZCgoM6"
+    },
+    {
+      "id": "B008",
+      "name": "Dick's Sporting Goods",
+      "tier": 2,
+      "display_label": "Community Present",
+      "impact_line": "Local store, local jobs — your purchase generates Petaluma sales tax and employment.",
+      "address": "401 Kenilworth Dr Suite 1030, Petaluma, CA 94952",
+      "zip": "94952",
+      "phone": "(707) 763-3750",
+      "website": "https://stores.dickssportinggoods.com/ca/petaluma/1048/",
+      "maps_url": "https://maps.app.goo.gl/dVjWubvPEGqWLE7v7"
+    },
+    {
+      "id": "B009",
+      "name": "Big 5 Sporting Goods",
+      "tier": 2,
+      "display_label": "Community Present",
+      "impact_line": "Regional chain with a local footprint — keeps more dollars in Petaluma than buying online.",
+      "address": "105 N McDowell Blvd, Petaluma, CA 94954",
+      "zip": "94954",
+      "phone": "(707) 765-6811",
+      "website": "https://www.big5sportinggoods.com/store/index.jsp",
+      "maps_url": "https://maps.app.goo.gl/zFZwHbDdwypy7E4m7"
+    },
+    {
+      "id": "B010",
+      "name": "Wilco Farm Store",
+      "tier": 2,
+      "display_label": "Community Present",
+      "impact_line": "Regional farm co-op with strong community values — a better choice for rural and pet supply needs.",
+      "address": "1390 N McDowell Blvd, Petaluma, CA 94954",
+      "zip": "94954",
+      "phone": "(707) 238-5566",
+      "website": "https://www.farmstore.com/",
+      "maps_url": "https://maps.app.goo.gl/pLst2t4JECs1Nswi9"
+    },
+    {
+      "id": "B011",
+      "name": "Tractor Supply",
+      "tier": 2,
+      "display_label": "Community Present",
+      "impact_line": "National retailer with a meaningful local presence — local jobs and sales tax stay in Petaluma.",
+      "address": "2000 Lakeville Hwy, Petaluma, CA 94954",
+      "zip": "94954",
+      "phone": "(707) 775-4289",
+      "website": "https://www.tractorsupply.com/tsc/store_Petaluma-CA-94954_1588",
+      "maps_url": "https://maps.app.goo.gl/uEN6RuZv35458s2b8"
+    },
+    {
+      "id": "B012",
+      "name": "Target",
+      "tier": 3,
+      "display_label": "Local Impact",
+      "impact_line": "A local Target still means local jobs and sales tax — a better community choice than Amazon.",
+      "address": "401 Kenilworth Dr, Petaluma, CA 94952",
+      "zip": "94952",
+      "phone": "(707) 775-6322",
+      "website": "https://www.target.com/sl/petaluma/2601",
+      "maps_url": "https://maps.app.goo.gl/77Uqf1F2Kq7efQZq8"
+    },
+    {
+      "id": "B013",
+      "name": "Kohl's",
+      "tier": 3,
+      "display_label": "Local Impact",
+      "impact_line": "Local employment and sales tax stay in Petaluma — a stronger community choice than ordering online.",
+      "address": "1363 N McDowell Blvd, Petaluma, CA 94954",
+      "zip": "94954",
+      "phone": "(707) 782-9849",
+      "website": "https://www.kohls.com/stores/ca/petaluma-760.shtml",
+      "maps_url": "https://maps.app.goo.gl/EbhYsQve7exTo6kY8"
+    },
+    {
+      "id": "B014",
+      "name": "Staples",
+      "tier": 3,
+      "display_label": "Local Impact",
+      "impact_line": "Local store means local paychecks and tax revenue — your purchase does more here than on Amazon.",
+      "address": "207 S McDowell Blvd, Petaluma, CA 94954",
+      "zip": "94954",
+      "phone": "(707) 762-3131",
+      "website": "https://stores.staples.com/ca/petaluma/207-south-mcdowell-blvd",
+      "maps_url": "https://maps.app.goo.gl/64qkCEpx3YTwww7e8"
+    },
+    {
+      "id": "B015",
+      "name": "HomeGoods",
+      "tier": 3,
+      "display_label": "Local Impact",
+      "impact_line": "Shopping here keeps sales tax and wages in Petaluma — more community impact than a delivery box.",
+      "address": "401 Kenilworth Dr, Petaluma, CA 94952",
+      "zip": "94952",
+      "phone": "(707) 765-3352",
+      "website": "https://www.homegoods.com/store-details/Petaluma-CA-94952/598",
+      "maps_url": "https://maps.app.goo.gl/KP6FBsRmN6XTXdor7"
+    },
+    {
+      "id": "B016",
+      "name": "Dollar Tree",
+      "tier": 3,
+      "display_label": "Local Impact",
+      "impact_line": "Local jobs, local tax dollars — even a small purchase here does more for Petaluma than Amazon.",
+      "address": "40 E Washington St, Petaluma, CA 94952",
+      "zip": "94952",
+      "phone": "(707) 241-4025",
+      "website": "https://locations.dollartree.com/ca/petaluma/40-e-washington-street",
+      "maps_url": "https://maps.app.goo.gl/3oJ9oPjE4vw51EFE8"
+    },
+    {
+      "id": "B017",
+      "name": "Office Depot",
+      "tier": 3,
+      "display_label": "Local Impact",
+      "impact_line": "Local presence means local employment — a better community choice than clicking away.",
+      "address": "321 Rohnert Park Expy, Rohnert Park, CA 94928",
+      "zip": "94952",
+      "phone": "(707) 584-5511",
+      "website": "https://www.officedepot.com/storelocator/ca/rohnert-park/office-depot-2256",
+      "maps_url": "https://maps.app.goo.gl/hg76yaEwmijT5XHK6"
+    },
+    {
+      "id": "B018",
+      "name": "Refill Mercantile",
+      "tier": 1,
+      "display_label": "Locally Rooted",
+      "highlight": "Not on Amazon",
+      "impact_line": "Locally owned in the Great Petaluma Mill — bring your own containers and refill everyday essentials, waste-free.",
+      "address": "6 Petaluma Blvd N Ste A4, Petaluma, CA 94952",
+      "zip": "94952",
+      "phone": "(707) 859-9270",
+      "website": "https://www.refillmercantile.com/",
+      "maps_url": "https://maps.app.goo.gl/4DWCAQkNvSFG8pQb6"
+    }
+  ],
+  "products": [
+    {
+      "id": "P001",
+      "category": "Kitchen & Home",
+      "name": "Air Purifier",
+      "keywords": [
+        "air purifier",
+        "air filter",
+        "air cleaner",
+        "hepa filter",
+        "hepa purifier",
+        "room purifier",
+        "air purification",
+        "allergen filter",
+        "smoke filter",
+        "dust filter",
+        "purifier",
+        "air quality"
+      ],
+      "vendors": [
+        {
+          "business_id": "B001",
+          "name": "Friedman's Home Improvement",
+          "tier": 1,
+          "display_label": "Locally Rooted",
+          "impact_line": "Family-owned in Petaluma since 1946 — three generations of Friedmans and nearly 500 local jobs.",
+          "address": "429 N McDowell Blvd, Petaluma, CA 94954",
+          "zip": "94954",
+          "phone": "(707) 774-8400",
+          "website": "https://www.friedmanshome.com/",
+          "maps_url": "https://maps.app.goo.gl/rXySy5byz9WtuKvPA"
+        },
+        {
+          "business_id": "B006",
+          "name": "Costco",
+          "tier": 2,
+          "display_label": "Community Present",
+          "impact_line": "Costco pays above-market wages and provides full benefits — your purchase supports better jobs locally.",
+          "address": "5901 Redwood Dr, Rohnert Park, CA 94928",
+          "zip": "94928",
+          "phone": "(707) 540-9113",
+          "website": "https://www.costco.com/w/-/CA/rohnert-park/659",
+          "maps_url": "https://maps.app.goo.gl/oCKShZcoKoR1We1g6"
+        }
+      ]
+    },
+    {
+      "id": "P002",
+      "category": "Kitchen & Home",
+      "name": "Knife Set",
+      "keywords": [
+        "knife set",
+        "kitchen knives",
+        "knives",
+        "chef knife",
+        "cutlery",
+        "kitchen knife set",
+        "cooking knives",
+        "knife block",
+        "chef's knife",
+        "paring knife",
+        "knife"
+      ],
+      "vendors": [
+        {
+          "business_id": "B003",
+          "name": "Tomasini's Rex Ace Hardware & Country Store",
+          "tier": 1,
+          "display_label": "Locally Rooted",
+          "impact_line": "Locally owned since 1907 — one of Petaluma's oldest businesses, still run by neighbors who know you by name.",
+          "address": "313 B St, Petaluma, CA 94952",
+          "zip": "94952",
+          "phone": "(707) 762-7355",
+          "website": "https://www.acehardware.com/store-details/00918",
+          "maps_url": "https://maps.app.goo.gl/ZvSjoWbWDFKco9VA7"
+        },
+        {
+          "business_id": "B004",
+          "name": "i Leoni",
+          "tier": 1,
+          "display_label": "Locally Rooted",
+          "impact_line": "Family-owned in downtown Petaluma since 2004 — three generations of Leonis bringing quality kitchen and home goods to the community.",
+          "address": "120 Kentucky St, Petaluma, CA 94952",
+          "zip": "94952",
+          "phone": "(707) 762-9611",
+          "website": "https://ileoni.com/",
+          "maps_url": "https://maps.app.goo.gl/m1GGNztTcDDSNa4S7"
+        },
+        {
+          "business_id": "B006",
+          "name": "Costco",
+          "tier": 2,
+          "display_label": "Community Present",
+          "impact_line": "Costco pays above-market wages and provides full benefits — your purchase supports better jobs locally.",
+          "address": "5901 Redwood Dr, Rohnert Park, CA 94928",
+          "zip": "94928",
+          "phone": "(707) 540-9113",
+          "website": "https://www.costco.com/w/-/CA/rohnert-park/659",
+          "maps_url": "https://maps.app.goo.gl/oCKShZcoKoR1We1g6"
+        }
+      ]
+    },
+    {
+      "id": "P003",
+      "category": "Kitchen & Home",
+      "name": "Hanging Organizer Set",
+      "keywords": [
+        "hanging organizer",
+        "closet organizer",
+        "storage organizer",
+        "hanging storage",
+        "closet storage",
+        "organizer set",
+        "hanging shelves",
+        "closet shelves",
+        "storage solution",
+        "organizer",
+        "hanging closet organizer"
+      ],
+      "vendors": [
+        {
+          "business_id": "B006",
+          "name": "Costco",
+          "tier": 2,
+          "display_label": "Community Present",
+          "impact_line": "Costco pays above-market wages and provides full benefits — your purchase supports better jobs locally.",
+          "address": "5901 Redwood Dr, Rohnert Park, CA 94928",
+          "zip": "94928",
+          "phone": "(707) 540-9113",
+          "website": "https://www.costco.com/w/-/CA/rohnert-park/659",
+          "maps_url": "https://maps.app.goo.gl/oCKShZcoKoR1We1g6"
+        },
+        {
+          "business_id": "B016",
+          "name": "Dollar Tree",
+          "tier": 3,
+          "display_label": "Local Impact",
+          "impact_line": "Local jobs, local tax dollars — even a small purchase here does more for Petaluma than Amazon.",
+          "address": "40 E Washington St, Petaluma, CA 94952",
+          "zip": "94952",
+          "phone": "(707) 241-4025",
+          "website": "https://locations.dollartree.com/ca/petaluma/40-e-washington-street",
+          "maps_url": "https://maps.app.goo.gl/3oJ9oPjE4vw51EFE8"
+        },
+        {
+          "business_id": "B015",
+          "name": "HomeGoods",
+          "tier": 3,
+          "display_label": "Local Impact",
+          "impact_line": "Shopping here keeps sales tax and wages in Petaluma — more community impact than a delivery box.",
+          "address": "401 Kenilworth Dr, Petaluma, CA 94952",
+          "zip": "94952",
+          "phone": "(707) 765-3352",
+          "website": "https://www.homegoods.com/store-details/Petaluma-CA-94952/598",
+          "maps_url": "https://maps.app.goo.gl/KP6FBsRmN6XTXdor7"
+        }
+      ]
+    },
+    {
+      "id": "P004",
+      "category": "Electronics",
+      "name": "Portable Bluetooth Speaker",
+      "keywords": [
+        "bluetooth speaker",
+        "portable speaker",
+        "wireless speaker",
+        "portable bluetooth speaker",
+        "speaker",
+        "bt speaker",
+        "outdoor speaker",
+        "waterproof speaker",
+        "rechargeable speaker",
+        "mini speaker"
+      ],
+      "vendors": [
+        {
+          "business_id": "B003",
+          "name": "Tomasini's Rex Ace Hardware & Country Store",
+          "tier": 1,
+          "display_label": "Locally Rooted",
+          "impact_line": "Locally owned since 1907 — one of Petaluma's oldest businesses, still run by neighbors who know you by name.",
+          "address": "313 B St, Petaluma, CA 94952",
+          "zip": "94952",
+          "phone": "(707) 762-7355",
+          "website": "https://www.acehardware.com/store-details/00918",
+          "maps_url": "https://maps.app.goo.gl/ZvSjoWbWDFKco9VA7"
+        },
+        {
+          "business_id": "B006",
+          "name": "Costco",
+          "tier": 2,
+          "display_label": "Community Present",
+          "impact_line": "Costco pays above-market wages and provides full benefits — your purchase supports better jobs locally.",
+          "address": "5901 Redwood Dr, Rohnert Park, CA 94928",
+          "zip": "94928",
+          "phone": "(707) 540-9113",
+          "website": "https://www.costco.com/w/-/CA/rohnert-park/659",
+          "maps_url": "https://maps.app.goo.gl/oCKShZcoKoR1We1g6"
+        },
+        {
+          "business_id": "B009",
+          "name": "Big 5 Sporting Goods",
+          "tier": 2,
+          "display_label": "Community Present",
+          "impact_line": "Regional chain with a local footprint — keeps more dollars in Petaluma than buying online.",
+          "address": "105 N McDowell Blvd, Petaluma, CA 94954",
+          "zip": "94954",
+          "phone": "(707) 765-6811",
+          "website": "https://www.big5sportinggoods.com/store/index.jsp",
+          "maps_url": "https://maps.app.goo.gl/zFZwHbDdwypy7E4m7"
+        }
+      ]
+    },
+    {
+      "id": "P005",
+      "category": "Electronics",
+      "name": "Bluetooth Headphones",
+      "keywords": [
+        "bluetooth headphones",
+        "wireless headphones",
+        "headphones",
+        "earbuds",
+        "wireless earbuds",
+        "bluetooth earbuds",
+        "headset",
+        "over ear headphones",
+        "noise cancelling headphones",
+        "earphones",
+        "bt headphones"
+      ],
+      "vendors": [
+        {
+          "business_id": "B006",
+          "name": "Costco",
+          "tier": 2,
+          "display_label": "Community Present",
+          "impact_line": "Costco pays above-market wages and provides full benefits — your purchase supports better jobs locally.",
+          "address": "5901 Redwood Dr, Rohnert Park, CA 94928",
+          "zip": "94928",
+          "phone": "(707) 540-9113",
+          "website": "https://www.costco.com/w/-/CA/rohnert-park/659",
+          "maps_url": "https://maps.app.goo.gl/oCKShZcoKoR1We1g6"
+        },
+        {
+          "business_id": "B013",
+          "name": "Kohl's",
+          "tier": 3,
+          "display_label": "Local Impact",
+          "impact_line": "Local employment and sales tax stay in Petaluma — a stronger community choice than ordering online.",
+          "address": "1363 N McDowell Blvd, Petaluma, CA 94954",
+          "zip": "94954",
+          "phone": "(707) 782-9849",
+          "website": "https://www.kohls.com/stores/ca/petaluma-760.shtml",
+          "maps_url": "https://maps.app.goo.gl/EbhYsQve7exTo6kY8"
+        },
+        {
+          "business_id": "B014",
+          "name": "Staples",
+          "tier": 3,
+          "display_label": "Local Impact",
+          "impact_line": "Local store means local paychecks and tax revenue — your purchase does more here than on Amazon.",
+          "address": "207 S McDowell Blvd, Petaluma, CA 94954",
+          "zip": "94954",
+          "phone": "(707) 762-3131",
+          "website": "https://stores.staples.com/ca/petaluma/207-south-mcdowell-blvd",
+          "maps_url": "https://maps.app.goo.gl/64qkCEpx3YTwww7e8"
+        }
+      ]
+    },
+    {
+      "id": "P006",
+      "category": "Electronics",
+      "name": "Portable Monitor for Laptop",
+      "keywords": [
+        "portable monitor",
+        "laptop monitor",
+        "external monitor",
+        "second screen",
+        "portable screen",
+        "usb monitor",
+        "travel monitor",
+        "laptop screen",
+        "portable display",
+        "monitor",
+        "external display"
+      ],
+      "vendors": [
+        {
+          "business_id": "B014",
+          "name": "Staples",
+          "tier": 3,
+          "display_label": "Local Impact",
+          "impact_line": "Local store means local paychecks and tax revenue — your purchase does more here than on Amazon.",
+          "address": "207 S McDowell Blvd, Petaluma, CA 94954",
+          "zip": "94954",
+          "phone": "(707) 762-3131",
+          "website": "https://stores.staples.com/ca/petaluma/207-south-mcdowell-blvd",
+          "maps_url": "https://maps.app.goo.gl/64qkCEpx3YTwww7e8"
+        },
+        {
+          "business_id": "B012",
+          "name": "Target",
+          "tier": 3,
+          "display_label": "Local Impact",
+          "impact_line": "A local Target still means local jobs and sales tax — a better community choice than Amazon.",
+          "address": "401 Kenilworth Dr, Petaluma, CA 94952",
+          "zip": "94952",
+          "phone": "(707) 775-6322",
+          "website": "https://www.target.com/sl/petaluma/2601",
+          "maps_url": "https://maps.app.goo.gl/77Uqf1F2Kq7efQZq8"
+        },
+        {
+          "business_id": "B017",
+          "name": "Office Depot",
+          "tier": 3,
+          "display_label": "Local Impact",
+          "impact_line": "Local presence means local employment — a better community choice than clicking away.",
+          "address": "321 Rohnert Park Expy, Rohnert Park, CA 94928",
+          "zip": "94952",
+          "phone": "(707) 584-5511",
+          "website": "https://www.officedepot.com/storelocator/ca/rohnert-park/office-depot-2256",
+          "maps_url": "https://maps.app.goo.gl/hg76yaEwmijT5XHK6"
+        }
+      ]
+    },
+    {
+      "id": "P007",
+      "category": "Pet Supplies",
+      "name": "Dog Hip & Joint Supplement",
+      "keywords": [
+        "dog joint supplement",
+        "hip and joint",
+        "dog hip supplement",
+        "joint supplement dog",
+        "dog glucosamine",
+        "dog mobility",
+        "dog arthritis supplement",
+        "dog joint health",
+        "dog supplement",
+        "pet joint supplement",
+        "dog vitamins"
+      ],
+      "vendors": [
+        {
+          "business_id": "B002",
+          "name": "Rivertown Feed & Pet Country Store",
+          "tier": 1,
+          "display_label": "Locally Rooted",
+          "impact_line": "A Lewis family business rooted in Petaluma's agricultural history — locally owned and actively supporting 4-H, FFA, and community rescues.",
+          "address": "200 1st St, Petaluma, CA 94952",
+          "zip": "94952",
+          "phone": "(707) 762-4505",
+          "website": "https://rivertownfeed.com/",
+          "maps_url": "https://maps.app.goo.gl/wNA1m4auJ9vC3Ru18"
+        },
+        {
+          "business_id": "B011",
+          "name": "Tractor Supply",
+          "tier": 2,
+          "display_label": "Community Present",
+          "impact_line": "National retailer with a meaningful local presence — local jobs and sales tax stay in Petaluma.",
+          "address": "2000 Lakeville Hwy, Petaluma, CA 94954",
+          "zip": "94954",
+          "phone": "(707) 775-4289",
+          "website": "https://www.tractorsupply.com/tsc/store_Petaluma-CA-94954_1588",
+          "maps_url": "https://maps.app.goo.gl/uEN6RuZv35458s2b8"
+        },
+        {
+          "business_id": "B010",
+          "name": "Wilco Farm Store",
+          "tier": 2,
+          "display_label": "Community Present",
+          "impact_line": "Regional farm co-op with strong community values — a better choice for rural and pet supply needs.",
+          "address": "1390 N McDowell Blvd, Petaluma, CA 94954",
+          "zip": "94954",
+          "phone": "(707) 238-5566",
+          "website": "https://www.farmstore.com/",
+          "maps_url": "https://maps.app.goo.gl/pLst2t4JECs1Nswi9"
+        }
+      ]
+    },
+    {
+      "id": "P008",
+      "category": "Pet Supplies",
+      "name": "Pet Grooming Vacuum with Clipper & Nail Grinder",
+      "keywords": [
+        "pet grooming vacuum",
+        "dog grooming kit",
+        "pet clipper",
+        "dog clippers",
+        "pet nail grinder",
+        "dog grooming vacuum",
+        "grooming kit",
+        "pet grooming kit",
+        "dog hair vacuum",
+        "pet hair clipper",
+        "dog nail grinder",
+        "grooming vacuum"
+      ],
+      "vendors": [
+        {
+          "business_id": "B002",
+          "name": "Rivertown Feed & Pet Country Store",
+          "tier": 1,
+          "display_label": "Locally Rooted",
+          "impact_line": "A Lewis family business rooted in Petaluma's agricultural history — locally owned and actively supporting 4-H, FFA, and community rescues.",
+          "address": "200 1st St, Petaluma, CA 94952",
+          "zip": "94952",
+          "phone": "(707) 762-4505",
+          "website": "https://rivertownfeed.com/",
+          "maps_url": "https://maps.app.goo.gl/wNA1m4auJ9vC3Ru18"
+        },
+        {
+          "business_id": "B011",
+          "name": "Tractor Supply",
+          "tier": 2,
+          "display_label": "Community Present",
+          "impact_line": "National retailer with a meaningful local presence — local jobs and sales tax stay in Petaluma.",
+          "address": "2000 Lakeville Hwy, Petaluma, CA 94954",
+          "zip": "94954",
+          "phone": "(707) 775-4289",
+          "website": "https://www.tractorsupply.com/tsc/store_Petaluma-CA-94954_1588",
+          "maps_url": "https://maps.app.goo.gl/uEN6RuZv35458s2b8"
+        },
+        {
+          "business_id": "B012",
+          "name": "Target",
+          "tier": 3,
+          "display_label": "Local Impact",
+          "impact_line": "A local Target still means local jobs and sales tax — a better community choice than Amazon.",
+          "address": "401 Kenilworth Dr, Petaluma, CA 94952",
+          "zip": "94952",
+          "phone": "(707) 775-6322",
+          "website": "https://www.target.com/sl/petaluma/2601",
+          "maps_url": "https://maps.app.goo.gl/77Uqf1F2Kq7efQZq8"
+        }
+      ]
+    },
+    {
+      "id": "P009",
+      "category": "Pet Supplies",
+      "name": "Small Dog Collar",
+      "keywords": [
+        "dog collar",
+        "small dog collar",
+        "puppy collar",
+        "pet collar",
+        "small collar",
+        "adjustable dog collar",
+        "dog collar small",
+        "collar"
+      ],
+      "vendors": [
+        {
+          "business_id": "B002",
+          "name": "Rivertown Feed & Pet Country Store",
+          "tier": 1,
+          "display_label": "Locally Rooted",
+          "impact_line": "A Lewis family business rooted in Petaluma's agricultural history — locally owned and actively supporting 4-H, FFA, and community rescues.",
+          "address": "200 1st St, Petaluma, CA 94952",
+          "zip": "94952",
+          "phone": "(707) 762-4505",
+          "website": "https://rivertownfeed.com/",
+          "maps_url": "https://maps.app.goo.gl/wNA1m4auJ9vC3Ru18"
+        },
+        {
+          "business_id": "B005",
+          "name": "Our Best Friends",
+          "tier": 1,
+          "display_label": "Locally Rooted",
+          "impact_line": "Serving PETaluma's pets and their people since 1998 — locally owned and still the community's favorite pet destination.",
+          "address": "2200 Petaluma Blvd N Ste 805, Petaluma, CA 94954",
+          "zip": "94952",
+          "phone": "(707) 763-6560",
+          "website": "http://obfpetaluma.com/index.html",
+          "maps_url": "https://maps.app.goo.gl/PEK165TVNCXgpPas6"
+        },
+        {
+          "business_id": "B010",
+          "name": "Wilco Farm Store",
+          "tier": 2,
+          "display_label": "Community Present",
+          "impact_line": "Regional farm co-op with strong community values — a better choice for rural and pet supply needs.",
+          "address": "1390 N McDowell Blvd, Petaluma, CA 94954",
+          "zip": "94954",
+          "phone": "(707) 238-5566",
+          "website": "https://www.farmstore.com/",
+          "maps_url": "https://maps.app.goo.gl/pLst2t4JECs1Nswi9"
+        }
+      ]
+    },
+    {
+      "id": "P010",
+      "category": "Sports & Outdoors",
+      "name": "Sports Water Bottle",
+      "keywords": [
+        "water bottle",
+        "sports water bottle",
+        "reusable water bottle",
+        "sports bottle",
+        "insulated water bottle",
+        "gym water bottle",
+        "drink bottle",
+        "hydration bottle",
+        "stainless steel water bottle",
+        "bottle"
+      ],
+      "vendors": [
+        {
+          "business_id": "B003",
+          "name": "Tomasini's Rex Ace Hardware & Country Store",
+          "tier": 1,
+          "display_label": "Locally Rooted",
+          "impact_line": "Locally owned since 1907 — one of Petaluma's oldest businesses, still run by neighbors who know you by name.",
+          "address": "313 B St, Petaluma, CA 94952",
+          "zip": "94952",
+          "phone": "(707) 762-7355",
+          "website": "https://www.acehardware.com/store-details/00918",
+          "maps_url": "https://maps.app.goo.gl/ZvSjoWbWDFKco9VA7"
+        },
+        {
+          "business_id": "B008",
+          "name": "Dick's Sporting Goods",
+          "tier": 2,
+          "display_label": "Community Present",
+          "impact_line": "Local store, local jobs — your purchase generates Petaluma sales tax and employment.",
+          "address": "401 Kenilworth Dr Suite 1030, Petaluma, CA 94952",
+          "zip": "94952",
+          "phone": "(707) 763-3750",
+          "website": "https://stores.dickssportinggoods.com/ca/petaluma/1048/",
+          "maps_url": "https://maps.app.goo.gl/dVjWubvPEGqWLE7v7"
+        },
+        {
+          "business_id": "B009",
+          "name": "Big 5 Sporting Goods",
+          "tier": 2,
+          "display_label": "Community Present",
+          "impact_line": "Regional chain with a local footprint — keeps more dollars in Petaluma than buying online.",
+          "address": "105 N McDowell Blvd, Petaluma, CA 94954",
+          "zip": "94954",
+          "phone": "(707) 765-6811",
+          "website": "https://www.big5sportinggoods.com/store/index.jsp",
+          "maps_url": "https://maps.app.goo.gl/zFZwHbDdwypy7E4m7"
+        }
+      ]
+    },
+    {
+      "id": "P011",
+      "category": "Sports & Outdoors",
+      "name": "Treadmill",
+      "keywords": [
+        "treadmill",
+        "running machine",
+        "exercise treadmill",
+        "home treadmill",
+        "folding treadmill",
+        "cardio machine",
+        "walking machine",
+        "fitness treadmill"
+      ],
+      "vendors": [
+        {
+          "business_id": "B008",
+          "name": "Dick's Sporting Goods",
+          "tier": 2,
+          "display_label": "Community Present",
+          "impact_line": "Local store, local jobs — your purchase generates Petaluma sales tax and employment.",
+          "address": "401 Kenilworth Dr Suite 1030, Petaluma, CA 94952",
+          "zip": "94952",
+          "phone": "(707) 763-3750",
+          "website": "https://stores.dickssportinggoods.com/ca/petaluma/1048/",
+          "maps_url": "https://maps.app.goo.gl/dVjWubvPEGqWLE7v7"
+        },
+        {
+          "business_id": "B009",
+          "name": "Big 5 Sporting Goods",
+          "tier": 2,
+          "display_label": "Community Present",
+          "impact_line": "Regional chain with a local footprint — keeps more dollars in Petaluma than buying online.",
+          "address": "105 N McDowell Blvd, Petaluma, CA 94954",
+          "zip": "94954",
+          "phone": "(707) 765-6811",
+          "website": "https://www.big5sportinggoods.com/store/index.jsp",
+          "maps_url": "https://maps.app.goo.gl/zFZwHbDdwypy7E4m7"
+        },
+        {
+          "business_id": "B006",
+          "name": "Costco",
+          "tier": 2,
+          "display_label": "Community Present",
+          "impact_line": "Costco pays above-market wages and provides full benefits — your purchase supports better jobs locally.",
+          "address": "5901 Redwood Dr, Rohnert Park, CA 94928",
+          "zip": "94928",
+          "phone": "(707) 540-9113",
+          "website": "https://www.costco.com/w/-/CA/rohnert-park/659",
+          "maps_url": "https://maps.app.goo.gl/oCKShZcoKoR1We1g6"
+        }
+      ]
+    },
+    {
+      "id": "P012",
+      "category": "Sports & Outdoors",
+      "name": "Sleeping Pad",
+      "keywords": [
+        "sleeping pad",
+        "camping pad",
+        "sleeping mat",
+        "camping mat",
+        "inflatable pad",
+        "backpacking pad",
+        "camp mattress",
+        "foam pad",
+        "ground pad",
+        "sleep pad",
+        "camping mattress"
+      ],
+      "vendors": [
+        {
+          "business_id": "B006",
+          "name": "Costco",
+          "tier": 2,
+          "display_label": "Community Present",
+          "impact_line": "Costco pays above-market wages and provides full benefits — your purchase supports better jobs locally.",
+          "address": "5901 Redwood Dr, Rohnert Park, CA 94928",
+          "zip": "94928",
+          "phone": "(707) 540-9113",
+          "website": "https://www.costco.com/w/-/CA/rohnert-park/659",
+          "maps_url": "https://maps.app.goo.gl/oCKShZcoKoR1We1g6"
+        },
+        {
+          "business_id": "B007",
+          "name": "REI",
+          "tier": 2,
+          "display_label": "Community Present",
+          "impact_line": "REI is a consumer co-op — profits stay within the membership community, not with outside shareholders.",
+          "address": "2715 Santa Rosa Ave, Santa Rosa, CA 95407",
+          "zip": "95407",
+          "phone": "(707) 540-9025",
+          "website": "https://www.rei.com/stores/santa-rosa",
+          "maps_url": "https://maps.app.goo.gl/SPha3qvLVXaZCgoM6"
+        },
+        {
+          "business_id": "B008",
+          "name": "Dick's Sporting Goods",
+          "tier": 2,
+          "display_label": "Community Present",
+          "impact_line": "Local store, local jobs — your purchase generates Petaluma sales tax and employment.",
+          "address": "401 Kenilworth Dr Suite 1030, Petaluma, CA 94952",
+          "zip": "94952",
+          "phone": "(707) 763-3750",
+          "website": "https://stores.dickssportinggoods.com/ca/petaluma/1048/",
+          "maps_url": "https://maps.app.goo.gl/dVjWubvPEGqWLE7v7"
+        }
+      ]
+    },
+    {
+      "id": "P013",
+      "category": "Household & Personal Care",
+      "name": "Laundry Detergent",
+      "keywords": [
+        "laundry detergent",
+        "laundry soap",
+        "detergent",
+        "laundry",
+        "washing detergent",
+        "clothes detergent",
+        "laundry pods",
+        "liquid detergent"
+      ],
+      "vendors": [
+        {
+          "business_id": "B018",
+          "name": "Refill Mercantile",
+          "tier": 1,
+          "display_label": "Locally Rooted",
+          "impact_line": "Locally owned in the Great Petaluma Mill — bring your own containers and refill everyday essentials, waste-free.",
+          "address": "6 Petaluma Blvd N Ste A4, Petaluma, CA 94952",
+          "zip": "94952",
+          "phone": "(707) 859-9270",
+          "website": "https://www.refillmercantile.com/",
+          "maps_url": "https://maps.app.goo.gl/4DWCAQkNvSFG8pQb6",
+          "highlight": "Not on Amazon"
+        },
+        {
+          "business_id": "B006",
+          "name": "Costco",
+          "tier": 2,
+          "display_label": "Community Present",
+          "impact_line": "Costco pays above-market wages and provides full benefits — your purchase supports better jobs locally.",
+          "address": "5901 Redwood Dr, Rohnert Park, CA 94928",
+          "zip": "94928",
+          "phone": "(707) 540-9113",
+          "website": "https://www.costco.com/w/-/CA/rohnert-park/659",
+          "maps_url": "https://maps.app.goo.gl/oCKShZcoKoR1We1g6"
+        },
+        {
+          "business_id": "B012",
+          "name": "Target",
+          "tier": 3,
+          "display_label": "Local Impact",
+          "impact_line": "A local Target still means local jobs and sales tax — a better community choice than Amazon.",
+          "address": "401 Kenilworth Dr, Petaluma, CA 94952",
+          "zip": "94952",
+          "phone": "(707) 775-6322",
+          "website": "https://www.target.com/sl/petaluma/2601",
+          "maps_url": "https://maps.app.goo.gl/77Uqf1F2Kq7efQZq8"
+        }
+      ]
+    },
+    {
+      "id": "P014",
+      "category": "Household & Personal Care",
+      "name": "Dish Soap",
+      "keywords": [
+        "dish soap",
+        "dishwashing liquid",
+        "dish detergent",
+        "dish washing",
+        "dishsoap",
+        "dish",
+        "washing up liquid"
+      ],
+      "vendors": [
+        {
+          "business_id": "B018",
+          "name": "Refill Mercantile",
+          "tier": 1,
+          "display_label": "Locally Rooted",
+          "impact_line": "Locally owned in the Great Petaluma Mill — bring your own containers and refill everyday essentials, waste-free.",
+          "address": "6 Petaluma Blvd N Ste A4, Petaluma, CA 94952",
+          "zip": "94952",
+          "phone": "(707) 859-9270",
+          "website": "https://www.refillmercantile.com/",
+          "maps_url": "https://maps.app.goo.gl/4DWCAQkNvSFG8pQb6",
+          "highlight": "Not on Amazon"
+        },
+        {
+          "business_id": "B006",
+          "name": "Costco",
+          "tier": 2,
+          "display_label": "Community Present",
+          "impact_line": "Costco pays above-market wages and provides full benefits — your purchase supports better jobs locally.",
+          "address": "5901 Redwood Dr, Rohnert Park, CA 94928",
+          "zip": "94928",
+          "phone": "(707) 540-9113",
+          "website": "https://www.costco.com/w/-/CA/rohnert-park/659",
+          "maps_url": "https://maps.app.goo.gl/oCKShZcoKoR1We1g6"
+        },
+        {
+          "business_id": "B012",
+          "name": "Target",
+          "tier": 3,
+          "display_label": "Local Impact",
+          "impact_line": "A local Target still means local jobs and sales tax — a better community choice than Amazon.",
+          "address": "401 Kenilworth Dr, Petaluma, CA 94952",
+          "zip": "94952",
+          "phone": "(707) 775-6322",
+          "website": "https://www.target.com/sl/petaluma/2601",
+          "maps_url": "https://maps.app.goo.gl/77Uqf1F2Kq7efQZq8"
+        }
+      ]
+    },
+    {
+      "id": "P015",
+      "category": "Household & Personal Care",
+      "name": "Shower Gel",
+      "keywords": [
+        "shower gel",
+        "body wash",
+        "shower soap",
+        "bodywash",
+        "body soap",
+        "shower",
+        "wash"
+      ],
+      "vendors": [
+        {
+          "business_id": "B018",
+          "name": "Refill Mercantile",
+          "tier": 1,
+          "display_label": "Locally Rooted",
+          "impact_line": "Locally owned in the Great Petaluma Mill — bring your own containers and refill everyday essentials, waste-free.",
+          "address": "6 Petaluma Blvd N Ste A4, Petaluma, CA 94952",
+          "zip": "94952",
+          "phone": "(707) 859-9270",
+          "website": "https://www.refillmercantile.com/",
+          "maps_url": "https://maps.app.goo.gl/4DWCAQkNvSFG8pQb6",
+          "highlight": "Not on Amazon"
+        },
+        {
+          "business_id": "B006",
+          "name": "Costco",
+          "tier": 2,
+          "display_label": "Community Present",
+          "impact_line": "Costco pays above-market wages and provides full benefits — your purchase supports better jobs locally.",
+          "address": "5901 Redwood Dr, Rohnert Park, CA 94928",
+          "zip": "94928",
+          "phone": "(707) 540-9113",
+          "website": "https://www.costco.com/w/-/CA/rohnert-park/659",
+          "maps_url": "https://maps.app.goo.gl/oCKShZcoKoR1We1g6"
+        },
+        {
+          "business_id": "B012",
+          "name": "Target",
+          "tier": 3,
+          "display_label": "Local Impact",
+          "impact_line": "A local Target still means local jobs and sales tax — a better community choice than Amazon.",
+          "address": "401 Kenilworth Dr, Petaluma, CA 94952",
+          "zip": "94952",
+          "phone": "(707) 775-6322",
+          "website": "https://www.target.com/sl/petaluma/2601",
+          "maps_url": "https://maps.app.goo.gl/77Uqf1F2Kq7efQZq8"
+        }
+      ]
+    },
+    {
+      "id": "P016",
+      "category": "Household & Personal Care",
+      "name": "Shampoo",
+      "keywords": [
+        "shampoo",
+        "hair wash",
+        "shampoo bar",
+        "hair care",
+        "shampoo and conditioner",
+        "hair soap"
+      ],
+      "vendors": [
+        {
+          "business_id": "B018",
+          "name": "Refill Mercantile",
+          "tier": 1,
+          "display_label": "Locally Rooted",
+          "impact_line": "Locally owned in the Great Petaluma Mill — bring your own containers and refill everyday essentials, waste-free.",
+          "address": "6 Petaluma Blvd N Ste A4, Petaluma, CA 94952",
+          "zip": "94952",
+          "phone": "(707) 859-9270",
+          "website": "https://www.refillmercantile.com/",
+          "maps_url": "https://maps.app.goo.gl/4DWCAQkNvSFG8pQb6",
+          "highlight": "Not on Amazon"
+        },
+        {
+          "business_id": "B006",
+          "name": "Costco",
+          "tier": 2,
+          "display_label": "Community Present",
+          "impact_line": "Costco pays above-market wages and provides full benefits — your purchase supports better jobs locally.",
+          "address": "5901 Redwood Dr, Rohnert Park, CA 94928",
+          "zip": "94928",
+          "phone": "(707) 540-9113",
+          "website": "https://www.costco.com/w/-/CA/rohnert-park/659",
+          "maps_url": "https://maps.app.goo.gl/oCKShZcoKoR1We1g6"
+        },
+        {
+          "business_id": "B013",
+          "name": "Kohl's",
+          "tier": 3,
+          "display_label": "Local Impact",
+          "impact_line": "Local employment and sales tax stay in Petaluma — a stronger community choice than ordering online.",
+          "address": "1363 N McDowell Blvd, Petaluma, CA 94954",
+          "zip": "94954",
+          "phone": "(707) 782-9849",
+          "website": "https://www.kohls.com/stores/ca/petaluma-760.shtml",
+          "maps_url": "https://maps.app.goo.gl/EbhYsQve7exTo6kY8"
+        }
+      ]
+    }
+  ]
+}

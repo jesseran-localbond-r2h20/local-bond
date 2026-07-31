@@ -1,0 +1,10 @@
+{
+  "name": "local-bond",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Local Bond — shop where you belong. Static site + AI search fallback.",
+  "scripts": {
+    "preview": "npx serve public",
+    "sync": "node scripts/sync-sheet.mjs"
+  }
+}

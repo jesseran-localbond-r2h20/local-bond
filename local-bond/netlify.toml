@@ -1,0 +1,7 @@
+# Netlify configuration for Local Bond.
+# Tells the host: serve everything in public/, and treat netlify/functions/ as
+# serverless functions. No build step needed — the site is plain HTML/CSS/JS.
+
+[build]
+  publish = "public"
+  functions = "netlify/functions"
