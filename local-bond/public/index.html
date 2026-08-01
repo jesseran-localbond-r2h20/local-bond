@@ -104,6 +104,11 @@
   .toggle::after{content:"";position:absolute;top:2px;left:2px;width:18px;height:18px;background:#fff;border-radius:50%;transition:transform .15s}
   .toggle.on::after{transform:translateX(16px)}
   .why{font-size:11.5px;color:var(--ink-soft);margin:0 2px 12px;font-family:ui-monospace,SFMono-Regular,Menlo,monospace;background:var(--line-soft);border:1px solid var(--line);border-radius:7px;padding:8px 10px}
+  .site-foot{padding:22px 22px 30px;text-align:center;border-top:1px solid var(--line)}
+  .foot-nav{display:flex;justify-content:center;gap:10px;margin-bottom:12px}
+  .foot-nav a{font-family:var(--display);font-weight:700;font-size:14px;color:var(--coral);text-decoration:none;padding:9px 18px;border-radius:10px;border:1.5px solid var(--line);transition:background .12s,border-color .12s}
+  .foot-nav a:hover{background:var(--line-soft);border-color:var(--coral)}
+  .foot-tag{font-size:12px;color:var(--ink-soft)}
 </style>
 </head>
 <body>
@@ -155,6 +160,14 @@
     <span>Show how each result matched</span>
     <button class="toggle" id="devToggle" aria-label="Toggle match details"></button>
   </div>
+
+  <footer class="site-foot">
+    <nav class="foot-nav">
+      <a href="why-local.html">Why Local</a>
+      <a href="our-story.html">Our Story</a>
+    </nav>
+    <div class="foot-tag">Local Bond · shop where you belong</div>
+  </footer>
 </div>
 
 <script>
