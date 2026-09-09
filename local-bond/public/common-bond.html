@@ -285,16 +285,32 @@ const ZIP_COORDS = {
   "94947": [38.120, -122.580],   // Novato (west)
 };
 
-function milesBetweenZips(zipA, zipB){
-  const a = ZIP_COORDS[String(zipA||"").trim()];
-  const b = ZIP_COORDS[String(zipB||"").trim()];
-  if(!a || !b) return null;
-  const [lat1,lon1] = a, [lat2,lon2] = b;
+function milesBetweenPoints(lat1, lon1, lat2, lon2){
   const R = 3958.8; // miles
   const toRad = d => d * Math.PI / 180;
   const dLat = toRad(lat2-lat1), dLon = toRad(lon2-lon1);
   const h = Math.sin(dLat/2)**2 + Math.cos(toRad(lat1))*Math.cos(toRad(lat2))*Math.sin(dLon/2)**2;
   return R * 2 * Math.asin(Math.sqrt(h));
+}
+
+function milesBetweenZips(zipA, zipB){
+  const a = ZIP_COORDS[String(zipA||"").trim()];
+  const b = ZIP_COORDS[String(zipB||"").trim()];
+  if(!a || !b) return null;
+  return milesBetweenPoints(a[0], a[1], b[0], b[1]);
+}
+
+// Distance from the searcher's zip to an item. Uses the item's precise
+// lat/lng when the founder has added one during review (real block-level
+// accuracy); falls back to zip-centroid distance otherwise. Either way,
+// the searcher's own location stays zip-level only.
+function milesToItem(searcherZip, item){
+  const s = ZIP_COORDS[String(searcherZip||"").trim()];
+  if(!s) return null;
+  if(item.lat != null && item.lng != null){
+    return milesBetweenPoints(s[0], s[1], item.lat, item.lng);
+  }
+  return milesBetweenZips(searcherZip, item.zip);
 }
 
 // Minimal CSV parser that respects quoted fields (needed — descriptions contain commas).
@@ -322,7 +338,10 @@ function rowsToItems(rows){
   const iName=idx("Item Name"), iCat=idx("Category"), iDesc=idx("Condition & Notes"),
         iTerms=idx("Lending Terms"), iFeeAmt=idx("Fee Amount"),
         iOwner=idx("Your Name"), iZip=idx("Your Zip Code"), iStatus=idx("Status"),
-        iAvail=idx("Availability"), iBack=idx("Back By");
+        iAvail=idx("Availability"), iBack=idx("Back By"),
+        iLat=idx("Lat"), iLng=idx("Lng");
+
+  const toNum = v => { const n = parseFloat(v); return Number.isFinite(n) ? n : null; };
 
   return rows
     .filter(r=>r.some(c=>c.trim()!==""))
@@ -339,6 +358,8 @@ function rowsToItems(rows){
         icon: CATEGORY_ICONS[cat] || DEFAULT_ICON,
         lender: (r[iOwner]||"A neighbor").trim(),
         zip: (iZip>-1 ? (r[iZip]||"").trim() : ""),
+        lat: (iLat>-1 ? toNum(r[iLat]) : null),
+        lng: (iLng>-1 ? toNum(r[iLng]) : null),
         status: availRaw==="out" ? "out" : "available",
         returnDate: (r[iBack]||"").trim(),
         fee: terms.includes("fee") && feeAmt ? feeAmt : null,
@@ -380,13 +401,13 @@ function setDataBanner(showDemo){
 
 const DEMO_ITEMS = [
   { id:"C001", name:"24-ft Extension Ladder", cat:"Tools & Equipment", icon:"🪜",
-    lender:"Papa", zip:"94952", status:"available", fee:null,
+    lender:"Papa", zip:"94952", lat:38.234, lng:-122.637, status:"available", fee:null,
     desc:"Aluminum extension ladder, extends to 24ft. Great for gutter work, roof access, or exterior painting. Light enough for one person to carry and set up." },
   { id:"C002", name:"Cordless Drill + Bit Set", cat:"Tools & Equipment", icon:"🛠️",
     lender:"Papa", zip:"94954", status:"available", fee:null,
     desc:"18V cordless drill with a full bit and driver set. Charger included. Great for furniture assembly, small home projects, deck work." },
   { id:"C003", name:"Circular Saw", cat:"Tools & Equipment", icon:"🪚",
-    lender:"Papa", zip:"94952", status:"out", returnDate:"Aug 14", fee:null,
+    lender:"Papa", zip:"94952", lat:38.216, lng:-122.612, status:"out", returnDate:"Aug 14", fee:null,
     desc:"Corded circular saw, good for framing and general cuts. Comes with an extra blade. Please return with the blade guard on." },
   { id:"C004", name:"Pressure Washer", cat:"Tools & Equipment", icon:"💦",
     lender:"Papa", zip:"94954", status:"available", fee:"$10/use",
@@ -486,7 +507,7 @@ function render(){
       distanceMode = true;
       zipNote.textContent = "";
       filtered = filtered
-        .map(item => ({ item, dist: milesBetweenZips(myZip, item.zip) }))
+        .map(item => ({ item, dist: milesToItem(myZip, item) }))
         .sort((a,b) => {
           if(a.dist==null && b.dist==null) return 0;
           if(a.dist==null) return 1;   // items with no zip on file sort last
