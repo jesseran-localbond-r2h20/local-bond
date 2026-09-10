@@ -117,8 +117,7 @@
   .zip-input input{flex:1;border:none;outline:none;background:none;font-family:var(--body);font-size:14.5px;color:var(--ink);padding:11px 0;width:100%}
   .zip-input input::placeholder{color:#A7B0AA}
   .zip-note{font-size:12px;color:var(--ink-soft);margin:6px 2px 0;min-height:15px}
-  .addr-toggle{background:none;border:none;color:var(--brand);font-family:var(--body);font-size:12.5px;font-weight:700;cursor:pointer;padding:2px;margin:2px 2px 0}
-  .addr-toggle:hover{text-decoration:underline}
+  .addr-label{font-size:12.5px;color:var(--ink-soft);margin:8px 2px 6px}
   .addr-input{margin-top:8px}
   .addr-input input{width:100%;font-family:var(--body);font-size:14.5px;color:var(--ink);background:var(--surface);border:1.5px solid var(--line);border-radius:11px;padding:11px 13px;outline:none;box-shadow:var(--shadow)}
   .addr-input input:focus{border-color:var(--brand)}
@@ -184,8 +183,8 @@
       <input id="zipQ" type="text" inputmode="numeric" maxlength="5" placeholder="Your zip code — sort by distance">
     </div>
     <div class="zip-note" id="zipNote"></div>
-    <button class="addr-toggle" id="addrToggle" type="button">+ Enter your address for a more accurate distance</button>
-    <div class="addr-input" id="addrInput" style="display:none">
+    <div class="addr-label" id="addrLabel">Or enter your address for a more accurate distance (optional)</div>
+    <div class="addr-input" id="addrInput">
       <input id="addrQ" type="text" placeholder="Street address (optional, never saved)">
       <div class="addr-note" id="addrNote">Used only in your browser to calculate distance. Never saved or sent anywhere else.</div>
     </div>
@@ -294,8 +293,7 @@ const STRINGS = {
     searchPlaceholder: "What do you need to borrow?",
     zipPlaceholder: "Your zip code — sort by distance",
     zipNotRecognized: "We don't have distance data for that zip yet — showing all items.",
-    addrToggleShow: "+ Enter your address for a more accurate distance",
-    addrToggleHide: "− Hide address",
+    addrLabel: "Or enter your address for a more accurate distance (optional)",
     addrPlaceholder: "Street address (optional, never saved)",
     addrNoteDefault: "Used only in your browser to calculate distance. Never saved or sent anywhere else.",
     addrLookingUp: "Looking up your address…",
@@ -335,8 +333,7 @@ const STRINGS = {
     searchPlaceholder: "¿Qué necesitas pedir prestado?",
     zipPlaceholder: "Tu código postal — ordenar por distancia",
     zipNotRecognized: "Todavía no tenemos datos de distancia para ese código postal — mostrando todos los artículos.",
-    addrToggleShow: "+ Ingresa tu dirección para mayor precisión",
-    addrToggleHide: "− Ocultar dirección",
+    addrLabel: "O ingresa tu dirección para mayor precisión (opcional)",
     addrPlaceholder: "Dirección (opcional, nunca se guarda)",
     addrNoteDefault: "Se usa solo en tu navegador para calcular la distancia. Nunca se guarda ni se envía a ningún lado.",
     addrLookingUp: "Buscando tu dirección…",
@@ -772,8 +769,7 @@ function applyStaticText(){
   document.getElementById("tagline").textContent = t("tagline");
   qEl.placeholder = t("searchPlaceholder");
   zipQEl.placeholder = t("zipPlaceholder");
-  document.getElementById("addrToggle").textContent =
-    addrInput.style.display==="none" ? t("addrToggleShow") : t("addrToggleHide");
+  document.getElementById("addrLabel").textContent = t("addrLabel");
   addrQEl.placeholder = t("addrPlaceholder");
   if(!addrNoteEl.dataset.status) addrNoteEl.textContent = t("addrNoteDefault");
   document.getElementById("dataBanner").textContent = t("dataBanner");
@@ -823,17 +819,9 @@ zipQEl.addEventListener("input", ()=>{
 });
 
 /* ---------- optional precise address ---------- */
-const addrToggle = document.getElementById("addrToggle");
 const addrInput = document.getElementById("addrInput");
 const addrQEl = document.getElementById("addrQ");
 const addrNoteEl = document.getElementById("addrNote");
-
-addrToggle.addEventListener("click", ()=>{
-  const hidden = addrInput.style.display === "none";
-  addrInput.style.display = hidden ? "block" : "none";
-  addrToggle.textContent = hidden ? t("addrToggleHide") : t("addrToggleShow");
-  if(hidden) addrQEl.focus();
-});
 
 async function tryGeocode(){
   const addr = addrQEl.value.trim();
