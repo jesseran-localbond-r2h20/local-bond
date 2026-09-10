@@ -26,7 +26,9 @@
   .app{width:100%;max-width:480px;min-height:100vh;background:var(--paper);display:flex;flex-direction:column;position:relative}
 
   /* Header */
-  header{padding:24px 22px 16px;position:sticky;top:0;background:linear-gradient(var(--paper) 82%, rgba(255,252,235,0));z-index:30}
+  header{padding:24px 22px 16px;position:sticky;top:0;background:linear-gradient(var(--paper) 82%, rgba(255,252,235,0));z-index:30;display:flex;align-items:flex-start;justify-content:space-between;gap:10px}
+  .lang-toggle{flex:none;font-family:var(--body);font-size:12.5px;font-weight:700;color:var(--brand);background:var(--surface);border:1.5px solid var(--line);border-radius:999px;padding:7px 13px;cursor:pointer;margin-top:2px}
+  .lang-toggle:hover{background:var(--line-soft)}
   .brand{display:flex;align-items:center;gap:11px}
   .bamboo{width:32px;height:36px;color:var(--ink);flex:none}
   .brand-text{display:flex;flex-direction:column;line-height:1}
@@ -115,6 +117,12 @@
   .zip-input input{flex:1;border:none;outline:none;background:none;font-family:var(--body);font-size:14.5px;color:var(--ink);padding:11px 0;width:100%}
   .zip-input input::placeholder{color:#A7B0AA}
   .zip-note{font-size:12px;color:var(--ink-soft);margin:6px 2px 0;min-height:15px}
+  .addr-toggle{background:none;border:none;color:var(--brand);font-family:var(--body);font-size:12.5px;font-weight:700;cursor:pointer;padding:2px;margin:2px 2px 0}
+  .addr-toggle:hover{text-decoration:underline}
+  .addr-input{margin-top:8px}
+  .addr-input input{width:100%;font-family:var(--body);font-size:14.5px;color:var(--ink);background:var(--surface);border:1.5px solid var(--line);border-radius:11px;padding:11px 13px;outline:none;box-shadow:var(--shadow)}
+  .addr-input input:focus{border-color:var(--brand)}
+  .addr-note{font-size:11.5px;color:var(--ink-soft);margin:6px 2px 0;line-height:1.4}
   .dist-tag{font-size:11.5px;font-weight:700;color:var(--brand);white-space:nowrap}
 
   /* List-an-item overlay */
@@ -155,9 +163,10 @@
       </svg>
       <div class="brand-text">
         <div class="wordmark">Common Bond</div>
-        <div class="tagline">Share what you have, borrow what you need.</div>
+        <div class="tagline" id="tagline">Share what you have, borrow what you need.</div>
       </div>
     </div>
+    <button class="lang-toggle" id="langToggle" type="button">Español</button>
   </header>
 
   <div class="search-wrap">
@@ -175,6 +184,11 @@
       <input id="zipQ" type="text" inputmode="numeric" maxlength="5" placeholder="Your zip code — sort by distance">
     </div>
     <div class="zip-note" id="zipNote"></div>
+    <button class="addr-toggle" id="addrToggle" type="button">+ Enter your address for a more accurate distance</button>
+    <div class="addr-input" id="addrInput" style="display:none">
+      <input id="addrQ" type="text" placeholder="Street address (optional, never saved)">
+      <div class="addr-note" id="addrNote">Used only in your browser to calculate distance. Never saved or sent anywhere else.</div>
+    </div>
   </div>
 
   <div class="data-banner" id="dataBanner" style="display:none">Showing sample listings — connect your Google Sheet to go live.</div>
@@ -182,14 +196,14 @@
   <div class="list-cta-wrap">
     <button class="list-cta" id="openList">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg>
-      List something to share
+      <span id="listCtaText">List something to share</span>
     </button>
   </div>
 
   <div class="results" id="results"></div>
 
   <footer class="site-foot">
-    <div class="foot-tag">Common Bond · Petaluma pilot</div>
+    <div class="foot-tag" id="footerTagText">Common Bond · Petaluma pilot</div>
   </footer>
 </div>
 
@@ -208,10 +222,10 @@
     <button class="sheet-close" id="closeList">&times;</button>
     <div class="sheet-handle"></div>
     <div class="sheet-inner">
-      <div class="detail-name" style="margin-bottom:4px">List something to share</div>
-      <p style="font-size:13.5px;color:var(--ink-soft);margin-bottom:16px;line-height:1.5">Neighbors will see this on Common Bond and can request to borrow it. You stay in control — nothing goes live until it's reviewed.</p>
+      <div class="detail-name" style="margin-bottom:4px" id="listTitle">List something to share</div>
+      <p style="font-size:13.5px;color:var(--ink-soft);margin-bottom:16px;line-height:1.5" id="listIntro">Neighbors will see this on Common Bond and can request to borrow it. You stay in control — nothing goes live until it's reviewed.</p>
 
-      <div class="prompt-list">
+      <div class="prompt-list" id="promptList">
         <div class="prompt-item">What it is &amp; what category it's in</div>
         <div class="prompt-item">Condition &amp; a few notes</div>
         <div class="prompt-item">Free to borrow, or a small fee</div>
@@ -219,7 +233,7 @@
       </div>
 
       <a class="btn btn-primary" id="openFormBtn" href="#" target="_blank" rel="noopener">Open the listing form ↗</a>
-      <p class="note-line">Takes about 2 minutes. New listings are reviewed before they appear, just to keep things trustworthy while Common Bond is new. We'll likely follow up asking roughly where you are — cross streets are perfect, never a full address — so neighbors can see accurate distance.</p>
+      <p class="note-line" id="listNote">Takes about 2 minutes. New listings are reviewed before they appear, just to keep things trustworthy while Common Bond is new. We'll likely follow up asking roughly where you are — cross streets are perfect, never a full address — so neighbors can see accurate distance.</p>
     </div>
   </div>
 </div>
@@ -258,6 +272,109 @@ const CATEGORY_ICONS = {
 };
 const DEFAULT_ICON = "📦";
 
+/* ---------- language ----------
+   App-chrome translation only. Category values, descriptions, and names
+   in the Sheet stay in English no matter what — changing THOSE would
+   break the exact-text matching the data pipeline depends on (the same
+   class of bug that broke the CSV link earlier). Category display labels
+   are translated for reading, but the underlying value used for
+   filtering and matching against CATEGORY_ICONS is always the English
+   one from the data. */
+const CATEGORY_LABELS = {
+  en: { "All":"All", "Tools & Equipment":"Tools & Equipment", "Outdoor & Camping":"Outdoor & Camping",
+        "Kitchen & Party":"Kitchen & Party", "Kids & Baby":"Kids & Baby", "Sports & Recreation":"Sports & Recreation" },
+  es: { "All":"Todos", "Tools & Equipment":"Herramientas y Equipo", "Outdoor & Camping":"Aire Libre y Camping",
+        "Kitchen & Party":"Cocina y Fiestas", "Kids & Baby":"Niños y Bebés", "Sports & Recreation":"Deportes y Recreación" },
+};
+
+const STRINGS = {
+  en: {
+    tagline: "Share what you have, borrow what you need.",
+    langToggle: "Español",
+    searchPlaceholder: "What do you need to borrow?",
+    zipPlaceholder: "Your zip code — sort by distance",
+    zipNotRecognized: "We don't have distance data for that zip yet — showing all items.",
+    addrToggleShow: "+ Enter your address for a more accurate distance",
+    addrToggleHide: "− Hide address",
+    addrPlaceholder: "Street address (optional, never saved)",
+    addrNoteDefault: "Used only in your browser to calculate distance. Never saved or sent anywhere else.",
+    addrLookingUp: "Looking up your address…",
+    addrNotFound: "Couldn't find that address — using your zip code instead.",
+    addrFound: "Using your address for a more precise distance.",
+    dataBanner: "Showing sample listings — connect your Google Sheet to go live.",
+    listCta: "List something to share",
+    nearestFirst: "nearest first",
+    sharedNearby: "shared nearby",
+    inCategory: "in",
+    itemWord: n => n===1 ? "item" : "items",
+    emptyTitle: "Nothing matches yet",
+    emptyDesc: "Try a different search, or be the first to list something in this category.",
+    sharedBy: "Shared by",
+    available: "Available",
+    availableNow: "Available now",
+    backDate: d => `Back ${d}`,
+    freeToBorrow: "Free to borrow",
+    memberLabel: "Common Bond member · Petaluma",
+    agreementText: name => `I'll return this in the condition I borrowed it, by the date ${name} and I agree on.`,
+    requestBtn: "Request to borrow",
+    emailDirectly: name => `Email ${name} directly`,
+    unavailableNote: (date,name) => `Currently out, due back <strong>${date}</strong>. You can still reach out to ${name} to plan ahead.`,
+    messageAnyway: name => `Message ${name} anyway`,
+    toastRequestSent: name => `Request sent to ${name} — they'll reach out to confirm pickup.`,
+    listOverlayTitle: "List something to share",
+    listOverlayIntro: "Neighbors will see this on Common Bond and can request to borrow it. You stay in control — nothing goes live until it's reviewed.",
+    promptItems: ["What it is & what category it's in", "Condition & a few notes", "Free to borrow, or a small fee", "Your name & the best way to reach you"],
+    openFormBtn: "Open the listing form ↗",
+    formComingSoon: "Listing form coming soon",
+    listNoteLine: "Takes about 2 minutes. New listings are reviewed before they appear, just to keep things trustworthy while Common Bond is new. We'll likely follow up asking roughly where you are — cross streets are perfect, never a full address — so neighbors can see accurate distance.",
+    footerTag: "Common Bond · Petaluma pilot",
+  },
+  es: {
+    tagline: "Comparte lo que tienes, pide prestado lo que necesitas.",
+    langToggle: "English",
+    searchPlaceholder: "¿Qué necesitas pedir prestado?",
+    zipPlaceholder: "Tu código postal — ordenar por distancia",
+    zipNotRecognized: "Todavía no tenemos datos de distancia para ese código postal — mostrando todos los artículos.",
+    addrToggleShow: "+ Ingresa tu dirección para mayor precisión",
+    addrToggleHide: "− Ocultar dirección",
+    addrPlaceholder: "Dirección (opcional, nunca se guarda)",
+    addrNoteDefault: "Se usa solo en tu navegador para calcular la distancia. Nunca se guarda ni se envía a ningún lado.",
+    addrLookingUp: "Buscando tu dirección…",
+    addrNotFound: "No encontramos esa dirección — usando tu código postal.",
+    addrFound: "Usando tu dirección para una distancia más precisa.",
+    dataBanner: "Mostrando artículos de muestra — conecta tu hoja de Google para activar datos reales.",
+    listCta: "Compartir algo",
+    nearestFirst: "más cercano primero",
+    sharedNearby: "compartidos cerca",
+    inCategory: "en",
+    itemWord: n => n===1 ? "artículo" : "artículos",
+    emptyTitle: "Nada coincide todavía",
+    emptyDesc: "Prueba otra búsqueda, o sé el primero en compartir algo en esta categoría.",
+    sharedBy: "Compartido por",
+    available: "Disponible",
+    availableNow: "Disponible ahora",
+    backDate: d => `Vuelve ${d}`,
+    freeToBorrow: "Gratis para pedir prestado",
+    memberLabel: "Miembro de Common Bond · Petaluma",
+    agreementText: name => `Lo devolveré en las mismas condiciones en que lo pedí prestado, en la fecha que acuerde con ${name}.`,
+    requestBtn: "Solicitar préstamo",
+    emailDirectly: name => `Enviar correo a ${name}`,
+    unavailableNote: (date,name) => `Actualmente prestado, vuelve el <strong>${date}</strong>. Aún puedes contactar a ${name} para planear con anticipación.`,
+    messageAnyway: name => `Escribir a ${name} de todos modos`,
+    toastRequestSent: name => `Solicitud enviada a ${name} — se pondrá en contacto para coordinar la entrega.`,
+    listOverlayTitle: "Compartir algo",
+    listOverlayIntro: "Tus vecinos verán esto en Common Bond y podrán solicitarlo prestado. Tú tienes el control — nada se publica hasta que lo revises.",
+    promptItems: ["Qué es y en qué categoría está", "Condición y algunas notas", "Gratis, o con una tarifa pequeña", "Tu nombre y la mejor forma de contactarte"],
+    openFormBtn: "Abrir el formulario ↗",
+    formComingSoon: "Formulario próximamente",
+    listNoteLine: "Toma unos 2 minutos. Los nuevos artículos se revisan antes de publicarse, para mantener la confianza mientras Common Bond es nuevo. Probablemente te contactemos para preguntar aproximadamente dónde vives — las calles que cruzan son suficiente, nunca una dirección completa — para que los vecinos vean la distancia correcta.",
+    footerTag: "Common Bond · Piloto de Petaluma",
+  },
+};
+
+let lang = navigator.language.toLowerCase().startsWith("es") ? "es" : "en";
+function t(key){ return STRINGS[lang][key]; }
+
 /* ---------- distance ----------
    Town-center coordinates for North Bay CA zip codes near Petaluma.
    These are APPROXIMATE (town-level, not per-address) — plenty of
@@ -295,17 +412,43 @@ function milesBetweenZips(zipA, zipB){
   return milesBetweenPoints(a[0], a[1], b[0], b[1]);
 }
 
-// Distance from the searcher's zip to an item. Uses the item's precise
-// lat/lng when the founder has added one during review (real block-level
-// accuracy); falls back to zip-centroid distance otherwise. Either way,
-// the searcher's own location stays zip-level only.
-function milesToItem(searcherZip, item){
-  const s = ZIP_COORDS[String(searcherZip||"").trim()];
-  if(!s) return null;
-  if(item.lat != null && item.lng != null){
-    return milesBetweenPoints(s[0], s[1], item.lat, item.lng);
-  }
-  return milesBetweenZips(searcherZip, item.zip);
+// An item's own point: precise Lat/Lng if the founder added one during
+// review, otherwise the item's zip centroid. Null if neither is available.
+function itemPoint(item){
+  if(item.lat != null && item.lng != null) return [item.lat, item.lng];
+  const z = ZIP_COORDS[String(item.zip||"").trim()];
+  return z || null;
+}
+
+// Distance from the searcher to an item. `searcherPoint` is [lat,lng] —
+// either a geocoded address (precise, opt-in) or a zip centroid (the
+// default, always available without asking for anything more). Either
+// way, the item's own precise location is used when the founder has
+// added one, regardless of how coarse the searcher's side is.
+function milesToItem(searcherPoint, item){
+  if(!searcherPoint) return null;
+  const ip = itemPoint(item);
+  if(!ip) return null;
+  return milesBetweenPoints(searcherPoint[0], searcherPoint[1], ip[0], ip[1]);
+}
+
+/* ---------- optional precise address for the searcher ----------
+   Entirely opt-in, and never saved anywhere: this only exists as a JS
+   variable in the browser for as long as the page is open. It's used
+   purely to sharpen the searcher's OWN distance results — nobody else
+   ever sees it, and it's never sent to the Sheet, the app's data, or
+   anywhere except this one free, no-key government lookup.
+   Free, no API key: U.S. Census Bureau geocoder (U.S. addresses only). */
+async function geocodeAddress(address){
+  const url = "https://geocoding.geo.census.gov/geocoder/locations/onelineaddress"
+    + "?address=" + encodeURIComponent(address)
+    + "&benchmark=Public_AR_Current&format=json";
+  const res = await fetch(url);
+  if(!res.ok) throw new Error("geocode failed: " + res.status);
+  const data = await res.json();
+  const match = data?.result?.addressMatches?.[0];
+  if(!match) return null;
+  return [match.coordinates.y, match.coordinates.x]; // [lat, lng]
 }
 
 // Minimal CSV parser that respects quoted fields (needed — descriptions contain commas).
@@ -432,18 +575,22 @@ let activeCat = "All";
 
 /* ---------- chips ---------- */
 const chipsEl = document.getElementById("chips");
-CATS.forEach(c=>{
-  const b=document.createElement("button");
-  b.className="chip"+(c==="All"?" active":"");
-  b.textContent=c;
-  b.dataset.cat=c;
-  b.addEventListener("click",()=>{
-    activeCat=c;
-    document.querySelectorAll(".chip").forEach(x=>x.classList.toggle("active", x.dataset.cat===c));
-    render();
+function buildChips(){
+  chipsEl.innerHTML = "";
+  CATS.forEach(c=>{
+    const b=document.createElement("button");
+    b.className="chip"+(c===activeCat?" active":"");
+    b.textContent=CATEGORY_LABELS[lang][c];
+    b.dataset.cat=c;
+    b.addEventListener("click",()=>{
+      activeCat=c;
+      document.querySelectorAll(".chip").forEach(x=>x.classList.toggle("active", x.dataset.cat===c));
+      render();
+    });
+    chipsEl.appendChild(b);
   });
-  chipsEl.appendChild(b);
-});
+}
+buildChips();
 
 /* ---------- search + filter ---------- */
 const qEl = document.getElementById("q");
@@ -465,10 +612,11 @@ function initials(name){
 
 function card(item, dist){
   const badge = item.status==="available"
-    ? `<span class="badge avail">Available</span>`
-    : `<span class="badge out">Back ${item.returnDate}</span>`;
-  const fee = item.fee ? `<span class="fee-tag">${item.fee}</span>` : `<span class="free-tag">Free to borrow</span>`;
+    ? `<span class="badge avail">${t("available")}</span>`
+    : `<span class="badge out">${t("backDate")(item.returnDate)}</span>`;
+  const fee = item.fee ? `<span class="fee-tag">${item.fee}</span>` : `<span class="free-tag">${t("freeToBorrow")}</span>`;
   const distTag = (dist!=null) ? `<span class="dist-tag">~${dist.toFixed(1)} mi</span>` : "";
+  const catLabel = CATEGORY_LABELS[lang][item.cat] || item.cat;
   return `
   <div class="card" data-id="${item.id}">
     <div class="thumb">${item.icon}</div>
@@ -477,51 +625,62 @@ function card(item, dist){
         <div class="item-name">${item.name}</div>
         ${badge}
       </div>
-      <div class="lender-row">Shared by ${item.lender}${distTag ? " · " + distTag : ""}</div>
+      <div class="lender-row">${t("sharedBy")} ${item.lender}${distTag ? " · " + distTag : ""}</div>
       <div class="meta-row">
         ${fee}
-        <span class="cat-tag">${item.cat}</span>
+        <span class="cat-tag">${catLabel}</span>
       </div>
     </div>
   </div>`;
+}
+
+// The searcher's location for distance purposes: a precise geocoded
+// address if they've opted in and it resolved successfully, otherwise
+// their zip centroid, otherwise null (no distance shown at all).
+let geocodedPoint = null;
+
+function resolveSearcherPoint(){
+  if(geocodedPoint) return geocodedPoint;
+  const myZip = zipQEl.value.trim();
+  if(myZip.length===5 && ZIP_COORDS[myZip]) return ZIP_COORDS[myZip];
+  return null;
 }
 
 function render(){
   const q = qEl.value;
   let filtered = ITEMS.filter(i=>matches(i,q));
 
-  // Distance sort, only when the searcher has entered a zip we recognize.
-  const myZip = zipQEl.value.trim();
   const zipNote = document.getElementById("zipNote");
-  let distanceMode = false;
+  const myZip = zipQEl.value.trim();
+  const searcherPoint = resolveSearcherPoint();
+  const distanceMode = searcherPoint != null;
 
-  if(myZip.length === 5){
-    if(!ZIP_COORDS[myZip]){
-      zipNote.textContent = "We don't have distance data for that zip yet — showing all items.";
-    } else {
-      distanceMode = true;
-      zipNote.textContent = "";
-      filtered = filtered
-        .map(item => ({ item, dist: milesToItem(myZip, item) }))
-        .sort((a,b) => {
-          if(a.dist==null && b.dist==null) return 0;
-          if(a.dist==null) return 1;   // items with no zip on file sort last
-          if(b.dist==null) return -1;
-          return a.dist - b.dist;
-        });
-    }
+  if(!geocodedPoint && myZip.length===5 && !ZIP_COORDS[myZip]){
+    zipNote.textContent = t("zipNotRecognized");
   } else {
     zipNote.textContent = "";
   }
 
-  const countEl = `<div class="count-row">${filtered.length} item${filtered.length!==1?"s":""} ${activeCat==="All"?"shared nearby":"in "+activeCat}${distanceMode ? " · nearest first" : ""}</div>`;
+  if(distanceMode){
+    filtered = filtered
+      .map(item => ({ item, dist: milesToItem(searcherPoint, item) }))
+      .sort((a,b) => {
+        if(a.dist==null && b.dist==null) return 0;
+        if(a.dist==null) return 1;   // items with no location on file sort last
+        if(b.dist==null) return -1;
+        return a.dist - b.dist;
+      });
+  }
+
+  const catLabel = activeCat==="All" ? "" : CATEGORY_LABELS[lang][activeCat];
+  const countEl = `<div class="count-row">${filtered.length} ${t("itemWord")(filtered.length)} ${activeCat==="All"?t("sharedNearby"):t("inCategory")+" "+catLabel}${distanceMode ? " · "+t("nearestFirst") : ""}</div>`;
 
   if(!filtered.length){
     resultsEl.innerHTML = `
       <div class="state">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><circle cx="11" cy="11" r="7"/><path d="m21 21-4.3-4.3"/></svg>
-        <h3>Nothing matches yet</h3>
-        <p>Try a different search, or be the first to list something in this category.</p>
+        <h3>${t("emptyTitle")}</h3>
+        <p>${t("emptyDesc")}</p>
       </div>`;
     return;
   }
@@ -542,33 +701,35 @@ const detailBody = document.getElementById("detailBody");
 
 function openDetail(id){
   const item = ITEMS.find(i=>i.id===id);
-  const feeLine = item.fee ? `<span class="fee-tag">${item.fee}</span>` : `<span class="free-tag">Free to borrow</span>`;
+  const feeLine = item.fee ? `<span class="fee-tag">${item.fee}</span>` : `<span class="free-tag">${t("freeToBorrow")}</span>`;
   const badge = item.status==="available"
-    ? `<span class="badge avail" style="margin-top:0">Available now</span>`
-    : `<span class="badge out" style="margin-top:0">Back ${item.returnDate}</span>`;
+    ? `<span class="badge avail" style="margin-top:0">${t("availableNow")}</span>`
+    : `<span class="badge out" style="margin-top:0">${t("backDate")(item.returnDate)}</span>`;
+  const catLabel = CATEGORY_LABELS[lang][item.cat] || item.cat;
+  const firstName = item.lender.split(" ")[0];
 
   const actionBlock = item.status==="available" ? `
       <div class="agree-box">
         <input type="checkbox" id="agreeBox">
-        <label for="agreeBox">I'll return this in the condition I borrowed it, by the date ${item.lender.split(" ")[0]} and I agree on.</label>
+        <label for="agreeBox">${t("agreementText")(firstName)}</label>
       </div>
-      <button class="btn btn-primary" id="requestBtn" disabled>Request to borrow</button>
-      <a class="btn btn-ghost" href="mailto:?subject=Common%20Bond%20—%20${encodeURIComponent(item.name)}&body=Hi%20${encodeURIComponent(item.lender.split(" ")[0])},%20I%20saw%20your%20${encodeURIComponent(item.name)}%20on%20Common%20Bond%20and%20would%20love%20to%20borrow%20it." style="display:none" id="mailFallback">Email ${item.lender.split(" ")[0]} directly</a>
+      <button class="btn btn-primary" id="requestBtn" disabled>${t("requestBtn")}</button>
+      <a class="btn btn-ghost" href="mailto:?subject=Common%20Bond%20—%20${encodeURIComponent(item.name)}&body=Hi%20${encodeURIComponent(firstName)},%20I%20saw%20your%20${encodeURIComponent(item.name)}%20on%20Common%20Bond%20and%20would%20love%20to%20borrow%20it." style="display:none" id="mailFallback">${t("emailDirectly")(firstName)}</a>
   ` : `
-      <div class="unavailable-note">Currently out, due back <strong>${item.returnDate}</strong>. You can still reach out to ${item.lender.split(" ")[0]} to plan ahead.</div>
-      <a class="btn btn-ghost" href="mailto:?subject=Common%20Bond%20—%20${encodeURIComponent(item.name)}&body=Hi%20${encodeURIComponent(item.lender.split(" ")[0])},%20I%27d%20like%20to%20borrow%20your%20${encodeURIComponent(item.name)}%20once%20it%27s%20back.">Message ${item.lender.split(" ")[0]} anyway</a>
+      <div class="unavailable-note">${t("unavailableNote")(item.returnDate, firstName)}</div>
+      <a class="btn btn-ghost" href="mailto:?subject=Common%20Bond%20—%20${encodeURIComponent(item.name)}&body=Hi%20${encodeURIComponent(firstName)},%20I%27d%20like%20to%20borrow%20your%20${encodeURIComponent(item.name)}%20once%20it%27s%20back.">${t("messageAnyway")(firstName)}</a>
   `;
 
   detailBody.innerHTML = `
     <div class="detail-thumb">${item.icon}</div>
     <div class="detail-name">${item.name}</div>
-    <div class="detail-meta">${badge}${feeLine}<span class="cat-tag">${item.cat}</span></div>
+    <div class="detail-meta">${badge}${feeLine}<span class="cat-tag">${catLabel}</span></div>
     <div class="detail-desc">${item.desc}</div>
     <div class="lender-card">
       <div class="lender-avatar">${initials(item.lender)}</div>
       <div>
         <div class="lender-name">${item.lender}</div>
-        <div class="lender-sub">Common Bond member · Petaluma</div>
+        <div class="lender-sub">${t("memberLabel")}</div>
       </div>
     </div>
     ${actionBlock}
@@ -580,7 +741,7 @@ function openDetail(id){
   if(agree && reqBtn){
     agree.addEventListener("change", ()=>{ reqBtn.disabled = !agree.checked; });
     reqBtn.addEventListener("click", ()=>{
-      showToast(`Request sent to ${item.lender.split(" ")[0]} — they'll reach out to confirm pickup.`);
+      showToast(t("toastRequestSent")(item.lender.split(" ")[0]));
       closeOverlay(detailOverlay);
     });
   }
@@ -600,16 +761,48 @@ listOverlay.addEventListener("click",(e)=>{ if(e.target===listOverlay) closeOver
 // Point "Open the listing form" at the real Google Form once CONFIG.FORM_URL is set.
 const openFormBtn = document.getElementById("openFormBtn");
 const formIsPlaceholder = !CONFIG.FORM_URL || CONFIG.FORM_URL.includes("PASTE_YOUR");
-if(formIsPlaceholder){
-  openFormBtn.textContent = "Listing form coming soon";
-  openFormBtn.style.opacity = ".55";
-  openFormBtn.style.pointerEvents = "none";
-  openFormBtn.removeAttribute("target");
-} else {
+if(!formIsPlaceholder){
   openFormBtn.href = CONFIG.FORM_URL;
 }
 
 function closeOverlay(el){ el.classList.remove("open"); }
+
+/* ---------- language toggle ---------- */
+function applyStaticText(){
+  document.getElementById("tagline").textContent = t("tagline");
+  qEl.placeholder = t("searchPlaceholder");
+  zipQEl.placeholder = t("zipPlaceholder");
+  document.getElementById("addrToggle").textContent =
+    addrInput.style.display==="none" ? t("addrToggleShow") : t("addrToggleHide");
+  addrQEl.placeholder = t("addrPlaceholder");
+  if(!addrNoteEl.dataset.status) addrNoteEl.textContent = t("addrNoteDefault");
+  document.getElementById("dataBanner").textContent = t("dataBanner");
+  document.getElementById("listCtaText").textContent = t("listCta");
+  document.getElementById("listTitle").textContent = t("listOverlayTitle");
+  document.getElementById("listIntro").textContent = t("listOverlayIntro");
+  document.getElementById("promptList").querySelectorAll(".prompt-item").forEach((el,i)=>{
+    el.textContent = t("promptItems")[i];
+  });
+  document.getElementById("listNote").textContent = t("listNoteLine");
+  document.getElementById("footerTagText").textContent = t("footerTag");
+  document.getElementById("langToggle").textContent = t("langToggle");
+  if(formIsPlaceholder){
+    openFormBtn.textContent = t("formComingSoon");
+    openFormBtn.style.opacity = ".55";
+    openFormBtn.style.pointerEvents = "none";
+    openFormBtn.removeAttribute("target");
+  } else {
+    openFormBtn.textContent = t("openFormBtn");
+  }
+}
+
+document.getElementById("langToggle").addEventListener("click", ()=>{
+  lang = lang==="en" ? "es" : "en";
+  applyStaticText();
+  buildChips();
+  render();
+});
+
 
 /* ---------- toast ---------- */
 let toastTimer=null;
@@ -628,6 +821,55 @@ zipQEl.addEventListener("input", ()=>{
   zipQEl.value = zipQEl.value.replace(/\D/g,"").slice(0,5);
   render();
 });
+
+/* ---------- optional precise address ---------- */
+const addrToggle = document.getElementById("addrToggle");
+const addrInput = document.getElementById("addrInput");
+const addrQEl = document.getElementById("addrQ");
+const addrNoteEl = document.getElementById("addrNote");
+
+addrToggle.addEventListener("click", ()=>{
+  const hidden = addrInput.style.display === "none";
+  addrInput.style.display = hidden ? "block" : "none";
+  addrToggle.textContent = hidden ? t("addrToggleHide") : t("addrToggleShow");
+  if(hidden) addrQEl.focus();
+});
+
+async function tryGeocode(){
+  const addr = addrQEl.value.trim();
+  if(!addr){
+    geocodedPoint = null;
+    delete addrNoteEl.dataset.status;
+    addrNoteEl.textContent = t("addrNoteDefault");
+    render();
+    return;
+  }
+  addrNoteEl.dataset.status = "pending";
+  addrNoteEl.textContent = t("addrLookingUp");
+  try{
+    const point = await geocodeAddress(addr);
+    if(point){
+      geocodedPoint = point;
+      addrNoteEl.dataset.status = "found";
+      addrNoteEl.textContent = t("addrFound");
+    } else {
+      geocodedPoint = null;
+      addrNoteEl.dataset.status = "notfound";
+      addrNoteEl.textContent = t("addrNotFound");
+    }
+  }catch(err){
+    console.error("Common Bond: address lookup failed, falling back to zip.", err);
+    geocodedPoint = null;
+    addrNoteEl.dataset.status = "notfound";
+    addrNoteEl.textContent = t("addrNotFound");
+  }
+  render();
+}
+
+addrQEl.addEventListener("blur", tryGeocode);
+addrQEl.addEventListener("keydown", (e)=>{ if(e.key==="Enter"){ e.preventDefault(); addrQEl.blur(); } });
+
+applyStaticText();
 loadItems();
 </script>
 </body>
