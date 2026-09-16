@@ -315,7 +315,8 @@ const STRINGS = {
     memberLabel: "Common Bond member · Petaluma",
     agreementText: name => `I'll return this in the condition I borrowed it, by the date ${name} and I agree on.`,
     requestBtn: "Request to borrow",
-    emailDirectly: name => `Email ${name} directly`,
+    noEmailNote: name => `We don't have a working email on file for ${name} yet — check back once they've updated their listing.`,
+    toastNoEmail: name => `No email on file for ${name} yet — this request couldn't be sent.`,
     unavailableNote: (date,name) => `Currently out, due back <strong>${date}</strong>. You can still reach out to ${name} to plan ahead.`,
     messageAnyway: name => `Message ${name} anyway`,
     toastRequestSent: name => `Request sent to ${name} — they'll reach out to confirm pickup.`,
@@ -355,7 +356,8 @@ const STRINGS = {
     memberLabel: "Miembro de Common Bond · Petaluma",
     agreementText: name => `Lo devolveré en las mismas condiciones en que lo pedí prestado, en la fecha que acuerde con ${name}.`,
     requestBtn: "Solicitar préstamo",
-    emailDirectly: name => `Enviar correo a ${name}`,
+    noEmailNote: name => `Todavía no tenemos un correo válido para ${name} — vuelve a revisar cuando actualice su artículo.`,
+    toastNoEmail: name => `Todavía no hay un correo registrado para ${name} — no se pudo enviar la solicitud.`,
     unavailableNote: (date,name) => `Actualmente prestado, vuelve el <strong>${date}</strong>. Aún puedes contactar a ${name} para planear con anticipación.`,
     messageAnyway: name => `Escribir a ${name} de todos modos`,
     toastRequestSent: name => `Solicitud enviada a ${name} — se pondrá en contacto para coordinar la entrega.`,
@@ -472,7 +474,7 @@ function rowsToItems(rows){
   const idx = name => header.indexOf(name);
   const iName=idx("Item Name"), iCat=idx("Category"), iDesc=idx("Condition & Notes"),
         iTerms=idx("Lending Terms"), iFeeAmt=idx("Fee Amount"),
-        iOwner=idx("Your Name"), iZip=idx("Your Zip Code"), iStatus=idx("Status"),
+        iOwner=idx("Your Name"), iEmail=idx("Your Email"), iZip=idx("Your Zip Code"), iStatus=idx("Status"),
         iAvail=idx("Availability"), iBack=idx("Back By"),
         iLat=idx("Lat"), iLng=idx("Lng");
 
@@ -492,6 +494,7 @@ function rowsToItems(rows){
         cat,
         icon: CATEGORY_ICONS[cat] || DEFAULT_ICON,
         lender: (r[iOwner]||"A neighbor").trim(),
+        email: (iEmail>-1 ? (r[iEmail]||"").trim() : ""),
         zip: (iZip>-1 ? (r[iZip]||"").trim() : ""),
         lat: (iLat>-1 ? toNum(r[iLat]) : null),
         lng: (iLng>-1 ? toNum(r[iLng]) : null),
@@ -704,6 +707,10 @@ function openDetail(id){
     : `<span class="badge out" style="margin-top:0">${t("backDate")(item.returnDate)}</span>`;
   const catLabel = CATEGORY_LABELS[lang][item.cat] || item.cat;
   const firstName = item.lender.split(" ")[0];
+  const hasEmail = !!(item.email && item.email.includes("@"));
+
+  const mailtoUrl = (subjectText, bodyText) =>
+    `mailto:${encodeURIComponent(item.email)}?subject=${encodeURIComponent(subjectText)}&body=${encodeURIComponent(bodyText)}`;
 
   const actionBlock = item.status==="available" ? `
       <div class="agree-box">
@@ -711,10 +718,12 @@ function openDetail(id){
         <label for="agreeBox">${t("agreementText")(firstName)}</label>
       </div>
       <button class="btn btn-primary" id="requestBtn" disabled>${t("requestBtn")}</button>
-      <a class="btn btn-ghost" href="mailto:?subject=Common%20Bond%20—%20${encodeURIComponent(item.name)}&body=Hi%20${encodeURIComponent(firstName)},%20I%20saw%20your%20${encodeURIComponent(item.name)}%20on%20Common%20Bond%20and%20would%20love%20to%20borrow%20it." style="display:none" id="mailFallback">${t("emailDirectly")(firstName)}</a>
+      ${!hasEmail ? `<div class="unavailable-note">${t("noEmailNote")(firstName)}</div>` : ""}
   ` : `
       <div class="unavailable-note">${t("unavailableNote")(item.returnDate, firstName)}</div>
-      <a class="btn btn-ghost" href="mailto:?subject=Common%20Bond%20—%20${encodeURIComponent(item.name)}&body=Hi%20${encodeURIComponent(firstName)},%20I%27d%20like%20to%20borrow%20your%20${encodeURIComponent(item.name)}%20once%20it%27s%20back.">${t("messageAnyway")(firstName)}</a>
+      ${hasEmail
+        ? `<a class="btn btn-ghost" id="messageAnywayBtn" href="#">${t("messageAnyway")(firstName)}</a>`
+        : `<div class="unavailable-note">${t("noEmailNote")(firstName)}</div>`}
   `;
 
   detailBody.innerHTML = `
@@ -734,12 +743,29 @@ function openDetail(id){
 
   const agree = document.getElementById("agreeBox");
   const reqBtn = document.getElementById("requestBtn");
-  const mailFallback = document.getElementById("mailFallback");
   if(agree && reqBtn){
     agree.addEventListener("change", ()=>{ reqBtn.disabled = !agree.checked; });
     reqBtn.addEventListener("click", ()=>{
-      showToast(t("toastRequestSent")(item.lender.split(" ")[0]));
+      if(hasEmail){
+        window.location.href = mailtoUrl(
+          `Common Bond — ${item.name}`,
+          `Hi ${firstName}, I saw your ${item.name} on Common Bond and would love to borrow it.`
+        );
+        showToast(t("toastRequestSent")(firstName));
+      } else {
+        showToast(t("toastNoEmail")(firstName));
+      }
       closeOverlay(detailOverlay);
+    });
+  }
+  const anywayBtn = document.getElementById("messageAnywayBtn");
+  if(anywayBtn){
+    anywayBtn.addEventListener("click", (e)=>{
+      e.preventDefault();
+      window.location.href = mailtoUrl(
+        `Common Bond — ${item.name}`,
+        `Hi ${firstName}, I'd like to borrow your ${item.name} once it's back.`
+      );
     });
   }
 
