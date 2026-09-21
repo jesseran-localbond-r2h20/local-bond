@@ -109,6 +109,16 @@
   .btn-ghost{background:none;border:1.5px solid var(--line);color:var(--ink);margin-top:9px}
   .btn-ghost:hover{border-color:var(--brand);background:var(--line-soft)}
   .unavailable-note{background:var(--honey-soft);border-left:3px solid #C99A3D;border-radius:9px;padding:11px 13px;font-size:13px;color:var(--ink);margin-bottom:16px;line-height:1.5}
+  .contact-fallback{margin-top:14px;padding-top:14px;border-top:1px solid var(--line)}
+  .contact-fallback-label{font-size:12px;color:var(--ink-soft);margin-bottom:8px}
+  .contact-row{display:flex;align-items:center;gap:8px;background:var(--surface);border:1px solid var(--line);border-radius:9px;padding:9px 11px;margin-bottom:8px}
+  .contact-row:last-child{margin-bottom:0}
+  .contact-row-msg{align-items:flex-start}
+  .contact-value{flex:1;font-size:13px;color:var(--ink);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;min-width:0}
+  .contact-msg-preview{white-space:normal;line-height:1.4;font-size:12.5px;color:var(--ink-soft)}
+  .copy-btn{flex:none;font-family:var(--body);font-size:12px;font-weight:700;color:var(--brand);background:var(--brand-soft);border:none;border-radius:7px;padding:6px 11px;cursor:pointer;white-space:nowrap}
+  .copy-btn:hover{background:var(--line-soft)}
+  .copy-btn.copied{background:var(--tier1);color:#fff}
   .data-banner{margin:12px 22px 0;background:var(--honey-soft);border-left:3px solid #C99A3D;border-radius:9px;padding:10px 13px;font-size:12.5px;color:var(--ink);line-height:1.4}
   .zip-wrap{padding:0 22px 4px}
   .zip-input{display:flex;align-items:center;gap:9px;background:var(--surface);border:1.5px solid var(--line);border-radius:11px;padding:0 13px;box-shadow:var(--shadow)}
@@ -257,7 +267,7 @@
 
 const CONFIG = {
   // Publish your Google Sheet's response tab: File → Share → Publish to web → CSV.
-  SHEET_CSV_URL: "https://docs.google.com/spreadsheets/d/e/2PACX-1vQbC1U829OUAv74qNn9VC5oIaAeJOapumwF7Dwdyv2aLf90BWrKPzo1zhOh6H344IadHJGxOGrqqpig/pub?gid=1391486398&single=true&output=csv",
+  SHEET_CSV_URL: "https://docs.google.com/spreadsheets/d/e/2PACX-1vQbC1U829OUAv74qNn9VC5oIaAeJOapumwF7Dwdyv2aLf90BWrKPzo1zhOh6H344IadHJGxOGrqqpig/pub?gid=1017606481&single=true&output=csv",
   // Your Google Form's normal "Send" / share link.
   FORM_URL: "https://docs.google.com/forms/d/e/1FAIpQLSfyFWiDLmI2JEFNjGN8HKInlsJRQh0vbsuDBAO2DmgWc_bPyQ/viewform?usp=sharing&ouid=105367169501902892915",
 };
@@ -317,6 +327,10 @@ const STRINGS = {
     requestBtn: "Request to borrow",
     noEmailNote: name => `We don't have a working email on file for ${name} yet — check back once they've updated their listing.`,
     toastNoEmail: name => `No email on file for ${name} yet — this request couldn't be sent.`,
+    contactFallbackLabel: "Or copy this to send yourself:",
+    copyBtn: "Copy",
+    copiedBtn: "Copied!",
+    copyFailed: "Couldn't copy — try selecting the text manually.",
     unavailableNote: (date,name) => `Currently out, due back <strong>${date}</strong>. You can still reach out to ${name} to plan ahead.`,
     messageAnyway: name => `Message ${name} anyway`,
     toastRequestSent: name => `Request sent to ${name} — they'll reach out to confirm pickup.`,
@@ -358,6 +372,10 @@ const STRINGS = {
     requestBtn: "Solicitar préstamo",
     noEmailNote: name => `Todavía no tenemos un correo válido para ${name} — vuelve a revisar cuando actualice su artículo.`,
     toastNoEmail: name => `Todavía no hay un correo registrado para ${name} — no se pudo enviar la solicitud.`,
+    contactFallbackLabel: "O copia esto para enviarlo tú mismo:",
+    copyBtn: "Copiar",
+    copiedBtn: "¡Copiado!",
+    copyFailed: "No se pudo copiar — intenta seleccionar el texto manualmente.",
     unavailableNote: (date,name) => `Actualmente prestado, vuelve el <strong>${date}</strong>. Aún puedes contactar a ${name} para planear con anticipación.`,
     messageAnyway: name => `Escribir a ${name} de todos modos`,
     toastRequestSent: name => `Solicitud enviada a ${name} — se pondrá en contacto para coordinar la entrega.`,
@@ -709,8 +727,31 @@ function openDetail(id){
   const firstName = item.lender.split(" ")[0];
   const hasEmail = !!(item.email && item.email.includes("@"));
 
-  const mailtoUrl = (subjectText, bodyText) =>
+  const subjectText = `Common Bond — ${item.name}`;
+  const availableMsg = `Hi ${firstName}, I saw your ${item.name} on Common Bond and would love to borrow it.`;
+  const outMsg = `Hi ${firstName}, I'd like to borrow your ${item.name} once it's back.`;
+
+  const mailtoUrl = (bodyText) =>
     `mailto:${encodeURIComponent(item.email)}?subject=${encodeURIComponent(subjectText)}&body=${encodeURIComponent(bodyText)}`;
+
+  // Always-visible fallback: the email and message as copyable text, since
+  // whether a mailto: link actually opens anything depends on the visitor's
+  // own device and browser settings, which the app can't detect or control.
+  function contactFallbackHtml(msgText){
+    if(!hasEmail) return "";
+    return `
+      <div class="contact-fallback">
+        <div class="contact-fallback-label">${t("contactFallbackLabel")}</div>
+        <div class="contact-row">
+          <span class="contact-value">${item.email}</span>
+          <button class="copy-btn" type="button" data-copy="${encodeURIComponent(item.email)}">${t("copyBtn")}</button>
+        </div>
+        <div class="contact-row contact-row-msg">
+          <span class="contact-value contact-msg-preview">${msgText}</span>
+          <button class="copy-btn" type="button" data-copy="${encodeURIComponent(msgText)}">${t("copyBtn")}</button>
+        </div>
+      </div>`;
+  }
 
   const actionBlock = item.status==="available" ? `
       <div class="agree-box">
@@ -718,11 +759,11 @@ function openDetail(id){
         <label for="agreeBox">${t("agreementText")(firstName)}</label>
       </div>
       <button class="btn btn-primary" id="requestBtn" disabled>${t("requestBtn")}</button>
-      ${!hasEmail ? `<div class="unavailable-note">${t("noEmailNote")(firstName)}</div>` : ""}
+      ${hasEmail ? contactFallbackHtml(availableMsg) : `<div class="unavailable-note">${t("noEmailNote")(firstName)}</div>`}
   ` : `
       <div class="unavailable-note">${t("unavailableNote")(item.returnDate, firstName)}</div>
       ${hasEmail
-        ? `<a class="btn btn-ghost" id="messageAnywayBtn" href="#">${t("messageAnyway")(firstName)}</a>`
+        ? `<a class="btn btn-ghost" id="messageAnywayBtn" href="#">${t("messageAnyway")(firstName)}</a>` + contactFallbackHtml(outMsg)
         : `<div class="unavailable-note">${t("noEmailNote")(firstName)}</div>`}
   `;
 
@@ -747,10 +788,7 @@ function openDetail(id){
     agree.addEventListener("change", ()=>{ reqBtn.disabled = !agree.checked; });
     reqBtn.addEventListener("click", ()=>{
       if(hasEmail){
-        window.location.href = mailtoUrl(
-          `Common Bond — ${item.name}`,
-          `Hi ${firstName}, I saw your ${item.name} on Common Bond and would love to borrow it.`
-        );
+        window.location.href = mailtoUrl(availableMsg);
         showToast(t("toastRequestSent")(firstName));
       } else {
         showToast(t("toastNoEmail")(firstName));
@@ -762,12 +800,26 @@ function openDetail(id){
   if(anywayBtn){
     anywayBtn.addEventListener("click", (e)=>{
       e.preventDefault();
-      window.location.href = mailtoUrl(
-        `Common Bond — ${item.name}`,
-        `Hi ${firstName}, I'd like to borrow your ${item.name} once it's back.`
-      );
+      window.location.href = mailtoUrl(outMsg);
     });
   }
+
+  // Wire up every copy-to-clipboard button in this detail sheet.
+  detailBody.querySelectorAll(".copy-btn").forEach(btn=>{
+    btn.addEventListener("click", async ()=>{
+      const text = decodeURIComponent(btn.dataset.copy);
+      try{
+        await navigator.clipboard.writeText(text);
+        const original = btn.textContent;
+        btn.textContent = t("copiedBtn");
+        btn.classList.add("copied");
+        setTimeout(()=>{ btn.textContent = original; btn.classList.remove("copied"); }, 1600);
+      }catch(err){
+        console.error("Common Bond: clipboard copy failed.", err);
+        showToast(t("copyFailed"));
+      }
+    });
+  });
 
   detailOverlay.classList.add("open");
 }
