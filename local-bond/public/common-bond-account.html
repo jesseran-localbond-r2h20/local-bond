@@ -166,10 +166,10 @@
    ============================================================ */
 const CONFIG = {
   SUPABASE_URL: "https://ggdpjoirrzxxgxbhyosb.supabase.co",
-  SUPABASE_ANON_KEY: "YOUR_SUPeyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImdnZHBqb2lycnp4eGd4Ymh5b3NiIiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTA4MTgxOTcsImV4cCI6MjEwNjM5NDE5N30.Kjnl8a_WCnv4Yek7hYCojIWLMNG2Bi69j-O-Q3o91U8ABASE_ANON_KEY",
+  SUPABASE_ANON_KEY: "YOUR_eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImdnZHBqb2lycnp4eGd4Ymh5b3NiIiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTA4MTgxOTcsImV4cCI6MjEwNjM5NDE5N30.Kjnl8a_WCnv4Yek7hYCojIWLMNG2Bi69j-O-Q3o91U8SUPABASE_ANON_KEY",
 };
 
-const supabase = window.supabase.createClient(CONFIG.SUPABASE_URL, CONFIG.SUPABASE_ANON_KEY);
+const supabaseClient = window.supabase.createClient(CONFIG.SUPABASE_URL, CONFIG.SUPABASE_ANON_KEY);
 
 /* ---------- element refs ---------- */
 const authCard = document.getElementById("authCard");
@@ -208,7 +208,7 @@ signupForm.addEventListener("submit", async (e) => {
   const email = document.getElementById("signupEmail").value.trim();
   const password = document.getElementById("signupPassword").value;
 
-  const { error } = await supabase.auth.signUp({
+  const { error } = await supabaseClient.auth.signUp({
     email, password,
     options: { data: { display_name: name } }
   });
@@ -227,7 +227,7 @@ loginForm.addEventListener("submit", async (e) => {
   const email = document.getElementById("loginEmail").value.trim();
   const password = document.getElementById("loginPassword").value;
 
-  const { error } = await supabase.auth.signInWithPassword({ email, password });
+  const { error } = await supabaseClient.auth.signInWithPassword({ email, password });
   if (error) {
     showMsg(authMsg, error.message, "error");
     return;
@@ -237,11 +237,11 @@ loginForm.addEventListener("submit", async (e) => {
 
 /* ---------- log out ---------- */
 logoutBtn.addEventListener("click", async () => {
-  await supabase.auth.signOut();
+  await supabaseClient.auth.signOut();
 });
 
 /* ---------- react to auth state ---------- */
-supabase.auth.onAuthStateChange((_event, session) => {
+supabaseClient.auth.onAuthStateChange((_event, session) => {
   if (session) {
     authCard.style.display = "none";
     profileCard.style.display = "block";
@@ -255,7 +255,7 @@ supabase.auth.onAuthStateChange((_event, session) => {
 
 /* ---------- load profile into the form ---------- */
 async function loadProfile(userId){
-  const { data, error } = await supabase
+  const { data, error } = await supabaseClient
     .from("users")
     .select("display_name, zip_code, address, public_sharing_enabled")
     .eq("id", userId)
@@ -288,7 +288,7 @@ async function geocodeAddress(address){
 /* ---------- save profile ---------- */
 profileForm.addEventListener("submit", async (e) => {
   e.preventDefault();
-  const { data: { user } } = await supabase.auth.getUser();
+  const { data: { user } } = await supabaseClient.auth.getUser();
   if (!user) return;
 
   const displayName = document.getElementById("displayName").value.trim();
@@ -313,7 +313,7 @@ profileForm.addEventListener("submit", async (e) => {
     }
   }
 
-  const { error } = await supabase
+  const { error } = await supabaseClient
     .from("users")
     .update({
       display_name: displayName,
