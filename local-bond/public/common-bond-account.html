@@ -1,0 +1,335 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Common Bond — Account</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Overpass:wght@400;600;700&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<style>
+  :root{
+    --teal:#3D6B7A;
+    --teal-dark:#2A4C57;
+    --cream:#FFFCEB;
+    --ink:#26332F;
+    --line:#DDE3DE;
+    --error:#B3261E;
+    --ok:#2E7D53;
+  }
+  *{box-sizing:border-box;}
+  body{
+    margin:0; font-family:"Overpass",sans-serif; background:var(--cream); color:var(--ink);
+    display:flex; justify-content:center; padding:32px 16px;
+  }
+  .wrap{ width:100%; max-width:440px; }
+  .brand{ text-align:center; margin-bottom:24px; }
+  .brand .bamboo{ width:40px; height:45px; color:var(--teal); margin-bottom:6px; }
+  .brand .name{ font-weight:700; font-size:22px; color:var(--teal-dark); }
+  .brand .tag{ font-size:14px; color:#5A6B66; margin-top:4px; }
+  .card{
+    background:#fff; border:1px solid var(--line); border-radius:14px;
+    padding:24px; box-shadow:0 2px 10px rgba(0,0,0,0.04);
+  }
+  h2{ margin:0 0 16px; font-size:18px; color:var(--teal-dark); }
+  label{ display:block; font-size:13px; font-weight:600; margin:14px 0 6px; }
+  .hint{ font-size:12px; color:#6b7a76; margin-top:4px; font-weight:400; }
+  input[type=text], input[type=email], input[type=password]{
+    width:100%; padding:10px 12px; border:1px solid var(--line); border-radius:8px;
+    font-family:inherit; font-size:14px;
+  }
+  input:focus{ outline:2px solid var(--teal); outline-offset:1px; }
+  .checkbox-row{ display:flex; align-items:flex-start; gap:8px; margin:16px 0; }
+  .checkbox-row input{ margin-top:3px; }
+  .checkbox-row .ctext{ font-size:13px; }
+  .checkbox-row .ctext .hint{ margin-top:2px; }
+  button{
+    width:100%; padding:11px; border:none; border-radius:8px; font-family:inherit;
+    font-size:14px; font-weight:700; cursor:pointer; margin-top:6px;
+  }
+  .btn-primary{ background:var(--teal); color:#fff; }
+  .btn-primary:hover{ background:var(--teal-dark); }
+  .btn-secondary{ background:transparent; color:var(--teal-dark); border:1px solid var(--line) !important; border-width:1px; }
+  .btn-link{ background:none; color:var(--teal-dark); text-decoration:underline; font-weight:600; padding:6px; margin-top:0; }
+  .tabs{ display:flex; margin-bottom:18px; border-bottom:1px solid var(--line); }
+  .tab{
+    flex:1; text-align:center; padding:10px 0; cursor:pointer; font-weight:700;
+    color:#8a9490; border-bottom:2px solid transparent;
+  }
+  .tab.active{ color:var(--teal-dark); border-bottom-color:var(--teal); }
+  .msg{ font-size:13px; padding:10px 12px; border-radius:8px; margin-top:14px; display:none; }
+  .msg.error{ background:#FBEAE9; color:var(--error); display:block; }
+  .msg.ok{ background:#E8F5EE; color:var(--ok); display:block; }
+  .row-split{ display:flex; justify-content:space-between; align-items:center; }
+  .muted{ color:#6b7a76; font-size:13px; }
+  #logoutBtn{ margin-top:20px; }
+  .field-group{ padding-top:10px; margin-top:10px; border-top:1px dashed var(--line); }
+  .geostatus{ font-size:12px; margin-top:4px; }
+  .geostatus.ok{ color:var(--ok); }
+  .geostatus.error{ color:var(--error); }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="brand">
+    <svg class="bamboo" viewBox="0 0 100 112" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+      <g fill="currentColor">
+        <rect x="37" y="6" width="16" height="27" rx="4"/><rect x="37" y="37" width="16" height="30" rx="4"/>
+        <rect x="37" y="71" width="16" height="35" rx="4"/><rect x="57" y="46" width="15" height="28" rx="4"/>
+        <rect x="57" y="78" width="15" height="28" rx="4"/>
+        <g transform="translate(37,35)"><path transform="rotate(238) scale(26)" d="M0 0 Q0.4 -0.13 1 0 Q0.4 0.13 0 0 z"/>
+        <path transform="rotate(210) scale(31)" d="M0 0 Q0.4 -0.13 1 0 Q0.4 0.13 0 0 z"/>
+        <path transform="rotate(186) scale(34)" d="M0 0 Q0.4 -0.13 1 0 Q0.4 0.13 0 0 z"/>
+        <path transform="rotate(158) scale(27)" d="M0 0 Q0.4 -0.13 1 0 Q0.4 0.13 0 0 z"/></g>
+        <g transform="translate(72,76)"><path transform="rotate(-12) scale(31)" d="M0 0 Q0.4 -0.13 1 0 Q0.4 0.13 0 0 z"/>
+        <path transform="rotate(16) scale(27)" d="M0 0 Q0.4 -0.13 1 0 Q0.4 0.13 0 0 z"/>
+        <path transform="rotate(44) scale(22)" d="M0 0 Q0.4 -0.13 1 0 Q0.4 0.13 0 0 z"/></g>
+      </g>
+    </svg>
+    <div class="name">Common Bond</div>
+    <div class="tag">Share what you have, borrow what you need.</div>
+  </div>
+
+  <!-- ===================== AUTH CARD ===================== -->
+  <div class="card" id="authCard">
+    <div class="tabs">
+      <div class="tab active" data-tab="login">Log In</div>
+      <div class="tab" data-tab="signup">Sign Up</div>
+    </div>
+
+    <form id="loginForm">
+      <label for="loginEmail">Email</label>
+      <input type="email" id="loginEmail" required autocomplete="email">
+      <label for="loginPassword">Password</label>
+      <input type="password" id="loginPassword" required autocomplete="current-password">
+      <button type="submit" class="btn-primary">Log In</button>
+    </form>
+
+    <form id="signupForm" style="display:none">
+      <label for="signupName">Your name</label>
+      <input type="text" id="signupName" required autocomplete="name" placeholder="Shown to people you bond or share a Guild with">
+      <label for="signupEmail">Email</label>
+      <input type="email" id="signupEmail" required autocomplete="email">
+      <label for="signupPassword">Password</label>
+      <input type="password" id="signupPassword" required minlength="6" autocomplete="new-password">
+      <div class="hint">At least 6 characters.</div>
+      <button type="submit" class="btn-primary">Create account</button>
+    </form>
+
+    <div class="msg" id="authMsg"></div>
+  </div>
+
+  <!-- ===================== PROFILE CARD ===================== -->
+  <div class="card" id="profileCard" style="display:none">
+    <div class="row-split">
+      <h2>Your profile</h2>
+      <span class="muted" id="whoami"></span>
+    </div>
+
+    <form id="profileForm">
+      <label for="displayName">Display name</label>
+      <input type="text" id="displayName" required>
+
+      <label for="zip">Zip code</label>
+      <input type="text" id="zip" placeholder="e.g. 94952" inputmode="numeric">
+      <div class="hint">Used for distance when someone searches. Fine to leave your address blank and use this alone.</div>
+
+      <div class="field-group">
+        <label for="address">Address (optional, more accurate distance)</label>
+        <input type="text" id="address" placeholder="Street address">
+        <div class="hint">Never shown to anyone — including people you bond or share a Guild with. Used only to calculate distance, one time, when you save.</div>
+        <div class="geostatus" id="geoStatus"></div>
+      </div>
+
+      <div class="checkbox-row">
+        <input type="checkbox" id="publicSharing">
+        <div class="ctext">
+          Share my items with the general public by default
+          <div class="hint">Turn this off to limit ALL of your items to people you've bonded with or share a Guild with, regardless of each item's own setting. You can always turn it back on.</div>
+        </div>
+      </div>
+
+      <button type="submit" class="btn-primary">Save profile</button>
+    </form>
+
+    <div class="msg" id="profileMsg"></div>
+
+    <button id="logoutBtn" class="btn-secondary">Log out</button>
+  </div>
+</div>
+
+<script>
+/* ============================================================
+   CONFIG — fill these in after creating your Supabase project
+   (Project Settings → API). The anon key is safe to put in this
+   public file: it can only do what the RLS policies allow.
+   ============================================================ */
+const CONFIG = {
+  SUPABASE_URL: "https://ggdpjoirrzxxgxbhyosb.supabase.co",
+  SUPABASE_ANON_KEY: "YOUR_SUPeyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImdnZHBqb2lycnp4eGd4Ymh5b3NiIiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTA4MTgxOTcsImV4cCI6MjEwNjM5NDE5N30.Kjnl8a_WCnv4Yek7hYCojIWLMNG2Bi69j-O-Q3o91U8ABASE_ANON_KEY",
+};
+
+const supabase = window.supabase.createClient(CONFIG.SUPABASE_URL, CONFIG.SUPABASE_ANON_KEY);
+
+/* ---------- element refs ---------- */
+const authCard = document.getElementById("authCard");
+const profileCard = document.getElementById("profileCard");
+const tabs = document.querySelectorAll(".tab");
+const loginForm = document.getElementById("loginForm");
+const signupForm = document.getElementById("signupForm");
+const authMsg = document.getElementById("authMsg");
+const profileForm = document.getElementById("profileForm");
+const profileMsg = document.getElementById("profileMsg");
+const geoStatus = document.getElementById("geoStatus");
+const logoutBtn = document.getElementById("logoutBtn");
+const whoami = document.getElementById("whoami");
+
+/* ---------- tab switching ---------- */
+tabs.forEach(tab => {
+  tab.addEventListener("click", () => {
+    tabs.forEach(t => t.classList.remove("active"));
+    tab.classList.add("active");
+    const which = tab.dataset.tab;
+    loginForm.style.display = which === "login" ? "block" : "none";
+    signupForm.style.display = which === "signup" ? "block" : "none";
+    authMsg.style.display = "none";
+  });
+});
+
+function showMsg(el, text, type){
+  el.textContent = text;
+  el.className = "msg " + type;
+}
+
+/* ---------- sign up ---------- */
+signupForm.addEventListener("submit", async (e) => {
+  e.preventDefault();
+  const name = document.getElementById("signupName").value.trim();
+  const email = document.getElementById("signupEmail").value.trim();
+  const password = document.getElementById("signupPassword").value;
+
+  const { error } = await supabase.auth.signUp({
+    email, password,
+    options: { data: { display_name: name } }
+  });
+
+  if (error) {
+    showMsg(authMsg, error.message, "error");
+    return;
+  }
+  showMsg(authMsg, "Account created. Check your email to confirm, then log in.", "ok");
+  signupForm.reset();
+});
+
+/* ---------- log in ---------- */
+loginForm.addEventListener("submit", async (e) => {
+  e.preventDefault();
+  const email = document.getElementById("loginEmail").value.trim();
+  const password = document.getElementById("loginPassword").value;
+
+  const { error } = await supabase.auth.signInWithPassword({ email, password });
+  if (error) {
+    showMsg(authMsg, error.message, "error");
+    return;
+  }
+  // onAuthStateChange below handles showing the profile card
+});
+
+/* ---------- log out ---------- */
+logoutBtn.addEventListener("click", async () => {
+  await supabase.auth.signOut();
+});
+
+/* ---------- react to auth state ---------- */
+supabase.auth.onAuthStateChange((_event, session) => {
+  if (session) {
+    authCard.style.display = "none";
+    profileCard.style.display = "block";
+    whoami.textContent = session.user.email;
+    loadProfile(session.user.id);
+  } else {
+    authCard.style.display = "block";
+    profileCard.style.display = "none";
+  }
+});
+
+/* ---------- load profile into the form ---------- */
+async function loadProfile(userId){
+  const { data, error } = await supabase
+    .from("users")
+    .select("display_name, zip_code, address, public_sharing_enabled")
+    .eq("id", userId)
+    .single();
+
+  if (error) {
+    // Row may not exist yet for a brand-new signup on a slow trigger — retry once.
+    setTimeout(() => loadProfile(userId), 800);
+    return;
+  }
+
+  document.getElementById("displayName").value = data.display_name || "";
+  document.getElementById("zip").value = data.zip_code || "";
+  document.getElementById("address").value = data.address || "";
+  document.getElementById("publicSharing").checked = data.public_sharing_enabled !== false;
+}
+
+/* ---------- geocode an address via the free Census geocoder ---------- */
+async function geocodeAddress(address){
+  const url = "https://geocoding.geo.census.gov/geocoder/locations/onelineaddress"
+    + "?address=" + encodeURIComponent(address)
+    + "&benchmark=Public_AR_Current&format=json";
+  const res = await fetch(url);
+  const json = await res.json();
+  const match = json.result && json.result.addressMatches && json.result.addressMatches[0];
+  if (!match) return null;
+  return { lat: match.coordinates.y, lng: match.coordinates.x };
+}
+
+/* ---------- save profile ---------- */
+profileForm.addEventListener("submit", async (e) => {
+  e.preventDefault();
+  const { data: { user } } = await supabase.auth.getUser();
+  if (!user) return;
+
+  const displayName = document.getElementById("displayName").value.trim();
+  const zip = document.getElementById("zip").value.trim();
+  const address = document.getElementById("address").value.trim();
+  const publicSharing = document.getElementById("publicSharing").checked;
+
+  let lat = null, lng = null;
+  geoStatus.textContent = "";
+  geoStatus.className = "geostatus";
+
+  if (address) {
+    geoStatus.textContent = "Looking up your address…";
+    const point = await geocodeAddress(address);
+    if (point) {
+      lat = point.lat; lng = point.lng;
+      geoStatus.textContent = "Address found — using it for distance.";
+      geoStatus.className = "geostatus ok";
+    } else {
+      geoStatus.textContent = "Couldn't find that address — saved your zip code instead.";
+      geoStatus.className = "geostatus error";
+    }
+  }
+
+  const { error } = await supabase
+    .from("users")
+    .update({
+      display_name: displayName,
+      zip_code: zip || null,
+      address: address || null,
+      lat, lng,
+      public_sharing_enabled: publicSharing
+    })
+    .eq("id", user.id);
+
+  if (error) {
+    showMsg(profileMsg, error.message, "error");
+    return;
+  }
+  showMsg(profileMsg, "Profile saved.", "ok");
+});
+</script>
+</body>
+</html>
