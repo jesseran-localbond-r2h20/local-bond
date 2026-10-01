@@ -302,13 +302,21 @@ profileForm.addEventListener("submit", async (e) => {
 
   if (address) {
     geoStatus.textContent = "Looking up your address…";
-    const point = await geocodeAddress(address);
-    if (point) {
-      lat = point.lat; lng = point.lng;
-      geoStatus.textContent = "Address found — using it for distance.";
-      geoStatus.className = "geostatus ok";
-    } else {
-      geoStatus.textContent = "Couldn't find that address — saved your zip code instead.";
+    try {
+      const point = await geocodeAddress(address);
+      if (point) {
+        lat = point.lat; lng = point.lng;
+        geoStatus.textContent = "Address found — using it for distance.";
+        geoStatus.className = "geostatus ok";
+      } else {
+        geoStatus.textContent = "Couldn't find that address — saved your zip code instead.";
+        geoStatus.className = "geostatus error";
+      }
+    } catch (err) {
+      // Geocoding can fail (e.g. the lookup service being unreachable from
+      // the browser) — that should never block saving the rest of the
+      // profile. Zip code alone still works fine for distance.
+      geoStatus.textContent = "Couldn't look up that address right now — saved your zip code instead.";
       geoStatus.className = "geostatus error";
     }
   }
