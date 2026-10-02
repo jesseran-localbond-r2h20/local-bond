@@ -1,0 +1,415 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Common Bond — Guilds</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Overpass:wght@400;600;700&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<style>
+  :root{
+    --teal:#3D6B7A;
+    --teal-dark:#2A4C57;
+    --cream:#FFFCEB;
+    --ink:#26332F;
+    --line:#DDE3DE;
+    --error:#B3261E;
+    --ok:#2E7D53;
+  }
+  *{box-sizing:border-box;}
+  body{
+    margin:0; font-family:"Overpass",sans-serif; background:var(--cream); color:var(--ink);
+  }
+  .topbar{
+    position:sticky; top:0; background:#fff; border-bottom:1px solid var(--line);
+    display:flex; align-items:center; justify-content:space-between;
+    padding:12px 20px; z-index:10;
+  }
+  .topbar .brand{ display:flex; align-items:center; gap:8px; }
+  .topbar .bamboo{ width:26px; height:29px; color:var(--teal); }
+  .topbar .name{ font-weight:700; font-size:17px; color:var(--teal-dark); }
+  .topbar .right{ display:flex; align-items:center; gap:16px; font-size:13px; font-weight:600; }
+  .topbar .right a{ color:var(--teal-dark); text-decoration:none; }
+  .topbar .right a:hover{ text-decoration:underline; }
+  .topbar .right button{
+    background:none; border:1px solid var(--line); border-radius:6px; padding:6px 10px;
+    font-family:inherit; font-size:13px; font-weight:600; color:var(--teal-dark); cursor:pointer;
+  }
+  .wrap{ max-width:680px; margin:0 auto; padding:24px 16px 60px; }
+  h1{ font-size:20px; color:var(--teal-dark); margin:0 0 4px; }
+  .sub{ font-size:14px; color:#5A6B66; margin:0 0 24px; }
+  .gate{ text-align:center; padding:60px 16px; }
+  .gate a{ color:var(--teal-dark); font-weight:700; text-decoration:underline; }
+  .card{
+    background:#fff; border:1px solid var(--line); border-radius:14px;
+    padding:20px; box-shadow:0 2px 10px rgba(0,0,0,0.04); margin-bottom:22px;
+  }
+  .card h2{ margin:0 0 4px; font-size:16px; color:var(--teal-dark); }
+  .card .desc{ font-size:13px; color:#5A6B66; margin:0 0 14px; }
+  .send-row{ display:flex; gap:8px; }
+  .send-row input{
+    flex:1; padding:10px 12px; border:1px solid var(--line); border-radius:8px;
+    font-family:inherit; font-size:14px;
+  }
+  .send-row input:focus{ outline:2px solid var(--teal); outline-offset:1px; }
+  .send-row button{
+    padding:10px 16px; border:none; border-radius:8px; font-family:inherit;
+    font-size:14px; font-weight:700; cursor:pointer; background:var(--teal); color:#fff; flex-shrink:0;
+  }
+  .send-row button:hover{ background:var(--teal-dark); }
+  .send-row button:disabled{ opacity:0.6; cursor:default; }
+  .msg{ font-size:13px; padding:10px 12px; border-radius:8px; margin-top:12px; display:none; }
+  .msg.error{ background:#FBEAE9; color:var(--error); display:block; }
+  .msg.ok{ background:#E8F5EE; color:var(--ok); display:block; }
+  .cap-note{ font-size:12px; color:#6b7a76; margin-top:10px; }
+  .list{ list-style:none; margin:0; padding:0; }
+  .list li{
+    display:flex; align-items:center; justify-content:space-between; gap:10px;
+    padding:12px 0; border-bottom:1px solid var(--line);
+  }
+  .list li:last-child{ border-bottom:none; }
+  .list .who{ font-weight:600; font-size:14px; }
+  .list .meta{ font-size:12px; color:#6b7a76; margin-top:2px; }
+  .actions{ display:flex; gap:8px; flex-shrink:0; flex-wrap:wrap; justify-content:flex-end; }
+  .actions button{
+    padding:7px 12px; border-radius:6px; font-family:inherit; font-size:13px;
+    font-weight:600; cursor:pointer; border:1px solid var(--line);
+  }
+  .btn-accept{ background:var(--teal); color:#fff; border:none; }
+  .btn-accept:hover{ background:var(--teal-dark); }
+  .btn-decline, .btn-withdraw, .btn-leave, .btn-remove, .btn-delete{ background:#fff; color:var(--error); border-color:#F0CFCC; }
+  .btn-decline:hover, .btn-withdraw:hover, .btn-leave:hover, .btn-remove:hover, .btn-delete:hover{ background:#FBEAE9; }
+  .empty{ font-size:13px; color:#6b7a76; padding:4px 0; }
+  .guild-block{ margin-bottom:26px; }
+  .guild-header{ display:flex; align-items:center; justify-content:space-between; margin-bottom:6px; }
+  .guild-header .gname{ font-weight:700; font-size:15px; color:var(--teal-dark); }
+  .owner-badge{
+    font-size:11px; font-weight:700; padding:2px 8px; border-radius:999px;
+    background:#EAF2E9; color:#355E3B; margin-left:6px;
+  }
+  .invite-row{ display:flex; gap:8px; margin-top:10px; }
+  .invite-row input{
+    flex:1; padding:8px 10px; border:1px solid var(--line); border-radius:8px;
+    font-family:inherit; font-size:13px;
+  }
+  .invite-row button{
+    padding:8px 12px; border:none; border-radius:8px; font-family:inherit;
+    font-size:13px; font-weight:700; cursor:pointer; background:var(--teal); color:#fff;
+  }
+  .invite-row button:hover{ background:var(--teal-dark); }
+</style>
+</head>
+<body>
+
+<div class="topbar">
+  <div class="brand">
+    <svg class="bamboo" viewBox="0 0 100 112" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+      <g fill="currentColor">
+        <rect x="37" y="6" width="16" height="27" rx="4"/><rect x="37" y="37" width="16" height="30" rx="4"/>
+        <rect x="37" y="71" width="16" height="35" rx="4"/><rect x="57" y="46" width="15" height="28" rx="4"/>
+        <rect x="57" y="78" width="15" height="28" rx="4"/>
+        <g transform="translate(37,35)"><path transform="rotate(238) scale(26)" d="M0 0 Q0.4 -0.13 1 0 Q0.4 0.13 0 0 z"/>
+        <path transform="rotate(210) scale(31)" d="M0 0 Q0.4 -0.13 1 0 Q0.4 0.13 0 0 z"/>
+        <path transform="rotate(186) scale(34)" d="M0 0 Q0.4 -0.13 1 0 Q0.4 0.13 0 0 z"/>
+        <path transform="rotate(158) scale(27)" d="M0 0 Q0.4 -0.13 1 0 Q0.4 0.13 0 0 z"/></g>
+        <g transform="translate(72,76)"><path transform="rotate(-12) scale(31)" d="M0 0 Q0.4 -0.13 1 0 Q0.4 0.13 0 0 z"/>
+        <path transform="rotate(16) scale(27)" d="M0 0 Q0.4 -0.13 1 0 Q0.4 0.13 0 0 z"/>
+        <path transform="rotate(44) scale(22)" d="M0 0 Q0.4 -0.13 1 0 Q0.4 0.13 0 0 z"/></g>
+      </g>
+    </svg>
+    <span class="name">Common Bond</span>
+  </div>
+  <div class="right" id="topbarRight"></div>
+</div>
+
+<div class="gate" id="gate" style="display:none">
+  You need to be logged in to see your Guilds. <a href="common-bond-account.html">Log in</a>
+</div>
+
+<div id="app" style="display:none">
+  <div class="wrap">
+    <h1>Your Guilds</h1>
+    <p class="sub">A Guild is a private group — everyone in it can see each other's Guild-shared items, no matter how far apart you are. Joining works like a Bond: whoever's invited has to accept first.</p>
+
+    <div class="card">
+      <h2>Create a Guild</h2>
+      <p class="desc">You can be in up to 3 Guilds at a time, owned or joined combined.</p>
+      <div class="send-row">
+        <input type="text" id="newGuildName" placeholder="e.g. Petaluma Tool Library">
+        <button id="createBtn">Create</button>
+      </div>
+      <div class="msg" id="createMsg"></div>
+    </div>
+
+    <div class="card">
+      <h2>Pending — waiting on you</h2>
+      <p class="desc">Guild invites you haven't responded to yet.</p>
+      <ul class="list" id="incomingList"></ul>
+      <div class="empty" id="incomingEmpty" style="display:none">No pending Guild invites right now.</div>
+    </div>
+
+    <div id="guildsContainer"></div>
+    <div class="empty" id="guildsEmpty" style="display:none">You're not in any Guilds yet — create one above, or wait for an invite.</div>
+  </div>
+</div>
+
+<script>
+/* ============================================================
+   CONFIG — same Supabase project URL and anon key as the other
+   Common Bond pages.
+   ============================================================ */
+const CONFIG = {
+  SUPABASE_URL: "https://ggdpjoirrzxxgxbhyosb.supabase.co",
+  SUPABASE_ANON_KEY: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImdnZHBqb2lycnp4eGd4Ymh5b3NiIiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTA4MTgxOTcsImV4cCI6MjEwNjM5NDE5N30.Kjnl8a_WCnv4Yek7hYCojIWLMNG2Bi69j-O-Q3o91U8",
+};
+
+const supabaseClient = window.supabase.createClient(CONFIG.SUPABASE_URL, CONFIG.SUPABASE_ANON_KEY);
+
+/* ---------- element refs ---------- */
+const gate = document.getElementById("gate");
+const app = document.getElementById("app");
+const topbarRight = document.getElementById("topbarRight");
+const newGuildName = document.getElementById("newGuildName");
+const createBtn = document.getElementById("createBtn");
+const createMsg = document.getElementById("createMsg");
+const incomingList = document.getElementById("incomingList");
+const incomingEmpty = document.getElementById("incomingEmpty");
+const guildsContainer = document.getElementById("guildsContainer");
+const guildsEmpty = document.getElementById("guildsEmpty");
+
+let currentUser = null;
+
+function showMsg(el, text, type){
+  el.textContent = text;
+  el.className = "msg " + type;
+}
+
+/* ---------- auth state ---------- */
+supabaseClient.auth.onAuthStateChange((_event, session) => {
+  if (session) {
+    currentUser = session.user;
+    gate.style.display = "none";
+    app.style.display = "block";
+    topbarRight.innerHTML = `<a href="common-bond-browse.html">Browse</a> <a href="common-bond-bonds.html">Bonds</a> <a href="common-bond-account.html">My profile</a> <button id="logoutBtn">Log out</button>`;
+    document.getElementById("logoutBtn").addEventListener("click", async () => {
+      await supabaseClient.auth.signOut();
+    });
+    loadAll();
+  } else {
+    currentUser = null;
+    gate.style.display = "block";
+    app.style.display = "none";
+    topbarRight.innerHTML = `<a href="common-bond-account.html">Log in</a>`;
+  }
+});
+
+/* ---------- names for a set of ids, via public_profiles ---------- */
+async function namesFor(ids){
+  if (ids.length === 0) return {};
+  const { data, error } = await supabaseClient
+    .from("public_profiles")
+    .select("id, display_name")
+    .in("id", ids);
+  if (error) return {};
+  const map = {};
+  (data || []).forEach(row => { map[row.id] = row.display_name; });
+  return map;
+}
+
+function fmtDate(iso){
+  if (!iso) return "";
+  const d = new Date(iso);
+  return d.toLocaleDateString(undefined, { month: "short", day: "numeric", year: "numeric" });
+}
+
+/* ---------- load everything: incoming invites + my guilds + rosters ---------- */
+async function loadAll(){
+  const { data: invites } = await supabaseClient
+    .from("guild_invites")
+    .select("id, guild_id, inviter_id, status, created_at")
+    .eq("status", "pending")
+    .eq("invitee_id", currentUser.id)
+    .order("created_at", { ascending: false });
+
+  const { data: guilds, error: gErr } = await supabaseClient
+    .from("guilds")
+    .select("id, name, owner_id, created_at")
+    .order("created_at", { ascending: true });
+
+  if (gErr) {
+    guildsEmpty.textContent = "Couldn't load your Guilds right now.";
+    guildsEmpty.style.display = "block";
+    return;
+  }
+
+  // Names for inviters on pending invites (so "Alice invited you" reads right)
+  const inviterIds = (invites || []).map(i => i.inviter_id);
+  // Guild names for invites come from a separate lookup since the invitee
+  // isn't a member yet and guilds' own select policy would otherwise hide them —
+  // we only need the name, so ask the inviter's guild list isn't available to us;
+  // instead show the guild id's name by joining through a members-only view is
+  // not possible pre-acceptance, so fall back to "a Guild" if we can't resolve it.
+  const inviterNames = await namesFor([...new Set(inviterIds)]);
+
+  renderIncoming(invites || [], inviterNames);
+
+  guildsEmpty.style.display = (guilds || []).length === 0 ? "block" : "none";
+  guildsContainer.innerHTML = "";
+  for (const g of (guilds || [])) {
+    await renderGuildBlock(g);
+  }
+}
+
+function renderIncoming(invites, inviterNames){
+  incomingList.innerHTML = "";
+  incomingEmpty.style.display = invites.length ? "none" : "block";
+  invites.forEach(inv => {
+    const li = document.createElement("li");
+    li.innerHTML = `
+      <div>
+        <div class="who">Invited by ${inviterNames[inv.inviter_id] || "Someone"}</div>
+        <div class="meta">Sent ${fmtDate(inv.created_at)}</div>
+      </div>
+      <div class="actions">
+        <button class="btn-accept" data-invite="${inv.id}" data-action="accept-invite">Accept</button>
+        <button class="btn-decline" data-invite="${inv.id}" data-action="decline-invite">Decline</button>
+      </div>`;
+    incomingList.appendChild(li);
+  });
+}
+
+async function renderGuildBlock(guild){
+  const isOwner = guild.owner_id === currentUser.id;
+
+  const { data: members } = await supabaseClient
+    .from("guild_members")
+    .select("user_id, role, joined_at")
+    .eq("guild_id", guild.id)
+    .order("joined_at", { ascending: true });
+
+  const names = await namesFor((members || []).map(m => m.user_id));
+
+  const block = document.createElement("div");
+  block.className = "card guild-block";
+
+  const rosterHtml = (members || []).map(m => {
+    const isMe = m.user_id === currentUser.id;
+    const label = `${names[m.user_id] || "Someone"}${isMe ? " (you)" : ""}`;
+    const ownerBadge = m.role === "owner" ? `<span class="owner-badge">Owner</span>` : "";
+    let actionBtn = "";
+    if (isOwner && !isMe) {
+      actionBtn = `<button class="btn-remove" data-guild="${guild.id}" data-user="${m.user_id}" data-action="remove-member">Remove</button>`;
+    } else if (isMe && m.role !== "owner") {
+      actionBtn = `<button class="btn-leave" data-guild="${guild.id}" data-action="leave-guild">Leave</button>`;
+    }
+    return `<li><div><div class="who">${label}${ownerBadge}</div></div><div class="actions">${actionBtn}</div></li>`;
+  }).join("");
+
+  block.innerHTML = `
+    <div class="guild-header">
+      <span class="gname">${escapeHtml(guild.name)}${isOwner ? `<span class="owner-badge">You own this</span>` : ""}</span>
+      ${isOwner ? `<button class="btn-delete" data-guild="${guild.id}" data-action="delete-guild">Delete Guild</button>` : ""}
+    </div>
+    <p class="desc">${(members || []).length} member${(members || []).length === 1 ? "" : "s"}</p>
+    <ul class="list">${rosterHtml}</ul>
+    ${isOwner ? `
+      <div class="invite-row">
+        <input type="email" placeholder="Invite by email" data-guild-invite-input="${guild.id}">
+        <button data-guild="${guild.id}" data-action="send-invite">Invite</button>
+      </div>
+      <div class="msg" id="inviteMsg-${guild.id}"></div>
+    ` : ""}
+  `;
+  guildsContainer.appendChild(block);
+}
+
+function escapeHtml(s){
+  return String(s).replace(/[&<>"']/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+}
+
+/* ---------- create a guild ---------- */
+createBtn.addEventListener("click", async () => {
+  const name = newGuildName.value.trim();
+  if (!name) return;
+  createBtn.disabled = true;
+  createMsg.style.display = "none";
+
+  const { error } = await supabaseClient.rpc("create_guild", { guild_name: name });
+
+  createBtn.disabled = false;
+  if (error) {
+    showMsg(createMsg, error.message, "error");
+    return;
+  }
+  showMsg(createMsg, "Guild created.", "ok");
+  newGuildName.value = "";
+  loadAll();
+});
+
+newGuildName.addEventListener("keydown", (e) => {
+  if (e.key === "Enter") createBtn.click();
+});
+
+/* ---------- send an invite (one per Guild card) ---------- */
+async function sendInvite(guildId){
+  const input = document.querySelector(`[data-guild-invite-input="${guildId}"]`);
+  const msgEl = document.getElementById(`inviteMsg-${guildId}`);
+  const email = input.value.trim();
+  if (!email) return;
+
+  const { error } = await supabaseClient.rpc("send_guild_invite", {
+    target_guild_id: guildId,
+    target_email: email,
+  });
+
+  if (error) {
+    showMsg(msgEl, error.message, "error");
+    return;
+  }
+  showMsg(msgEl, "Invite sent.", "ok");
+  input.value = "";
+}
+
+/* ---------- every other action: accept/decline/leave/remove/delete ---------- */
+document.addEventListener("click", async (e) => {
+  const btn = e.target.closest("button[data-action]");
+  if (!btn) return;
+  const action = btn.dataset.action;
+
+  if (action === "send-invite") {
+    sendInvite(btn.dataset.guild);
+    return;
+  }
+
+  btn.disabled = true;
+  let error = null;
+
+  if (action === "accept-invite") {
+    ({ error } = await supabaseClient.rpc("respond_guild_invite", { invite_id: btn.dataset.invite, accept: true }));
+  } else if (action === "decline-invite") {
+    ({ error } = await supabaseClient.rpc("respond_guild_invite", { invite_id: btn.dataset.invite, accept: false }));
+  } else if (action === "leave-guild") {
+    ({ error } = await supabaseClient.from("guild_members").delete()
+      .eq("guild_id", btn.dataset.guild).eq("user_id", currentUser.id));
+  } else if (action === "remove-member") {
+    ({ error } = await supabaseClient.from("guild_members").delete()
+      .eq("guild_id", btn.dataset.guild).eq("user_id", btn.dataset.user));
+  } else if (action === "delete-guild") {
+    if (!confirm("Delete this Guild for everyone in it? This can't be undone.")) {
+      btn.disabled = false;
+      return;
+    }
+    ({ error } = await supabaseClient.from("guilds").delete().eq("id", btn.dataset.guild));
+  }
+
+  if (error) {
+    btn.disabled = false;
+    alert(error.message);
+    return;
+  }
+  loadAll();
+});
+</script>
+</body>
+</html>

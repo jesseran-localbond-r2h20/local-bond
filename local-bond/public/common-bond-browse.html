@@ -73,6 +73,7 @@
   }
   .tag.mine{ background:#FBEAE9; color:var(--error); }
   .tag.bond{ background:#E8F0F2; color:var(--teal-dark); }
+  .tag.guild{ background:#EAF2E9; color:#355E3B; }
   .empty{ text-align:center; color:#6b7a76; padding:60px 20px; font-size:14px; }
   .fab{
     position:fixed; bottom:22px; right:22px; width:auto; border-radius:999px;
@@ -201,6 +202,14 @@
         </div>
       </div>
 
+      <div class="checkbox-row">
+        <input type="checkbox" id="itemShareGuilds" checked>
+        <div class="ctext">
+          Share with your Guilds
+          <div class="hint">Keeps this item visible to anyone in a Guild with you, even if you turn off public sharing above.</div>
+        </div>
+      </div>
+
       <div class="modal-actions">
         <button type="button" class="btn-cancel" id="cancelBtn">Cancel</button>
         <button type="submit" class="btn-primary">List it</button>
@@ -251,7 +260,7 @@ supabaseClient.auth.onAuthStateChange((_event, session) => {
     gate.style.display = "none";
     app.style.display = "block";
     listBtn.style.display = "block";
-    topbarRight.innerHTML = `<a href="common-bond-bonds.html">Bonds</a> <a href="common-bond-account.html">My profile</a> <button id="logoutBtn">Log out</button>`;
+    topbarRight.innerHTML = `<a href="common-bond-bonds.html">Bonds</a> <a href="common-bond-guilds.html">Guilds</a> <a href="common-bond-account.html">My profile</a> <button id="logoutBtn">Log out</button>`;
     document.getElementById("logoutBtn").addEventListener("click", async () => {
       await supabaseClient.auth.signOut();
     });
@@ -354,6 +363,7 @@ function renderCard(item){
   const fee = item.fee_amount ? `$${Number(item.fee_amount).toFixed(2)}` : "Free";
   const mineTag = item.is_mine ? `<span class="tag mine">Yours</span>` : "";
   const bondTag = (!item.is_mine && item.visibility_tier === "bond") ? `<span class="tag bond">Via your Bond</span>` : "";
+  const guildTag = (!item.is_mine && item.visibility_tier === "guild") ? `<span class="tag guild">Via a Guild</span>` : "";
   const thumb = item.photo_url
     ? `<img src="${item.photo_url}" alt="">`
     : `<span>${item.category_name || ""}</span>`;
@@ -366,6 +376,7 @@ function renderCard(item){
       <div class="tag-row">
         <span class="tag">${escapeHtml(item.category_name || "")}</span>
         <span class="tag">${fee}</span>
+        ${guildTag}
         ${bondTag}
         ${mineTag}
       </div>
@@ -412,6 +423,7 @@ itemForm.addEventListener("submit", async (e) => {
   const address = document.getElementById("itemAddress").value.trim();
   const sharePublic = document.getElementById("itemSharePublic").checked;
   const shareBonds = document.getElementById("itemShareBonds").checked;
+  const shareGuilds = document.getElementById("itemShareGuilds").checked;
   const photoFile = document.getElementById("itemPhoto").files[0];
 
   let lat = null, lng = null;
@@ -458,6 +470,7 @@ itemForm.addEventListener("submit", async (e) => {
     lat, lng,
     share_public: sharePublic,
     share_bonds: shareBonds,
+    share_guilds: shareGuilds,
   });
 
   if (error) {
