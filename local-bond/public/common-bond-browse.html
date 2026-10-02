@@ -1,0 +1,468 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Common Bond — Browse</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Overpass:wght@400;600;700&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<style>
+  :root{
+    --teal:#3D6B7A; --teal-dark:#2A4C57; --cream:#FFFCEB; --ink:#26332F;
+    --line:#DDE3DE; --error:#B3261E; --ok:#2E7D53; --card:#fff;
+  }
+  *{box-sizing:border-box;}
+  body{
+    margin:0; font-family:"Overpass",sans-serif; background:var(--cream); color:var(--ink);
+  }
+  .topbar{
+    display:flex; align-items:center; justify-content:space-between;
+    padding:14px 20px; background:#fff; border-bottom:1px solid var(--line);
+    position:sticky; top:0; z-index:5;
+  }
+  .brand-row{ display:flex; align-items:center; gap:8px; }
+  .bamboo{ width:22px; height:25px; color:var(--teal); }
+  .brand-name{ font-weight:700; font-size:17px; color:var(--teal-dark); }
+  .topbar a, .topbar button{
+    font-family:inherit; font-size:13px; font-weight:700; color:var(--teal-dark);
+    background:none; border:1px solid var(--line); border-radius:8px; padding:7px 12px;
+    cursor:pointer; text-decoration:none;
+  }
+  .main{ max-width:960px; margin:0 auto; padding:20px 16px 80px; }
+  .gate{
+    max-width:420px; margin:60px auto; text-align:center; background:#fff;
+    border:1px solid var(--line); border-radius:14px; padding:28px;
+  }
+  .gate a{ color:var(--teal-dark); font-weight:700; }
+  .toolbar{ display:flex; flex-wrap:wrap; gap:10px; margin-bottom:14px; }
+  input[type=text], input[type=number], select, textarea{
+    font-family:inherit; font-size:14px; padding:10px 12px; border:1px solid var(--line);
+    border-radius:8px; background:#fff;
+  }
+  #searchInput{ flex:1; min-width:180px; }
+  .chips{ display:flex; flex-wrap:wrap; gap:8px; margin-bottom:16px; }
+  .chip{
+    font-size:13px; font-weight:700; padding:6px 13px; border-radius:999px;
+    border:1px solid var(--line); background:#fff; color:#5A6B66; cursor:pointer;
+  }
+  .chip.active{ background:var(--teal); color:#fff; border-color:var(--teal); }
+  .sortbar{ display:flex; align-items:center; gap:8px; font-size:13px; color:#5A6B66; margin-bottom:16px; }
+  .btn-primary{
+    background:var(--teal); color:#fff; border:none; border-radius:8px; font-weight:700;
+    font-size:14px; padding:10px 16px; cursor:pointer; font-family:inherit;
+  }
+  .btn-primary:hover{ background:var(--teal-dark); }
+  .grid{ display:grid; grid-template-columns:repeat(auto-fill, minmax(220px,1fr)); gap:14px; }
+  .card{
+    background:var(--card); border:1px solid var(--line); border-radius:12px; overflow:hidden;
+    display:flex; flex-direction:column;
+  }
+  .thumb{
+    width:100%; aspect-ratio:4/3; background:#EFF3EC; display:flex; align-items:center;
+    justify-content:center; color:#9AAAA4; font-size:12px; overflow:hidden;
+  }
+  .thumb img{ width:100%; height:100%; object-fit:cover; }
+  .card-body{ padding:12px; }
+  .item-name{ font-weight:700; font-size:15px; margin-bottom:2px; }
+  .meta{ font-size:12px; color:#6b7a76; margin-bottom:6px; }
+  .tag-row{ display:flex; gap:6px; flex-wrap:wrap; }
+  .tag{
+    font-size:11px; font-weight:700; padding:3px 8px; border-radius:999px;
+    background:#EFF3EC; color:var(--teal-dark);
+  }
+  .tag.mine{ background:#FBEAE9; color:var(--error); }
+  .empty{ text-align:center; color:#6b7a76; padding:60px 20px; font-size:14px; }
+  .fab{
+    position:fixed; bottom:22px; right:22px; width:auto; border-radius:999px;
+    padding:14px 20px; box-shadow:0 4px 14px rgba(0,0,0,0.18); font-size:14px;
+  }
+  /* ---------- modal ---------- */
+  .overlay{
+    display:none; position:fixed; inset:0; background:rgba(0,0,0,0.35);
+    align-items:flex-start; justify-content:center; padding:40px 16px; overflow-y:auto; z-index:10;
+  }
+  .overlay.open{ display:flex; }
+  .modal{
+    background:#fff; border-radius:14px; padding:24px; max-width:440px; width:100%;
+  }
+  .modal h2{ margin:0 0 14px; font-size:18px; color:var(--teal-dark); }
+  .modal label{ display:block; font-size:13px; font-weight:700; margin:12px 0 6px; }
+  .modal input, .modal select, .modal textarea{ width:100%; }
+  .modal textarea{ resize:vertical; min-height:60px; }
+  .hint{ font-size:12px; color:#6b7a76; margin-top:4px; font-weight:400; }
+  .checkbox-row{ display:flex; align-items:flex-start; gap:8px; margin:14px 0; }
+  .checkbox-row input{ margin-top:3px; }
+  .checkbox-row .ctext{ font-size:13px; }
+  .modal-actions{ display:flex; gap:10px; margin-top:18px; }
+  .btn-cancel{
+    flex:1; background:#fff; border:1px solid var(--line); border-radius:8px; font-weight:700;
+    font-size:14px; padding:10px; cursor:pointer; color:var(--teal-dark); font-family:inherit;
+  }
+  .modal .btn-primary{ flex:1; }
+  .msg{ font-size:13px; padding:10px 12px; border-radius:8px; margin-top:12px; display:none; }
+  .msg.error{ background:#FBEAE9; color:var(--error); display:block; }
+  .msg.ok{ background:#E8F5EE; color:var(--ok); display:block; }
+  .geostatus{ font-size:12px; margin-top:4px; }
+  .geostatus.ok{ color:var(--ok); }
+  .geostatus.error{ color:var(--error); }
+</style>
+</head>
+<body>
+
+<div class="topbar">
+  <div class="brand-row">
+    <svg class="bamboo" viewBox="0 0 100 112" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+      <g fill="currentColor">
+        <rect x="37" y="6" width="16" height="27" rx="4"/><rect x="37" y="37" width="16" height="30" rx="4"/>
+        <rect x="37" y="71" width="16" height="35" rx="4"/><rect x="57" y="46" width="15" height="28" rx="4"/>
+        <rect x="57" y="78" width="15" height="28" rx="4"/>
+        <g transform="translate(37,35)"><path transform="rotate(238) scale(26)" d="M0 0 Q0.4 -0.13 1 0 Q0.4 0.13 0 0 z"/>
+        <path transform="rotate(210) scale(31)" d="M0 0 Q0.4 -0.13 1 0 Q0.4 0.13 0 0 z"/>
+        <path transform="rotate(186) scale(34)" d="M0 0 Q0.4 -0.13 1 0 Q0.4 0.13 0 0 z"/>
+        <path transform="rotate(158) scale(27)" d="M0 0 Q0.4 -0.13 1 0 Q0.4 0.13 0 0 z"/></g>
+        <g transform="translate(72,76)"><path transform="rotate(-12) scale(31)" d="M0 0 Q0.4 -0.13 1 0 Q0.4 0.13 0 0 z"/>
+        <path transform="rotate(16) scale(27)" d="M0 0 Q0.4 -0.13 1 0 Q0.4 0.13 0 0 z"/>
+        <path transform="rotate(44) scale(22)" d="M0 0 Q0.4 -0.13 1 0 Q0.4 0.13 0 0 z"/></g>
+      </g>
+    </svg>
+    <span class="brand-name">Common Bond</span>
+  </div>
+  <div id="topbarRight" style="display:flex; gap:8px;"></div>
+</div>
+
+<div class="main">
+
+  <!-- shown when not logged in -->
+  <div class="gate" id="gate" style="display:none">
+    <p>You need to be logged in to browse or list items.</p>
+    <a href="common-bond-account.html">Go to Log In / Sign Up →</a>
+  </div>
+
+  <!-- shown when logged in -->
+  <div id="app" style="display:none">
+    <div class="toolbar">
+      <input type="text" id="searchInput" placeholder="What do you need to borrow?">
+    </div>
+    <div class="chips" id="chips"></div>
+    <div class="sortbar">
+      <span id="sortStatus">Sorted by newest.</span>
+    </div>
+    <div id="grid" class="grid"></div>
+    <div class="empty" id="emptyMsg" style="display:none">No items match yet. Be the first to list one!</div>
+  </div>
+
+</div>
+
+<button class="btn-primary fab" id="listBtn" style="display:none">+ List an item</button>
+
+<!-- ===================== LIST-AN-ITEM MODAL ===================== -->
+<div class="overlay" id="overlay">
+  <div class="modal">
+    <h2>List an item to share</h2>
+    <form id="itemForm">
+      <label for="itemName">What is it?</label>
+      <input type="text" id="itemName" required placeholder="e.g. Pressure washer">
+
+      <label for="itemCategory">Category</label>
+      <select id="itemCategory" required></select>
+
+      <label for="itemNotes">Condition &amp; notes</label>
+      <textarea id="itemNotes" placeholder="Condition, what's included, anything a borrower should know"></textarea>
+
+      <label for="itemTerms">Lending terms</label>
+      <textarea id="itemTerms" placeholder="How long can someone borrow it, pickup/dropoff expectations, etc."></textarea>
+
+      <label for="itemFee">Fee (optional)</label>
+      <input type="number" id="itemFee" min="0" step="0.01" placeholder="Leave blank if free">
+
+      <label for="itemPhoto">Photo (optional)</label>
+      <input type="file" id="itemPhoto" accept="image/*">
+
+      <div class="hint" style="margin-top:14px">By default this is listed at your own profile location. Only fill in an address below if THIS item is somewhere else (e.g. at a shop, not your home).</div>
+      <label for="itemAddress">Different address for this item (optional)</label>
+      <input type="text" id="itemAddress" placeholder="Street address">
+      <div class="geostatus" id="itemGeoStatus"></div>
+
+      <div class="checkbox-row">
+        <input type="checkbox" id="itemSharePublic" checked>
+        <div class="ctext">
+          Share with the general public
+          <div class="hint">Turn off to limit just this item to people you've bonded with or share a Guild with, once those features exist. For now, with no Bonds or Guilds yet, turning this off means no one can find it.</div>
+        </div>
+      </div>
+
+      <div class="modal-actions">
+        <button type="button" class="btn-cancel" id="cancelBtn">Cancel</button>
+        <button type="submit" class="btn-primary">List it</button>
+      </div>
+      <div class="msg" id="itemMsg"></div>
+    </form>
+  </div>
+</div>
+
+<script>
+/* ============================================================
+   CONFIG — same Supabase project as common-bond-account.html.
+   Paste the same Project URL and anon key here.
+   ============================================================ */
+const CONFIG = {
+  SUPABASE_URL: "https://ggdpjoirrzxxgxbhyosb.supabase.co",
+  SUPABASE_ANON_KEY: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImdnZHBqb2lycnp4eGd4Ymh5b3NiIiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTA4MTgxOTcsImV4cCI6MjEwNjM5NDE5N30.Kjnl8a_WCnv4Yek7hYCojIWLMNG2Bi69j-O-Q3o91U8",
+};
+
+const supabaseClient = window.supabase.createClient(CONFIG.SUPABASE_URL, CONFIG.SUPABASE_ANON_KEY);
+
+/* ---------- element refs ---------- */
+const gate = document.getElementById("gate");
+const app = document.getElementById("app");
+const topbarRight = document.getElementById("topbarRight");
+const searchInput = document.getElementById("searchInput");
+const chipsEl = document.getElementById("chips");
+const sortStatus = document.getElementById("sortStatus");
+const gridEl = document.getElementById("grid");
+const emptyMsg = document.getElementById("emptyMsg");
+const listBtn = document.getElementById("listBtn");
+const overlay = document.getElementById("overlay");
+const itemForm = document.getElementById("itemForm");
+const itemMsg = document.getElementById("itemMsg");
+const itemGeoStatus = document.getElementById("itemGeoStatus");
+const itemCategorySelect = document.getElementById("itemCategory");
+
+let currentUser = null;
+let viewerLocation = { lat: null, lng: null, zip: null };
+let categories = [];
+let allItems = [];
+let activeCategory = "All";
+
+/* ---------- auth gate ---------- */
+supabaseClient.auth.onAuthStateChange((_event, session) => {
+  if (session) {
+    currentUser = session.user;
+    gate.style.display = "none";
+    app.style.display = "block";
+    listBtn.style.display = "block";
+    topbarRight.innerHTML = `<a href="common-bond-account.html">My profile</a> <button id="logoutBtn">Log out</button>`;
+    document.getElementById("logoutBtn").addEventListener("click", async () => {
+      await supabaseClient.auth.signOut();
+    });
+    init();
+  } else {
+    currentUser = null;
+    gate.style.display = "block";
+    app.style.display = "none";
+    listBtn.style.display = "none";
+    topbarRight.innerHTML = `<a href="common-bond-account.html">Log In / Sign Up</a>`;
+  }
+});
+
+async function init(){
+  await loadViewerLocation();
+  await loadCategories();
+  await loadItems();
+}
+
+/* ---------- load the logged-in user's own saved location ---------- */
+async function loadViewerLocation(){
+  const { data, error } = await supabaseClient
+    .from("users")
+    .select("lat, lng, zip_code")
+    .eq("id", currentUser.id)
+    .single();
+  if (!error && data) {
+    viewerLocation = { lat: data.lat, lng: data.lng, zip: data.zip_code };
+  }
+  if (viewerLocation.lat || viewerLocation.zip) {
+    sortStatus.textContent = "Sorted by distance from your profile location.";
+  } else {
+    sortStatus.textContent = "Sorted by newest — add a zip code to your profile to sort by distance.";
+  }
+}
+
+/* ---------- categories ---------- */
+async function loadCategories(){
+  const { data, error } = await supabaseClient
+    .from("categories")
+    .select("id, name")
+    .order("sort_order");
+  if (error) return;
+  categories = data || [];
+  itemCategorySelect.innerHTML = categories
+    .map(c => `<option value="${c.id}">${c.name}</option>`)
+    .join("");
+  buildChips();
+}
+
+function buildChips(){
+  const names = ["All", ...categories.map(c => c.name)];
+  chipsEl.innerHTML = "";
+  names.forEach(name => {
+    const b = document.createElement("button");
+    b.className = "chip" + (name === activeCategory ? " active" : "");
+    b.textContent = name;
+    b.addEventListener("click", () => {
+      activeCategory = name;
+      buildChips();
+      render();
+    });
+    chipsEl.appendChild(b);
+  });
+}
+
+/* ---------- items ---------- */
+async function loadItems(){
+  const { data, error } = await supabaseClient.rpc("browse_items", {
+    viewer_lat: viewerLocation.lat,
+    viewer_lng: viewerLocation.lng,
+    viewer_zip: viewerLocation.zip,
+  });
+  if (error) {
+    gridEl.innerHTML = `<div class="empty">Couldn't load items: ${error.message}</div>`;
+    return;
+  }
+  allItems = data || [];
+  render();
+}
+
+function render(){
+  const q = searchInput.value.trim().toLowerCase();
+  let items = allItems;
+  if (activeCategory !== "All") {
+    items = items.filter(i => i.category_name === activeCategory);
+  }
+  if (q) {
+    items = items.filter(i =>
+      (i.name || "").toLowerCase().includes(q) ||
+      (i.condition_notes || "").toLowerCase().includes(q)
+    );
+  }
+  emptyMsg.style.display = items.length === 0 ? "block" : "none";
+  gridEl.innerHTML = items.map(renderCard).join("");
+}
+
+function renderCard(item){
+  const dist = item.distance_miles != null ? `${item.distance_miles} mi` : "";
+  const fee = item.fee_amount ? `$${Number(item.fee_amount).toFixed(2)}` : "Free";
+  const mineTag = item.is_mine ? `<span class="tag mine">Yours</span>` : "";
+  const thumb = item.photo_url
+    ? `<img src="${item.photo_url}" alt="">`
+    : `<span>${item.category_name || ""}</span>`;
+  return `
+  <div class="card">
+    <div class="thumb">${thumb}</div>
+    <div class="card-body">
+      <div class="item-name">${escapeHtml(item.name)}</div>
+      <div class="meta">${escapeHtml(item.owner_display_name || "")}${dist ? " · " + dist : ""}</div>
+      <div class="tag-row">
+        <span class="tag">${escapeHtml(item.category_name || "")}</span>
+        <span class="tag">${fee}</span>
+        ${mineTag}
+      </div>
+    </div>
+  </div>`;
+}
+
+function escapeHtml(s){
+  return String(s).replace(/[&<>"']/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+}
+
+searchInput.addEventListener("input", render);
+
+/* ---------- list-an-item modal ---------- */
+listBtn.addEventListener("click", () => {
+  itemForm.reset();
+  itemMsg.style.display = "none";
+  itemGeoStatus.textContent = "";
+  overlay.classList.add("open");
+});
+document.getElementById("cancelBtn").addEventListener("click", () => {
+  overlay.classList.remove("open");
+});
+
+async function geocodeAddress(address){
+  const url = "https://geocoding.geo.census.gov/geocoder/locations/onelineaddress"
+    + "?address=" + encodeURIComponent(address)
+    + "&benchmark=Public_AR_Current&format=json";
+  const res = await fetch(url);
+  const json = await res.json();
+  const match = json.result && json.result.addressMatches && json.result.addressMatches[0];
+  if (!match) return null;
+  return { lat: match.coordinates.y, lng: match.coordinates.x };
+}
+
+itemForm.addEventListener("submit", async (e) => {
+  e.preventDefault();
+  const name = document.getElementById("itemName").value.trim();
+  const categoryId = itemCategorySelect.value;
+  const notes = document.getElementById("itemNotes").value.trim();
+  const terms = document.getElementById("itemTerms").value.trim();
+  const feeRaw = document.getElementById("itemFee").value;
+  const fee = feeRaw ? parseFloat(feeRaw) : null;
+  const address = document.getElementById("itemAddress").value.trim();
+  const sharePublic = document.getElementById("itemSharePublic").checked;
+  const photoFile = document.getElementById("itemPhoto").files[0];
+
+  let lat = null, lng = null;
+  if (address) {
+    itemGeoStatus.textContent = "Looking up that address…";
+    try {
+      const point = await geocodeAddress(address);
+      if (point) {
+        lat = point.lat; lng = point.lng;
+        itemGeoStatus.textContent = "Address found.";
+        itemGeoStatus.className = "geostatus ok";
+      } else {
+        itemGeoStatus.textContent = "Couldn't find that address — using your profile location instead.";
+        itemGeoStatus.className = "geostatus error";
+      }
+    } catch (err) {
+      itemGeoStatus.textContent = "Couldn't look up that address right now — using your profile location instead.";
+      itemGeoStatus.className = "geostatus error";
+    }
+  }
+
+  let photoUrl = null;
+  if (photoFile) {
+    const path = `${currentUser.id}/${Date.now()}-${photoFile.name}`;
+    const { error: uploadError } = await supabaseClient.storage
+      .from("item-photos")
+      .upload(path, photoFile);
+    if (uploadError) {
+      showMsg(itemMsg, "Photo upload failed: " + uploadError.message, "error");
+      return;
+    }
+    const { data: pub } = supabaseClient.storage.from("item-photos").getPublicUrl(path);
+    photoUrl = pub.publicUrl;
+  }
+
+  const { error } = await supabaseClient.from("items").insert({
+    owner_id: currentUser.id,
+    category_id: categoryId,
+    name,
+    condition_notes: notes || null,
+    lending_terms: terms || null,
+    fee_amount: fee,
+    photo_url: photoUrl,
+    lat, lng,
+    share_public: sharePublic,
+  });
+
+  if (error) {
+    showMsg(itemMsg, error.message, "error");
+    return;
+  }
+
+  showMsg(itemMsg, "Listed!", "ok");
+  setTimeout(async () => {
+    overlay.classList.remove("open");
+    await loadItems();
+  }, 500);
+});
+
+function showMsg(el, text, type){
+  el.textContent = text;
+  el.className = "msg " + type;
+}
+</script>
+</body>
+</html>
