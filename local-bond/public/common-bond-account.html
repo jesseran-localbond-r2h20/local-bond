@@ -67,6 +67,9 @@
   .geostatus{ font-size:12px; margin-top:4px; }
   .geostatus.ok{ color:var(--ok); }
   .geostatus.error{ color:var(--error); }
+  .nav-row{ display:flex; justify-content:center; gap:18px; margin-bottom:16px; font-size:13px; font-weight:600; }
+  .nav-row a{ color:var(--teal-dark); text-decoration:none; }
+  .nav-row a:hover{ text-decoration:underline; }
 </style>
 </head>
 <body>
@@ -120,6 +123,10 @@
   </div>
 
   <!-- ===================== PROFILE CARD ===================== -->
+  <div class="nav-row" id="navRow" style="display:none">
+    <a href="common-bond-browse.html">Browse</a>
+    <a href="common-bond-bonds.html">Bonds</a>
+  </div>
   <div class="card" id="profileCard" style="display:none">
     <div class="row-split">
       <h2>Your profile</h2>
@@ -183,6 +190,7 @@ const profileMsg = document.getElementById("profileMsg");
 const geoStatus = document.getElementById("geoStatus");
 const logoutBtn = document.getElementById("logoutBtn");
 const whoami = document.getElementById("whoami");
+const navRow = document.getElementById("navRow");
 
 /* ---------- tab switching ---------- */
 tabs.forEach(tab => {
@@ -245,11 +253,13 @@ supabaseClient.auth.onAuthStateChange((_event, session) => {
   if (session) {
     authCard.style.display = "none";
     profileCard.style.display = "block";
+    navRow.style.display = "flex";
     whoami.textContent = session.user.email;
     loadProfile(session.user.id);
   } else {
     authCard.style.display = "block";
     profileCard.style.display = "none";
+    navRow.style.display = "none";
   }
 });
 
