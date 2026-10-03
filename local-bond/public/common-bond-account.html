@@ -162,6 +162,17 @@
 
     <div class="msg" id="profileMsg"></div>
 
+    <div class="field-group" id="inviteLinkSection">
+      <label>Your invite link</label>
+      <div class="hint">Share this with people you want to Bond with — texting it, posting it, or handing it to them in person works. Opening it sends a Bond request straight away, no email needed.</div>
+      <div style="display:flex; gap:8px; margin-top:8px;">
+        <input type="text" id="inviteLinkField" readonly style="width:auto; flex:1; min-width:0; font-size:12px;">
+        <button type="button" id="copyInviteBtn" class="btn-secondary" style="width:auto; margin-top:0; padding:0 14px; flex-shrink:0;">Copy</button>
+      </div>
+      <button type="button" id="newInviteBtn" class="btn-link" style="padding:0; margin-top:8px; font-size:12px;">Get a new link (the old one stops working)</button>
+      <div class="msg" id="inviteMsg" style="margin-top:8px;"></div>
+    </div>
+
     <button id="logoutBtn" class="btn-secondary">Log out</button>
   </div>
 </div>
@@ -192,6 +203,16 @@ const geoStatus = document.getElementById("geoStatus");
 const logoutBtn = document.getElementById("logoutBtn");
 const whoami = document.getElementById("whoami");
 const navRow = document.getElementById("navRow");
+const inviteLinkField = document.getElementById("inviteLinkField");
+const copyInviteBtn = document.getElementById("copyInviteBtn");
+const newInviteBtn = document.getElementById("newInviteBtn");
+const inviteMsg = document.getElementById("inviteMsg");
+
+function inviteLinkFor(code){
+  // common-bond-bonds.html, same folder as this page, with the code
+  // in the URL — opening it is how the other person sends the request.
+  return location.href.replace(/common-bond-account\.html.*$/, "common-bond-bonds.html") + "?invite=" + code;
+}
 
 /* ---------- tab switching ---------- */
 tabs.forEach(tab => {
@@ -268,7 +289,7 @@ supabaseClient.auth.onAuthStateChange((_event, session) => {
 async function loadProfile(userId){
   const { data, error } = await supabaseClient
     .from("users")
-    .select("display_name, zip_code, address, public_sharing_enabled")
+    .select("display_name, zip_code, address, public_sharing_enabled, invite_code")
     .eq("id", userId)
     .single();
 
@@ -282,7 +303,34 @@ async function loadProfile(userId){
   document.getElementById("zip").value = data.zip_code || "";
   document.getElementById("address").value = data.address || "";
   document.getElementById("publicSharing").checked = data.public_sharing_enabled !== false;
+  if (data.invite_code) {
+    inviteLinkField.value = inviteLinkFor(data.invite_code);
+  }
 }
+
+copyInviteBtn.addEventListener("click", async () => {
+  try {
+    await navigator.clipboard.writeText(inviteLinkField.value);
+  } catch (err) {
+    // Clipboard API can be unavailable (e.g. no HTTPS, older browser) —
+    // fall back to select-and-let-the-person-copy-manually rather than
+    // failing silently.
+    inviteLinkField.select();
+  }
+  showMsg(inviteMsg, "Copied.", "ok");
+  setTimeout(() => { inviteMsg.style.display = "none"; }, 2000);
+});
+
+newInviteBtn.addEventListener("click", async () => {
+  if (!confirm("Get a new invite link? Anyone who still has your old link won't be able to use it anymore.")) return;
+  const { data, error } = await supabaseClient.rpc("regenerate_invite_code");
+  if (error) {
+    showMsg(inviteMsg, error.message, "error");
+    return;
+  }
+  inviteLinkField.value = inviteLinkFor(data);
+  showMsg(inviteMsg, "New link ready.", "ok");
+});
 
 /* ---------- geocode an address via the free Census geocoder ---------- */
 async function geocodeAddress(address){

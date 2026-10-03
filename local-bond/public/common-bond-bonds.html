@@ -114,9 +114,19 @@
     <h1>Your Bonds</h1>
     <p class="sub">A Bond is a trusted connection with one other person — once accepted, you can each see the other's Bond-shared items in search, regardless of your public-sharing setting.</p>
 
+    <div class="card" id="inviteBanner" style="display:none">
+      <h2 id="inviteBannerTitle">Someone invited you</h2>
+      <p class="desc" id="inviteBannerDesc"></p>
+      <div class="actions" style="justify-content:flex-start">
+        <button class="btn-accept" id="inviteConfirmBtn">Send Bond request</button>
+        <button class="btn-decline" id="inviteDismissBtn">Not now</button>
+      </div>
+      <div class="msg" id="inviteBannerMsg"></div>
+    </div>
+
     <div class="card">
-      <h2>Send a Bond request</h2>
-      <p class="desc">Enter the email address of someone with a Common Bond account.</p>
+      <h2>Send a Bond request by email</h2>
+      <p class="desc">Already have their email? Use this. Otherwise, find your own invite link on <a href="common-bond-account.html">your profile</a> and share it with them instead — no email needed.</p>
       <div class="send-row">
         <input type="email" id="requestEmail" placeholder="their@email.com">
         <button id="sendBtn">Send request</button>
@@ -172,8 +182,38 @@ const outgoingList = document.getElementById("outgoingList");
 const outgoingEmpty = document.getElementById("outgoingEmpty");
 const bondedList = document.getElementById("bondedList");
 const bondedEmpty = document.getElementById("bondedEmpty");
+const inviteBanner = document.getElementById("inviteBanner");
+const inviteBannerTitle = document.getElementById("inviteBannerTitle");
+const inviteBannerDesc = document.getElementById("inviteBannerDesc");
+const inviteBannerMsg = document.getElementById("inviteBannerMsg");
+const inviteConfirmBtn = document.getElementById("inviteConfirmBtn");
+const inviteDismissBtn = document.getElementById("inviteDismissBtn");
 
 let currentUser = null;
+
+/* ---------- pick up ?invite=CODE, surviving a detour through the
+   login page ----------
+   Someone can open an invite link while logged out. The gate sends
+   them to common-bond-account.html to log in or sign up, which has
+   no way to carry a URL param back here — so the code is stashed in
+   sessionStorage the moment this page sees it, and read back from
+   there too, in case the URL param is gone by the time they return. */
+(function stashInviteCodeFromUrl(){
+  const params = new URLSearchParams(location.search);
+  const code = params.get("invite");
+  if (code) {
+    sessionStorage.setItem("pendingInviteCode", code);
+  }
+})();
+
+function getPendingInviteCode(){
+  return sessionStorage.getItem("pendingInviteCode");
+}
+
+function clearPendingInviteCode(){
+  sessionStorage.removeItem("pendingInviteCode");
+  inviteBanner.style.display = "none";
+}
 
 function showMsg(el, text, type){
   el.textContent = text;
@@ -191,12 +231,59 @@ supabaseClient.auth.onAuthStateChange((_event, session) => {
       await supabaseClient.auth.signOut();
     });
     loadBonds();
+    checkPendingInvite();
   } else {
     currentUser = null;
     gate.style.display = "block";
     app.style.display = "none";
     topbarRight.innerHTML = `<a href="common-bond-account.html">Log in</a>`;
+    // Keep the gate's "log in" link pointed at the account page — the
+    // pending invite code is already saved in sessionStorage above, so
+    // it's still here once they come back logged in.
+    if (getPendingInviteCode()) {
+      gate.innerHTML = `You've been invited to Bond with someone — log in or create an account first, then come back to this page. <a href="common-bond-account.html">Log in / Sign up</a>`;
+    }
   }
+});
+
+/* ---------- show the "someone invited you" banner, if there's a
+   pending code ---------- */
+async function checkPendingInvite(){
+  const code = getPendingInviteCode();
+  if (!code) return;
+
+  const { data: inviterName, error } = await supabaseClient.rpc("lookup_invite_code", { invite_code_input: code });
+  if (error || !inviterName) {
+    // Link's gone stale (regenerated, or never valid) — don't show a
+    // banner for something that can't succeed.
+    clearPendingInviteCode();
+    return;
+  }
+
+  inviteBannerTitle.textContent = `${inviterName} invited you to Bond`;
+  inviteBannerDesc.textContent = `Opening this link sends ${inviterName} a Bond request. You can always unbond later if you change your mind.`;
+  inviteBannerMsg.style.display = "none";
+  inviteBanner.style.display = "block";
+}
+
+inviteConfirmBtn.addEventListener("click", async () => {
+  const code = getPendingInviteCode();
+  if (!code) return;
+  inviteConfirmBtn.disabled = true;
+
+  const { error } = await supabaseClient.rpc("send_bond_request_by_code", { invite_code_input: code });
+
+  inviteConfirmBtn.disabled = false;
+  if (error) {
+    showMsg(inviteBannerMsg, error.message, "error");
+    return;
+  }
+  clearPendingInviteCode();
+  loadBonds();
+});
+
+inviteDismissBtn.addEventListener("click", () => {
+  clearPendingInviteCode();
 });
 
 /* ---------- names for the other side of each bond ----------
