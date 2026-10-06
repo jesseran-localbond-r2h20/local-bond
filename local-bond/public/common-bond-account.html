@@ -281,7 +281,11 @@ supabaseClient.auth.onAuthStateChange((_event, session) => {
     // Bonds page now that they're logged in, so the invite banner shows.
     let pendingInvite = null;
     try { pendingInvite = localStorage.getItem("pendingInviteCode"); } catch (e) {}
-    if (pendingInvite) {
+    let alreadySent = false;
+    try { alreadySent = sessionStorage.getItem("inviteRedirected") === "1"; } catch (e) {}
+    if (pendingInvite && !alreadySent) {
+      // Only once per tab, so the profile page stays reachable afterward.
+      try { sessionStorage.setItem("inviteRedirected", "1"); } catch (e) {}
       location.href = "common-bond-bonds.html";
       return;
     }
