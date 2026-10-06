@@ -163,8 +163,8 @@
    Common Bond pages.
    ============================================================ */
 const CONFIG = {
-  SUPABASE_URL: "https://ggdpjoirrzxxgxbhyosb.supabase.co",
-  SUPABASE_ANON_KEY: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImdnZHBqb2lycnp4eGd4Ymh5b3NiIiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTA4MTgxOTcsImV4cCI6MjEwNjM5NDE5N30.Kjnl8a_WCnv4Yek7hYCojIWLMNG2Bi69j-O-Q3o91U8",
+  SUPABASE_URL: "YOUR_SUPABASE_PROJECT_URL",
+  SUPABASE_ANON_KEY: "YOUR_SUPABASE_ANON_KEY",
 };
 
 const supabaseClient = window.supabase.createClient(CONFIG.SUPABASE_URL, CONFIG.SUPABASE_ANON_KEY);
@@ -196,22 +196,22 @@ let currentUser = null;
    Someone can open an invite link while logged out. The gate sends
    them to common-bond-account.html to log in or sign up, which has
    no way to carry a URL param back here — so the code is stashed in
-   sessionStorage the moment this page sees it, and read back from
+   localStorage the moment this page sees it, and read back from
    there too, in case the URL param is gone by the time they return. */
 (function stashInviteCodeFromUrl(){
   const params = new URLSearchParams(location.search);
   const code = params.get("invite");
   if (code) {
-    sessionStorage.setItem("pendingInviteCode", code);
+    try { localStorage.setItem("pendingInviteCode", code); } catch (e) {}
   }
 })();
 
 function getPendingInviteCode(){
-  return sessionStorage.getItem("pendingInviteCode");
+  try { return localStorage.getItem("pendingInviteCode"); } catch (e) { return null; }
 }
 
 function clearPendingInviteCode(){
-  sessionStorage.removeItem("pendingInviteCode");
+  try { localStorage.removeItem("pendingInviteCode"); } catch (e) {}
   inviteBanner.style.display = "none";
 }
 
@@ -238,7 +238,7 @@ supabaseClient.auth.onAuthStateChange((_event, session) => {
     app.style.display = "none";
     topbarRight.innerHTML = `<a href="common-bond-account.html">Log in</a>`;
     // Keep the gate's "log in" link pointed at the account page — the
-    // pending invite code is already saved in sessionStorage above, so
+    // pending invite code is already saved in localStorage above, so
     // it's still here once they come back logged in.
     if (getPendingInviteCode()) {
       gate.innerHTML = `You've been invited to Bond with someone — log in or create an account first, then come back to this page. <a href="common-bond-account.html">Log in / Sign up</a>`;

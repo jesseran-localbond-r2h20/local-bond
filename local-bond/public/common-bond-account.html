@@ -184,8 +184,8 @@
    public file: it can only do what the RLS policies allow.
    ============================================================ */
 const CONFIG = {
-  SUPABASE_URL: "https://ggdpjoirrzxxgxbhyosb.supabase.co",
-  SUPABASE_ANON_KEY: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImdnZHBqb2lycnp4eGd4Ymh5b3NiIiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTA4MTgxOTcsImV4cCI6MjEwNjM5NDE5N30.Kjnl8a_WCnv4Yek7hYCojIWLMNG2Bi69j-O-Q3o91U8",
+  SUPABASE_URL: "YOUR_SUPABASE_PROJECT_URL",
+  SUPABASE_ANON_KEY: "YOUR_SUPABASE_ANON_KEY",
 };
 
 const supabaseClient = window.supabase.createClient(CONFIG.SUPABASE_URL, CONFIG.SUPABASE_ANON_KEY);
@@ -277,6 +277,14 @@ supabaseClient.auth.onAuthStateChange((_event, session) => {
     profileCard.style.display = "block";
     navRow.style.display = "flex";
     whoami.textContent = session.user.email;
+    // If this person arrived via someone's invite link, send them to the
+    // Bonds page now that they're logged in, so the invite banner shows.
+    let pendingInvite = null;
+    try { pendingInvite = localStorage.getItem("pendingInviteCode"); } catch (e) {}
+    if (pendingInvite) {
+      location.href = "common-bond-bonds.html";
+      return;
+    }
     loadProfile(session.user.id);
   } else {
     authCard.style.display = "block";
