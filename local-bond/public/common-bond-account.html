@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Common Bond — Account</title>
+<title>Local Bond — Account</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Overpass:wght@400;600;700&display=swap" rel="stylesheet">
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
@@ -95,7 +95,7 @@
         <path transform="rotate(44) scale(22)" d="M0 0 Q0.4 -0.13 1 0 Q0.4 0.13 0 0 z"/></g>
       </g>
     </svg>
-    <div class="name">Common Bond</div>
+    <div class="name">Local Bond</div>
     <div class="tag">Share what you have, borrow what you need.</div>
   </div>
 
@@ -161,6 +161,14 @@
         <div class="ctext">
           Share my items with the general public by default
           <div class="hint">Turn this off to limit ALL of your items to people you've bonded with or share a Guild with, regardless of each item's own setting. You can always turn it back on.</div>
+        </div>
+      </div>
+
+      <div class="checkbox-row">
+        <input type="checkbox" id="emailNotifications">
+        <div class="ctext">
+          Email me about requests, Bonds, and Guild invites
+          <div class="hint">You'll get a short email when someone asks to borrow your item, answers your request, sends a Bond request, or invites you to a Guild. Turn off to rely on the in-app Requests badge only.</div>
         </div>
       </div>
 
@@ -309,7 +317,7 @@ supabaseClient.auth.onAuthStateChange((_event, session) => {
 async function loadProfile(userId){
   const { data, error } = await supabaseClient
     .from("users")
-    .select("display_name, zip_code, address, public_sharing_enabled, invite_code")
+    .select("display_name, zip_code, address, public_sharing_enabled, invite_code, email_notifications")
     .eq("id", userId)
     .single();
 
@@ -323,6 +331,7 @@ async function loadProfile(userId){
   document.getElementById("zip").value = data.zip_code || "";
   document.getElementById("address").value = data.address || "";
   document.getElementById("publicSharing").checked = data.public_sharing_enabled !== false;
+  document.getElementById("emailNotifications").checked = data.email_notifications !== false;
   if (data.invite_code) {
     inviteLinkField.value = inviteLinkFor(data.invite_code);
   }
@@ -374,6 +383,7 @@ profileForm.addEventListener("submit", async (e) => {
   const zip = document.getElementById("zip").value.trim();
   const address = document.getElementById("address").value.trim();
   const publicSharing = document.getElementById("publicSharing").checked;
+  const emailNotifications = document.getElementById("emailNotifications").checked;
 
   let lat = null, lng = null;
   geoStatus.textContent = "";
@@ -407,7 +417,8 @@ profileForm.addEventListener("submit", async (e) => {
       zip_code: zip || null,
       address: address || null,
       lat, lng,
-      public_sharing_enabled: publicSharing
+      public_sharing_enabled: publicSharing,
+      email_notifications: emailNotifications
     })
     .eq("id", user.id);
 
