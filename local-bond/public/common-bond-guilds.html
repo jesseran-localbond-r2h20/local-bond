@@ -98,6 +98,12 @@
     font-size:13px; font-weight:700; cursor:pointer; background:var(--teal); color:#fff;
   }
   .invite-row button:hover{ background:var(--teal-dark); }
+
+  .req-badge{
+    display:none; background:#B3261E; color:#fff; font-size:11px; font-weight:700;
+    min-width:18px; height:18px; line-height:18px; text-align:center; border-radius:999px;
+    padding:0 5px; margin-left:5px; vertical-align:middle;
+  }
 </style>
 </head>
 <body>
@@ -191,7 +197,8 @@ supabaseClient.auth.onAuthStateChange((_event, session) => {
     currentUser = session.user;
     gate.style.display = "none";
     app.style.display = "block";
-    topbarRight.innerHTML = `<a href="common-bond-browse.html">Browse</a> <a href="common-bond-bonds.html">Bonds</a> <a href="common-bond-account.html">My profile</a> <button id="logoutBtn">Log out</button>`;
+    topbarRight.innerHTML = `<a href="common-bond-reservations.html">Requests<span class="req-badge"></span></a> <a href="common-bond-browse.html">Browse</a> <a href="common-bond-bonds.html">Bonds</a> <a href="common-bond-account.html">My profile</a> <button id="logoutBtn">Log out</button>`;
+    refreshReqBadge();
     document.getElementById("logoutBtn").addEventListener("click", async () => {
       await supabaseClient.auth.signOut();
     });
@@ -410,6 +417,17 @@ document.addEventListener("click", async (e) => {
   }
   loadAll();
 });
+/* ---------- Requests badge (new requests + unseen answers) ---------- */
+async function refreshReqBadge(){
+  try {
+    const { data, error } = await supabaseClient.rpc("reservation_badge_count");
+    if (error) return;
+    document.querySelectorAll(".req-badge").forEach(el => {
+      el.textContent = data > 0 ? data : "";
+      el.style.display = data > 0 ? "inline-block" : "none";
+    });
+  } catch (e) {}
+}
 </script>
 </body>
 </html>

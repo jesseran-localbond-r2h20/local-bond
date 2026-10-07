@@ -108,6 +108,23 @@
   .geostatus{ font-size:12px; margin-top:4px; }
   .geostatus.ok{ color:var(--ok); }
   .geostatus.error{ color:var(--error); }
+
+  .req-badge{
+    display:none; background:#B3261E; color:#fff; font-size:11px; font-weight:700;
+    min-width:18px; height:18px; line-height:18px; text-align:center; border-radius:999px;
+    padding:0 5px; margin-left:5px; vertical-align:middle;
+  }
+
+  .btn-borrow{
+    margin-top:10px; width:100%; background:var(--teal); color:#fff; border:none; border-radius:8px;
+    font-family:inherit; font-size:13px; font-weight:700; padding:8px 10px; cursor:pointer;
+  }
+  .btn-borrow:hover{ background:var(--teal-dark); }
+  .booked-box{ background:#F4F7F5; border:1px solid var(--line); border-radius:8px; padding:10px 12px; font-size:13px; margin-top:12px; }
+  .booked-box ul{ margin:6px 0 0; padding-left:18px; }
+  .modal .date-row{ display:flex; gap:10px; }
+  .modal .date-row > div{ flex:1; }
+  .modal input[type=date]{ font-family:inherit; font-size:14px; padding:10px 12px; border:1px solid var(--line); border-radius:8px; }
 </style>
 </head>
 <body>
@@ -219,6 +236,35 @@
   </div>
 </div>
 
+<!-- ===================== REQUEST-TO-BORROW MODAL ===================== -->
+<div class="overlay" id="borrowOverlay">
+  <div class="modal">
+    <h2 id="borrowTitle">Request to borrow</h2>
+    <div class="hint" id="borrowOwner"></div>
+    <div id="borrowTerms" class="hint" style="margin-top:8px"></div>
+    <div class="booked-box" id="bookedBox" style="display:none"></div>
+    <form id="borrowForm">
+      <div class="date-row">
+        <div>
+          <label for="borrowStart">Pickup date</label>
+          <input type="date" id="borrowStart" required>
+        </div>
+        <div>
+          <label for="borrowEnd">Return date</label>
+          <input type="date" id="borrowEnd" required>
+        </div>
+      </div>
+      <label for="borrowNote">Note to the owner (optional)</label>
+      <textarea id="borrowNote" placeholder="What you'll use it for, when you can pick it up, etc."></textarea>
+      <div class="modal-actions">
+        <button type="button" class="btn-cancel" id="borrowCancelBtn">Cancel</button>
+        <button type="submit" class="btn-primary" id="borrowSubmitBtn">Send request</button>
+      </div>
+      <div class="msg" id="borrowMsg"></div>
+    </form>
+  </div>
+</div>
+
 <script>
 /* ============================================================
    CONFIG — same Supabase project as common-bond-account.html.
@@ -260,7 +306,8 @@ supabaseClient.auth.onAuthStateChange((_event, session) => {
     gate.style.display = "none";
     app.style.display = "block";
     listBtn.style.display = "block";
-    topbarRight.innerHTML = `<a href="common-bond-bonds.html">Bonds</a> <a href="common-bond-guilds.html">Guilds</a> <a href="common-bond-account.html">My profile</a> <button id="logoutBtn">Log out</button>`;
+    topbarRight.innerHTML = `<a href="common-bond-reservations.html">Requests<span class="req-badge"></span></a> <a href="common-bond-bonds.html">Bonds</a> <a href="common-bond-guilds.html">Guilds</a> <a href="common-bond-account.html">My profile</a> <button id="logoutBtn">Log out</button>`;
+    refreshReqBadge();
     document.getElementById("logoutBtn").addEventListener("click", async () => {
       await supabaseClient.auth.signOut();
     });
@@ -380,6 +427,7 @@ function renderCard(item){
         ${bondTag}
         ${mineTag}
       </div>
+      ${item.is_mine ? "" : `<button class="btn-borrow" data-borrow="${item.id}">Request to borrow</button>`}
     </div>
   </div>`;
 }
@@ -488,6 +536,92 @@ itemForm.addEventListener("submit", async (e) => {
 function showMsg(el, text, type){
   el.textContent = text;
   el.className = "msg " + type;
+}
+/* ---------- request-to-borrow modal ---------- */
+const borrowOverlay = document.getElementById("borrowOverlay");
+const borrowForm = document.getElementById("borrowForm");
+const borrowMsg = document.getElementById("borrowMsg");
+const borrowStart = document.getElementById("borrowStart");
+const borrowEnd = document.getElementById("borrowEnd");
+let borrowItem = null;
+
+function todayLocalISO(){
+  const d = new Date();
+  const m = String(d.getMonth() + 1).padStart(2, "0");
+  const day = String(d.getDate()).padStart(2, "0");
+  return `${d.getFullYear()}-${m}-${day}`;
+}
+function fmtDay(iso){
+  const [y, m, d] = iso.split("-").map(Number);
+  return new Date(y, m - 1, d).toLocaleDateString(undefined, { month: "short", day: "numeric", year: "numeric" });
+}
+
+gridEl.addEventListener("click", async (e) => {
+  const btn = e.target.closest("[data-borrow]");
+  if (!btn) return;
+  borrowItem = allItems.find(i => i.id === btn.dataset.borrow);
+  if (!borrowItem) return;
+  borrowForm.reset();
+  borrowMsg.style.display = "none";
+  borrowMsg.className = "msg";
+  document.getElementById("borrowSubmitBtn").disabled = false;
+  document.getElementById("borrowTitle").textContent = "Request to borrow: " + borrowItem.name;
+  document.getElementById("borrowOwner").textContent = "Owner: " + (borrowItem.owner_display_name || "");
+  document.getElementById("borrowTerms").textContent = borrowItem.lending_terms ? "Lending terms: " + borrowItem.lending_terms : "";
+  borrowStart.min = todayLocalISO();
+  borrowEnd.min = todayLocalISO();
+
+  const box = document.getElementById("bookedBox");
+  box.style.display = "none";
+  borrowOverlay.classList.add("open");
+
+  const { data } = await supabaseClient.rpc("item_booked_ranges", { target_item_id: borrowItem.id });
+  if (data && data.length) {
+    box.innerHTML = "<strong>Already booked:</strong><ul>" +
+      data.map(r => `<li>${fmtDay(r.start_date)} – ${fmtDay(r.end_date)}</li>`).join("") + "</ul>";
+    box.style.display = "block";
+  }
+});
+
+borrowStart.addEventListener("change", () => {
+  borrowEnd.min = borrowStart.value || todayLocalISO();
+  if (borrowEnd.value && borrowEnd.value < borrowStart.value) borrowEnd.value = borrowStart.value;
+});
+
+document.getElementById("borrowCancelBtn").addEventListener("click", () => {
+  borrowOverlay.classList.remove("open");
+});
+
+borrowForm.addEventListener("submit", async (e) => {
+  e.preventDefault();
+  if (!borrowItem) return;
+  const submitBtn = document.getElementById("borrowSubmitBtn");
+  submitBtn.disabled = true;
+  const { error } = await supabaseClient.rpc("request_reservation", {
+    target_item_id: borrowItem.id,
+    start_on: borrowStart.value,
+    end_on: borrowEnd.value,
+    request_note: document.getElementById("borrowNote").value.trim() || null,
+  });
+  if (error) {
+    showMsg(borrowMsg, error.message, "error");
+    submitBtn.disabled = false;
+    return;
+  }
+  showMsg(borrowMsg, "Request sent! The owner will see it under Requests.", "ok");
+  setTimeout(() => { borrowOverlay.classList.remove("open"); }, 1400);
+});
+
+/* ---------- Requests badge (new requests + unseen answers) ---------- */
+async function refreshReqBadge(){
+  try {
+    const { data, error } = await supabaseClient.rpc("reservation_badge_count");
+    if (error) return;
+    document.querySelectorAll(".req-badge").forEach(el => {
+      el.textContent = data > 0 ? data : "";
+      el.style.display = data > 0 ? "inline-block" : "none";
+    });
+  } catch (e) {}
 }
 </script>
 </body>

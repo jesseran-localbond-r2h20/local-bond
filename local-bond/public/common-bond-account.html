@@ -70,6 +70,12 @@
   .nav-row{ display:flex; justify-content:center; gap:18px; margin-bottom:16px; font-size:13px; font-weight:600; }
   .nav-row a{ color:var(--teal-dark); text-decoration:none; }
   .nav-row a:hover{ text-decoration:underline; }
+
+  .req-badge{
+    display:none; background:#B3261E; color:#fff; font-size:11px; font-weight:700;
+    min-width:18px; height:18px; line-height:18px; text-align:center; border-radius:999px;
+    padding:0 5px; margin-left:5px; vertical-align:middle;
+  }
 </style>
 </head>
 <body>
@@ -127,6 +133,7 @@
     <a href="common-bond-browse.html">Browse</a>
     <a href="common-bond-bonds.html">Bonds</a>
     <a href="common-bond-guilds.html">Guilds</a>
+    <a href="common-bond-reservations.html">Requests<span class="req-badge"></span></a>
   </div>
   <div class="card" id="profileCard" style="display:none">
     <div class="row-split">
@@ -276,6 +283,7 @@ supabaseClient.auth.onAuthStateChange((_event, session) => {
     authCard.style.display = "none";
     profileCard.style.display = "block";
     navRow.style.display = "flex";
+    refreshReqBadge();
     whoami.textContent = session.user.email;
     // If this person arrived via someone's invite link, send them to the
     // Bonds page now that they're logged in, so the invite banner shows.
@@ -409,6 +417,17 @@ profileForm.addEventListener("submit", async (e) => {
   }
   showMsg(profileMsg, "Profile saved.", "ok");
 });
+/* ---------- Requests badge (new requests + unseen answers) ---------- */
+async function refreshReqBadge(){
+  try {
+    const { data, error } = await supabaseClient.rpc("reservation_badge_count");
+    if (error) return;
+    document.querySelectorAll(".req-badge").forEach(el => {
+      el.textContent = data > 0 ? data : "";
+      el.style.display = data > 0 ? "inline-block" : "none";
+    });
+  } catch (e) {}
+}
 </script>
 </body>
 </html>
