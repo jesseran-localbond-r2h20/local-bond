@@ -297,6 +297,7 @@ let currentUser = null;
 let viewerLocation = { lat: null, lng: null, zip: null };
 let categories = [];
 let allItems = [];
+let ratingsByItem = {};
 let activeCategory = "All";
 
 /* ---------- auth gate ---------- */
@@ -386,6 +387,11 @@ async function loadItems(){
     return;
   }
   allItems = data || [];
+  ratingsByItem = {};
+  try {
+    const { data: rt } = await supabaseClient.rpc("item_ratings");
+    (rt || []).forEach(r => { ratingsByItem[r.item_id] = r; });
+  } catch (e) {}
   render();
 }
 
@@ -414,12 +420,14 @@ function renderCard(item){
   const thumb = item.photo_url
     ? `<img src="${item.photo_url}" alt="">`
     : `<span>${item.category_name || ""}</span>`;
+  const rt = ratingsByItem[item.id];
+  const ratingTxt = rt ? ` · <span style="color:#B8860B;font-weight:700">★ ${Number(rt.avg_stars).toFixed(1)}</span> (${rt.review_count})` : "";
   return `
   <div class="card">
     <div class="thumb">${thumb}</div>
     <div class="card-body">
       <div class="item-name">${escapeHtml(item.name)}</div>
-      <div class="meta">${escapeHtml(item.owner_display_name || "")}${dist ? " · " + dist : ""}</div>
+      <div class="meta">${escapeHtml(item.owner_display_name || "")}${dist ? " · " + dist : ""}${ratingTxt}</div>
       <div class="tag-row">
         <span class="tag">${escapeHtml(item.category_name || "")}</span>
         <span class="tag">${fee}</span>

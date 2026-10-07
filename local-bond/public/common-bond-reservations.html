@@ -114,6 +114,28 @@
   .new-dot{ display:inline-block; width:8px; height:8px; border-radius:50%; background:#B3261E; margin-left:6px; vertical-align:middle; }
   .btn-secondary-act{ background:#fff; color:var(--teal-dark); }
   .past-toggle{ background:none; border:none; color:var(--teal-dark); font-family:inherit; font-weight:700; font-size:13px; cursor:pointer; padding:0; margin-top:8px; text-decoration:underline; }
+
+  .stars-txt{ color:#B8860B; font-weight:700; }
+  .rating-chip{ font-size:12px; color:#6b7a76; margin-left:6px; font-weight:600; }
+  .review-line{ font-size:12px; color:#3b4a46; margin-top:4px; }
+  .review-line .stars-txt{ font-size:13px; }
+  .btn-review{ background:var(--teal); color:#fff; border:none; }
+  .btn-review:hover{ background:var(--teal-dark); }
+  .overlay{ display:none; position:fixed; inset:0; background:rgba(0,0,0,0.35); align-items:flex-start; justify-content:center; padding:40px 16px; overflow-y:auto; z-index:20; }
+  .overlay.open{ display:flex; }
+  .modal{ background:#fff; border-radius:14px; padding:24px; max-width:420px; width:100%; }
+  .modal h2{ margin:0 0 6px; font-size:18px; color:var(--teal-dark); }
+  .modal label{ display:block; font-size:13px; font-weight:700; margin:14px 0 6px; }
+  .modal textarea{ width:100%; font-family:inherit; font-size:14px; padding:10px 12px; border:1px solid var(--line); border-radius:8px; min-height:80px; resize:vertical; }
+  .star-pick{ display:flex; gap:6px; }
+  .star-pick button{ font-size:30px; line-height:1; background:none; border:none; cursor:pointer; color:#CFCFC4; padding:0 2px; }
+  .star-pick button.on{ color:#E0A100; }
+  .modal-actions{ display:flex; gap:10px; margin-top:18px; }
+  .modal-actions button{ flex:1; padding:10px; border-radius:8px; font-family:inherit; font-size:14px; font-weight:700; cursor:pointer; }
+  .modal-actions .cancel{ background:#fff; border:1px solid var(--line); color:var(--teal-dark); }
+  .modal-actions .go{ background:var(--teal); color:#fff; border:none; }
+  .modal-actions .go:disabled{ opacity:.6; }
+  .hint{ font-size:12px; color:#6b7a76; margin-top:4px; }
 </style>
 </head>
 <body>
@@ -146,7 +168,7 @@
 <div id="app" style="display:none">
   <div class="wrap">
     <h1>Requests</h1>
-    <p class="sub">Borrow requests for your items, and the requests you've made. Dates are first-come, first-confirmed — once you confirm a request, those dates are locked for that item.</p>
+    <p class="sub">Borrow requests for your items, the requests you've made, and reviews after an item comes back. Dates are first-come, first-confirmed — once you confirm a request, those dates are locked for that item.</p>
 
     <div class="msg" id="pageMsg"></div>
 
@@ -167,6 +189,29 @@
       <button class="past-toggle" id="requesterPastBtn" style="display:none"></button>
       <ul class="list" id="requesterPast" style="display:none"></ul>
     </div>
+  </div>
+</div>
+
+<!-- ===================== REVIEW MODAL ===================== -->
+<div class="overlay" id="reviewOverlay">
+  <div class="modal">
+    <h2 id="reviewTitle">Leave a review</h2>
+    <div class="hint">Reviews stay hidden until you've both written one (or 14 days have passed), so neither of you is influenced by the other. You can't edit a review once it's sent.</div>
+    <label>Your rating</label>
+    <div class="star-pick" id="starPick">
+      <button type="button" data-v="1" aria-label="1 star">★</button>
+      <button type="button" data-v="2" aria-label="2 stars">★</button>
+      <button type="button" data-v="3" aria-label="3 stars">★</button>
+      <button type="button" data-v="4" aria-label="4 stars">★</button>
+      <button type="button" data-v="5" aria-label="5 stars">★</button>
+    </div>
+    <label for="reviewComment">Comment (optional)</label>
+    <textarea id="reviewComment" maxlength="1000" placeholder="How did it go? Was the item as described, was communication easy, was pickup/return smooth?"></textarea>
+    <div class="modal-actions">
+      <button type="button" class="cancel" id="reviewCancel">Cancel</button>
+      <button type="button" class="go" id="reviewSend">Send review</button>
+    </div>
+    <div class="msg" id="reviewMsg"></div>
   </div>
 </div>
 
@@ -249,6 +294,7 @@ function isActive(r){
   // "active" = needs attention or is upcoming/ongoing; everything else is history
   if (r.status === "requested") return r.end_date >= todayLocalISO();
   if (r.status === "confirmed") return true;
+  if (r.status === "completed" && !r.i_reviewed) return true;   // review still to leave
   return false;
 }
 
@@ -257,19 +303,38 @@ function rowHtml(r){
   const who = r.role === "owner" ? `${escapeHtml(r.other_party_name)} wants to borrow` : `You asked ${escapeHtml(r.other_party_name)} for`;
   const status = `<span class="status ${r.status}">${STATUS_LABEL[r.status] || r.status}</span>${unseen ? '<span class="new-dot" title="New update"></span>' : ""}`;
   const expired = r.status === "requested" && r.end_date < todayLocalISO();
+  const ratingChip = `<span class="rating-chip">${r.other_rating_count > 0 ? `<span class="stars-txt">★ ${Number(r.other_rating_avg).toFixed(1)}</span> (${r.other_rating_count})` : "no reviews yet"}</span>`;
   const note = r.note ? `<div class="note">"${escapeHtml(r.note)}"</div>` : "";
   return `<li>
     <div>
       <div class="who">${who} <strong>${escapeHtml(r.item_name)}</strong>${status}</div>
+      <div class="meta">${escapeHtml(r.other_party_name)}${ratingChip}</div>
       <div class="meta">${rangeText(r)}${expired ? " · dates have passed" : ""}</div>
       ${note}
+      ${reviewHtml(r)}
     </div>
     <div class="actions">${actionsHtml(r)}</div>
   </li>`;
 }
 
+function starsText(n){ return "★".repeat(n) + "☆".repeat(5 - n); }
+
+function reviewHtml(r){
+  if (r.status !== "completed") return "";
+  const them = escapeHtml(r.other_party_name);
+  if (!r.i_reviewed) return `<div class="review-line">Returned — how did it go? Leave a review for ${them}.</div>`;
+  const mine = `You rated <span class="stars-txt">${starsText(r.my_stars)}</span>${r.my_comment ? ` "${escapeHtml(r.my_comment)}"` : ""}`;
+  if (r.their_stars == null) {
+    return `<div class="review-line">${mine}<br>${them}'s review will appear once they've written one (or 14 days after the return).</div>`;
+  }
+  return `<div class="review-line">${mine}<br>${them} rated you <span class="stars-txt">${starsText(r.their_stars)}</span>${r.their_comment ? ` "${escapeHtml(r.their_comment)}"` : ""}</div>`;
+}
+
 function actionsHtml(r){
   const id = r.id;
+  if (r.status === "completed") {
+    return r.i_reviewed ? "" : `<button class="btn-review" data-act="review" data-id="${id}" data-name="${escapeHtml(r.other_party_name)}" data-item="${escapeHtml(r.item_name)}">Leave a review</button>`;
+  }
   if (r.role === "owner") {
     if (r.status === "requested" && r.end_date >= todayLocalISO()) {
       return `<button class="btn-accept" data-act="confirm" data-id="${id}">Confirm</button>
@@ -340,6 +405,7 @@ document.addEventListener("click", async (e) => {
   const btn = e.target.closest("[data-act]");
   if (!btn) return;
   const act = btn.dataset.act, id = btn.dataset.id;
+  if (act === "review") { openReview(id, btn.dataset.name, btn.dataset.item); return; }
   if (act === "cancel" && !window.confirm(CONFIRM_TEXT.cancel)) return;
   btn.disabled = true;
   pageMsg.style.display = "none";
@@ -351,6 +417,48 @@ document.addEventListener("click", async (e) => {
   else if (act === "complete") ({ error } = await supabaseClient.rpc("complete_reservation", { reservation_id: id }));
 
   if (error) showMsg(pageMsg, error.message, "error");
+  await loadAll(false);
+});
+
+/* ---------- review modal ---------- */
+const reviewOverlay = document.getElementById("reviewOverlay");
+const reviewMsg = document.getElementById("reviewMsg");
+const starButtons = [...document.querySelectorAll("#starPick button")];
+let reviewResId = null, reviewStars = 0;
+
+function setStars(n){
+  reviewStars = n;
+  starButtons.forEach(b => b.classList.toggle("on", Number(b.dataset.v) <= n));
+}
+starButtons.forEach(b => b.addEventListener("click", () => setStars(Number(b.dataset.v))));
+
+function openReview(id, name, item){
+  reviewResId = id;
+  setStars(0);
+  document.getElementById("reviewComment").value = "";
+  reviewMsg.style.display = "none";
+  reviewMsg.className = "msg";
+  document.getElementById("reviewSend").disabled = false;
+  document.getElementById("reviewTitle").textContent = `Review ${name} — ${item}`;
+  reviewOverlay.classList.add("open");
+}
+document.getElementById("reviewCancel").addEventListener("click", () => reviewOverlay.classList.remove("open"));
+
+document.getElementById("reviewSend").addEventListener("click", async () => {
+  if (!reviewStars) { showMsg(reviewMsg, "Pick a star rating first.", "error"); return; }
+  const sendBtn = document.getElementById("reviewSend");
+  sendBtn.disabled = true;
+  const { error } = await supabaseClient.rpc("submit_review", {
+    target_reservation_id: reviewResId,
+    star_rating: reviewStars,
+    review_comment: document.getElementById("reviewComment").value.trim() || null,
+  });
+  if (error) {
+    showMsg(reviewMsg, error.message, "error");
+    sendBtn.disabled = false;
+    return;
+  }
+  reviewOverlay.classList.remove("open");
   await loadAll(false);
 });
 
