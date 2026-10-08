@@ -1,0 +1,478 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Local Bond — Requests</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Overpass:wght@400;600;700&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<style>
+  :root{
+    --teal:#3D6B7A;
+    --teal-dark:#2A4C57;
+    --cream:#FFFCEB;
+    --ink:#26332F;
+    --line:#DDE3DE;
+    --error:#B3261E;
+    --ok:#2E7D53;
+  }
+  *{box-sizing:border-box;}
+  body{
+    margin:0; font-family:"Overpass",sans-serif; background:var(--cream); color:var(--ink);
+  }
+  .topbar{
+    position:sticky; top:0; background:#fff; border-bottom:1px solid var(--line);
+    display:flex; align-items:center; justify-content:space-between;
+    padding:12px 20px; z-index:10;
+  }
+  .topbar .brand{ display:flex; align-items:center; gap:8px; }
+  .topbar .bamboo{ width:26px; height:29px; color:var(--teal); }
+  .topbar .name{ font-weight:700; font-size:17px; color:var(--teal-dark); }
+  .topbar .right{ display:flex; align-items:center; gap:16px; font-size:13px; font-weight:600; }
+  .topbar .right a{ color:var(--teal-dark); text-decoration:none; }
+  .topbar .right a:hover{ text-decoration:underline; }
+  .topbar .right button{
+    background:none; border:1px solid var(--line); border-radius:6px; padding:6px 10px;
+    font-family:inherit; font-size:13px; font-weight:600; color:var(--teal-dark); cursor:pointer;
+  }
+  .wrap{ max-width:680px; margin:0 auto; padding:24px 16px 60px; }
+  h1{ font-size:20px; color:var(--teal-dark); margin:0 0 4px; }
+  .sub{ font-size:14px; color:#5A6B66; margin:0 0 24px; }
+  .gate{ text-align:center; padding:60px 16px; }
+  .gate a{ color:var(--teal-dark); font-weight:700; text-decoration:underline; }
+  .card{
+    background:#fff; border:1px solid var(--line); border-radius:14px;
+    padding:20px; box-shadow:0 2px 10px rgba(0,0,0,0.04); margin-bottom:22px;
+  }
+  .card h2{ margin:0 0 4px; font-size:16px; color:var(--teal-dark); }
+  .card .desc{ font-size:13px; color:#5A6B66; margin:0 0 14px; }
+  .send-row{ display:flex; gap:8px; }
+  .send-row input{
+    flex:1; padding:10px 12px; border:1px solid var(--line); border-radius:8px;
+    font-family:inherit; font-size:14px;
+  }
+  .send-row input:focus{ outline:2px solid var(--teal); outline-offset:1px; }
+  .send-row button{
+    padding:10px 16px; border:none; border-radius:8px; font-family:inherit;
+    font-size:14px; font-weight:700; cursor:pointer; background:var(--teal); color:#fff; flex-shrink:0;
+  }
+  .send-row button:hover{ background:var(--teal-dark); }
+  .send-row button:disabled{ opacity:0.6; cursor:default; }
+  .msg{ font-size:13px; padding:10px 12px; border-radius:8px; margin-top:12px; display:none; }
+  .msg.error{ background:#FBEAE9; color:var(--error); display:block; }
+  .msg.ok{ background:#E8F5EE; color:var(--ok); display:block; }
+  .cap-note{ font-size:12px; color:#6b7a76; margin-top:10px; }
+  .list{ list-style:none; margin:0; padding:0; }
+  .list li{
+    display:flex; align-items:center; justify-content:space-between; gap:10px;
+    padding:12px 0; border-bottom:1px solid var(--line);
+  }
+  .list li:last-child{ border-bottom:none; }
+  .list .who{ font-weight:600; font-size:14px; }
+  .list .meta{ font-size:12px; color:#6b7a76; margin-top:2px; }
+  .actions{ display:flex; gap:8px; flex-shrink:0; flex-wrap:wrap; justify-content:flex-end; }
+  .actions button{
+    padding:7px 12px; border-radius:6px; font-family:inherit; font-size:13px;
+    font-weight:600; cursor:pointer; border:1px solid var(--line);
+  }
+  .btn-accept{ background:var(--teal); color:#fff; border:none; }
+  .btn-accept:hover{ background:var(--teal-dark); }
+  .btn-decline, .btn-withdraw, .btn-leave, .btn-remove, .btn-delete{ background:#fff; color:var(--error); border-color:#F0CFCC; }
+  .btn-decline:hover, .btn-withdraw:hover, .btn-leave:hover, .btn-remove:hover, .btn-delete:hover{ background:#FBEAE9; }
+  .empty{ font-size:13px; color:#6b7a76; padding:4px 0; }
+  .guild-block{ margin-bottom:26px; }
+  .guild-header{ display:flex; align-items:center; justify-content:space-between; margin-bottom:6px; }
+  .guild-header .gname{ font-weight:700; font-size:15px; color:var(--teal-dark); }
+  .owner-badge{
+    font-size:11px; font-weight:700; padding:2px 8px; border-radius:999px;
+    background:#EAF2E9; color:#355E3B; margin-left:6px;
+  }
+  .invite-row{ display:flex; gap:8px; margin-top:10px; }
+  .invite-row input{
+    flex:1; padding:8px 10px; border:1px solid var(--line); border-radius:8px;
+    font-family:inherit; font-size:13px;
+  }
+  .invite-row button{
+    padding:8px 12px; border:none; border-radius:8px; font-family:inherit;
+    font-size:13px; font-weight:700; cursor:pointer; background:var(--teal); color:#fff;
+  }
+  .invite-row button:hover{ background:var(--teal-dark); }
+
+  .req-badge{
+    display:none; background:#B3261E; color:#fff; font-size:11px; font-weight:700;
+    min-width:18px; height:18px; line-height:18px; text-align:center; border-radius:999px;
+    padding:0 5px; margin-left:5px; vertical-align:middle;
+  }
+
+  .status{ font-size:11px; font-weight:700; padding:2px 8px; border-radius:999px; margin-left:6px; background:#EFF3EC; color:var(--teal-dark); }
+  .status.requested{ background:#FFF3D6; color:#7A5B00; }
+  .status.confirmed{ background:#E8F5EE; color:var(--ok); }
+  .status.declined, .status.cancelled{ background:#FBEAE9; color:var(--error); }
+  .status.completed{ background:#E8F0F2; color:var(--teal-dark); }
+  .note{ font-size:12px; color:#5A6B66; margin-top:4px; font-style:italic; }
+  .new-dot{ display:inline-block; width:8px; height:8px; border-radius:50%; background:#B3261E; margin-left:6px; vertical-align:middle; }
+  .btn-secondary-act{ background:#fff; color:var(--teal-dark); }
+  .past-toggle{ background:none; border:none; color:var(--teal-dark); font-family:inherit; font-weight:700; font-size:13px; cursor:pointer; padding:0; margin-top:8px; text-decoration:underline; }
+
+  .stars-txt{ color:#B8860B; font-weight:700; }
+  .rating-chip{ font-size:12px; color:#6b7a76; margin-left:6px; font-weight:600; }
+  .review-line{ font-size:12px; color:#3b4a46; margin-top:4px; }
+  .review-line .stars-txt{ font-size:13px; }
+  .btn-review{ background:var(--teal); color:#fff; border:none; }
+  .btn-review:hover{ background:var(--teal-dark); }
+  .overlay{ display:none; position:fixed; inset:0; background:rgba(0,0,0,0.35); align-items:flex-start; justify-content:center; padding:40px 16px; overflow-y:auto; z-index:20; }
+  .overlay.open{ display:flex; }
+  .modal{ background:#fff; border-radius:14px; padding:24px; max-width:420px; width:100%; }
+  .modal h2{ margin:0 0 6px; font-size:18px; color:var(--teal-dark); }
+  .modal label{ display:block; font-size:13px; font-weight:700; margin:14px 0 6px; }
+  .modal textarea{ width:100%; font-family:inherit; font-size:14px; padding:10px 12px; border:1px solid var(--line); border-radius:8px; min-height:80px; resize:vertical; }
+  .star-pick{ display:flex; gap:6px; }
+  .star-pick button{ font-size:30px; line-height:1; background:none; border:none; cursor:pointer; color:#CFCFC4; padding:0 2px; }
+  .star-pick button.on{ color:#E0A100; }
+  .modal-actions{ display:flex; gap:10px; margin-top:18px; }
+  .modal-actions button{ flex:1; padding:10px; border-radius:8px; font-family:inherit; font-size:14px; font-weight:700; cursor:pointer; }
+  .modal-actions .cancel{ background:#fff; border:1px solid var(--line); color:var(--teal-dark); }
+  .modal-actions .go{ background:var(--teal); color:#fff; border:none; }
+  .modal-actions .go:disabled{ opacity:.6; }
+  .hint{ font-size:12px; color:#6b7a76; margin-top:4px; }
+</style>
+</head>
+<body>
+
+<div class="topbar">
+  <div class="brand">
+    <svg class="bamboo" viewBox="0 0 100 112" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+      <g fill="currentColor">
+        <rect x="37" y="6" width="16" height="27" rx="4"/><rect x="37" y="37" width="16" height="30" rx="4"/>
+        <rect x="37" y="71" width="16" height="35" rx="4"/><rect x="57" y="46" width="15" height="28" rx="4"/>
+        <rect x="57" y="78" width="15" height="28" rx="4"/>
+        <g transform="translate(37,35)"><path transform="rotate(238) scale(26)" d="M0 0 Q0.4 -0.13 1 0 Q0.4 0.13 0 0 z"/>
+        <path transform="rotate(210) scale(31)" d="M0 0 Q0.4 -0.13 1 0 Q0.4 0.13 0 0 z"/>
+        <path transform="rotate(186) scale(34)" d="M0 0 Q0.4 -0.13 1 0 Q0.4 0.13 0 0 z"/>
+        <path transform="rotate(158) scale(27)" d="M0 0 Q0.4 -0.13 1 0 Q0.4 0.13 0 0 z"/></g>
+        <g transform="translate(72,76)"><path transform="rotate(-12) scale(31)" d="M0 0 Q0.4 -0.13 1 0 Q0.4 0.13 0 0 z"/>
+        <path transform="rotate(16) scale(27)" d="M0 0 Q0.4 -0.13 1 0 Q0.4 0.13 0 0 z"/>
+        <path transform="rotate(44) scale(22)" d="M0 0 Q0.4 -0.13 1 0 Q0.4 0.13 0 0 z"/></g>
+      </g>
+    </svg>
+    <span class="name">Local Bond</span>
+  </div>
+  <div class="right" id="topbarRight"></div>
+</div>
+
+<div class="gate" id="gate" style="display:none">
+  You need to be logged in to see your requests. <a href="account.html">Log in</a>
+</div>
+
+<div id="app" style="display:none">
+  <div class="wrap">
+    <h1>Requests</h1>
+    <p class="sub">Borrow requests for your items, the requests you've made, and reviews after an item comes back. Dates are first-come, first-confirmed — once you confirm a request, those dates are locked for that item.</p>
+
+    <div class="msg" id="pageMsg"></div>
+
+    <div class="card">
+      <h2>Requests for your items</h2>
+      <p class="desc">People who'd like to borrow something of yours.</p>
+      <ul class="list" id="ownerList"></ul>
+      <div class="empty" id="ownerEmpty" style="display:none">No requests for your items right now.</div>
+      <button class="past-toggle" id="ownerPastBtn" style="display:none"></button>
+      <ul class="list" id="ownerPast" style="display:none"></ul>
+    </div>
+
+    <div class="card">
+      <h2>Your borrow requests</h2>
+      <p class="desc">Things you've asked to borrow from other people.</p>
+      <ul class="list" id="requesterList"></ul>
+      <div class="empty" id="requesterEmpty" style="display:none">You haven't asked to borrow anything yet. <a href="index.html" style="color:var(--teal-dark);font-weight:700">Browse items</a></div>
+      <button class="past-toggle" id="requesterPastBtn" style="display:none"></button>
+      <ul class="list" id="requesterPast" style="display:none"></ul>
+    </div>
+  </div>
+</div>
+
+<!-- ===================== REVIEW MODAL ===================== -->
+<div class="overlay" id="reviewOverlay">
+  <div class="modal">
+    <h2 id="reviewTitle">Leave a review</h2>
+    <div class="hint">Reviews stay hidden until you've both written one (or 14 days have passed), so neither of you is influenced by the other. You can't edit a review once it's sent.</div>
+    <label>Your rating</label>
+    <div class="star-pick" id="starPick">
+      <button type="button" data-v="1" aria-label="1 star">★</button>
+      <button type="button" data-v="2" aria-label="2 stars">★</button>
+      <button type="button" data-v="3" aria-label="3 stars">★</button>
+      <button type="button" data-v="4" aria-label="4 stars">★</button>
+      <button type="button" data-v="5" aria-label="5 stars">★</button>
+    </div>
+    <label for="reviewComment">Comment (optional)</label>
+    <textarea id="reviewComment" maxlength="1000" placeholder="How did it go? Was the item as described, was communication easy, was pickup/return smooth?"></textarea>
+    <div class="modal-actions">
+      <button type="button" class="cancel" id="reviewCancel">Cancel</button>
+      <button type="button" class="go" id="reviewSend">Send review</button>
+    </div>
+    <div class="msg" id="reviewMsg"></div>
+  </div>
+</div>
+
+<script>
+/* ============================================================
+   CONFIG — same Supabase project URL and anon key as the other
+   Local Bond pages.
+   ============================================================ */
+const CONFIG = {
+  SUPABASE_URL: "https://ggdpjoirrzxxgxbhyosb.supabase.co",
+  SUPABASE_ANON_KEY: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImdnZHBqb2lycnp4eGd4Ymh5b3NiIiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTA4MTgxOTcsImV4cCI6MjEwNjM5NDE5N30.Kjnl8a_WCnv4Yek7hYCojIWLMNG2Bi69j-O-Q3o91U8",
+};
+
+const supabaseClient = window.supabase.createClient(CONFIG.SUPABASE_URL, CONFIG.SUPABASE_ANON_KEY);
+
+const gate = document.getElementById("gate");
+const app = document.getElementById("app");
+const topbarRight = document.getElementById("topbarRight");
+const pageMsg = document.getElementById("pageMsg");
+
+let currentUser = null;
+let loadedOnce = false;
+
+function showMsg(el, text, type){
+  el.textContent = text;
+  el.className = "msg " + type;
+}
+function escapeHtml(s){
+  return String(s == null ? "" : s).replace(/[&<>"']/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+}
+function fmtDay(iso){
+  const [y, m, d] = iso.split("-").map(Number);
+  return new Date(y, m - 1, d).toLocaleDateString(undefined, { month: "short", day: "numeric", year: "numeric" });
+}
+function todayLocalISO(){
+  const d = new Date();
+  return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`;
+}
+function rangeText(r){
+  return r.start_date === r.end_date ? fmtDay(r.start_date) : `${fmtDay(r.start_date)} – ${fmtDay(r.end_date)}`;
+}
+const STATUS_LABEL = { requested:"Waiting", confirmed:"Confirmed", declined:"Declined", cancelled:"Cancelled", completed:"Returned" };
+
+/* ---------- auth state ---------- */
+supabaseClient.auth.onAuthStateChange((_event, session) => {
+  if (session) {
+    currentUser = session.user;
+    gate.style.display = "none";
+    app.style.display = "block";
+    topbarRight.innerHTML = `<a href="index.html">Browse</a> <a href="bonds.html">Bonds</a> <a href="guilds.html">Guilds</a> <a href="account.html">My profile</a> <button id="logoutBtn">Log out</button>`;
+    document.getElementById("logoutBtn").addEventListener("click", async () => {
+      await supabaseClient.auth.signOut();
+    });
+    if (!loadedOnce) { loadedOnce = true; loadAll(true); }
+  } else {
+    currentUser = null;
+    loadedOnce = false;
+    gate.style.display = "block";
+    app.style.display = "none";
+    topbarRight.innerHTML = `<a href="account.html">Log in</a>`;
+  }
+});
+
+/* ---------- load + render ---------- */
+async function loadAll(markSeen){
+  const { data, error } = await supabaseClient.rpc("my_reservations");
+  if (error) {
+    showMsg(pageMsg, "Couldn't load your requests: " + error.message, "error");
+    return;
+  }
+  const rows = data || [];
+  render(rows);
+  if (markSeen) {
+    await supabaseClient.rpc("mark_reservations_seen");
+  }
+  refreshReqBadge();
+}
+
+function isActive(r){
+  // "active" = needs attention or is upcoming/ongoing; everything else is history
+  if (r.status === "requested") return r.end_date >= todayLocalISO();
+  if (r.status === "confirmed") return true;
+  if (r.status === "completed" && !r.i_reviewed) return true;   // review still to leave
+  return false;
+}
+
+function rowHtml(r){
+  const unseen = r.role === "requester" && r.requester_seen === false;
+  const who = r.role === "owner" ? `${escapeHtml(r.other_party_name)} wants to borrow` : `You asked ${escapeHtml(r.other_party_name)} for`;
+  const status = `<span class="status ${r.status}">${STATUS_LABEL[r.status] || r.status}</span>${unseen ? '<span class="new-dot" title="New update"></span>' : ""}`;
+  const expired = r.status === "requested" && r.end_date < todayLocalISO();
+  const ratingChip = `<span class="rating-chip">${r.other_rating_count > 0 ? `<span class="stars-txt">★ ${Number(r.other_rating_avg).toFixed(1)}</span> (${r.other_rating_count})` : "no reviews yet"}</span>`;
+  const note = r.note ? `<div class="note">"${escapeHtml(r.note)}"</div>` : "";
+  return `<li>
+    <div>
+      <div class="who">${who} <strong>${escapeHtml(r.item_name)}</strong>${status}</div>
+      <div class="meta">${escapeHtml(r.other_party_name)}${ratingChip}</div>
+      <div class="meta">${rangeText(r)}${expired ? " · dates have passed" : ""}</div>
+      ${note}
+      ${reviewHtml(r)}
+    </div>
+    <div class="actions">${actionsHtml(r)}</div>
+  </li>`;
+}
+
+function starsText(n){ return "★".repeat(n) + "☆".repeat(5 - n); }
+
+function reviewHtml(r){
+  if (r.status !== "completed") return "";
+  const them = escapeHtml(r.other_party_name);
+  if (!r.i_reviewed) return `<div class="review-line">Returned — how did it go? Leave a review for ${them}.</div>`;
+  const mine = `You rated <span class="stars-txt">${starsText(r.my_stars)}</span>${r.my_comment ? ` "${escapeHtml(r.my_comment)}"` : ""}`;
+  if (r.their_stars == null) {
+    return `<div class="review-line">${mine}<br>${them}'s review will appear once they've written one (or 14 days after the return).</div>`;
+  }
+  return `<div class="review-line">${mine}<br>${them} rated you <span class="stars-txt">${starsText(r.their_stars)}</span>${r.their_comment ? ` "${escapeHtml(r.their_comment)}"` : ""}</div>`;
+}
+
+function actionsHtml(r){
+  const id = r.id;
+  if (r.status === "completed") {
+    return r.i_reviewed ? "" : `<button class="btn-review" data-act="review" data-id="${id}" data-name="${escapeHtml(r.other_party_name)}" data-item="${escapeHtml(r.item_name)}">Leave a review</button>`;
+  }
+  if (r.role === "owner") {
+    if (r.status === "requested" && r.end_date >= todayLocalISO()) {
+      return `<button class="btn-accept" data-act="confirm" data-id="${id}">Confirm</button>
+              <button class="btn-decline" data-act="decline" data-id="${id}">Decline</button>`;
+    }
+    if (r.status === "requested") {
+      return `<button class="btn-decline" data-act="decline" data-id="${id}">Decline</button>`;
+    }
+    if (r.status === "confirmed") {
+      const started = r.start_date <= todayLocalISO();
+      return (started ? `<button class="btn-accept" data-act="complete" data-id="${id}">Mark returned</button>` : "") +
+             `<button class="btn-decline" data-act="cancel" data-id="${id}">Cancel</button>`;
+    }
+    return "";
+  }
+  if (r.status === "requested" || r.status === "confirmed") {
+    return `<button class="btn-withdraw" data-act="cancel" data-id="${id}">Cancel</button>`;
+  }
+  return "";
+}
+
+function fillSection(rows, listEl, emptyEl, pastBtn, pastEl, emptyText){
+  const active = rows.filter(isActive);
+  const past = rows.filter(r => !isActive(r));
+  active.sort((a, b) => a.start_date.localeCompare(b.start_date));
+  listEl.innerHTML = active.map(rowHtml).join("");
+  emptyEl.style.display = active.length === 0 && past.length === 0 ? "block" : "none";
+  if (active.length === 0 && past.length > 0) {
+    listEl.innerHTML = `<li><div class="empty">${emptyText}</div></li>`;
+  }
+  pastEl.innerHTML = past.map(rowHtml).join("");
+  if (past.length) {
+    const open = pastEl.style.display !== "none";
+    pastBtn.style.display = "inline";
+    pastBtn.textContent = (open ? "Hide" : "Show") + ` history (${past.length})`;
+  } else {
+    pastBtn.style.display = "none";
+    pastEl.style.display = "none";
+  }
+}
+
+function render(rows){
+  fillSection(rows.filter(r => r.role === "owner"),
+    document.getElementById("ownerList"), document.getElementById("ownerEmpty"),
+    document.getElementById("ownerPastBtn"), document.getElementById("ownerPast"),
+    "Nothing waiting on you.");
+  fillSection(rows.filter(r => r.role === "requester"),
+    document.getElementById("requesterList"), document.getElementById("requesterEmpty"),
+    document.getElementById("requesterPastBtn"), document.getElementById("requesterPast"),
+    "No active requests.");
+}
+
+["owner", "requester"].forEach(kind => {
+  const btn = document.getElementById(kind + "PastBtn");
+  const list = document.getElementById(kind + "Past");
+  btn.addEventListener("click", () => {
+    list.style.display = list.style.display === "none" ? "block" : "none";
+    btn.textContent = btn.textContent.replace(/^(Show|Hide)/, list.style.display === "none" ? "Show" : "Hide");
+  });
+});
+
+/* ---------- actions ---------- */
+const CONFIRM_TEXT = {
+  cancel: "Cancel this reservation? The dates will open up again.",
+};
+
+document.addEventListener("click", async (e) => {
+  const btn = e.target.closest("[data-act]");
+  if (!btn) return;
+  const act = btn.dataset.act, id = btn.dataset.id;
+  if (act === "review") { openReview(id, btn.dataset.name, btn.dataset.item); return; }
+  if (act === "cancel" && !window.confirm(CONFIRM_TEXT.cancel)) return;
+  btn.disabled = true;
+  pageMsg.style.display = "none";
+
+  let error = null;
+  if (act === "confirm") ({ error } = await supabaseClient.rpc("respond_reservation", { reservation_id: id, confirm: true }));
+  else if (act === "decline") ({ error } = await supabaseClient.rpc("respond_reservation", { reservation_id: id, confirm: false }));
+  else if (act === "cancel") ({ error } = await supabaseClient.rpc("cancel_reservation", { reservation_id: id }));
+  else if (act === "complete") ({ error } = await supabaseClient.rpc("complete_reservation", { reservation_id: id }));
+
+  if (error) showMsg(pageMsg, error.message, "error");
+  await loadAll(false);
+});
+
+/* ---------- review modal ---------- */
+const reviewOverlay = document.getElementById("reviewOverlay");
+const reviewMsg = document.getElementById("reviewMsg");
+const starButtons = [...document.querySelectorAll("#starPick button")];
+let reviewResId = null, reviewStars = 0;
+
+function setStars(n){
+  reviewStars = n;
+  starButtons.forEach(b => b.classList.toggle("on", Number(b.dataset.v) <= n));
+}
+starButtons.forEach(b => b.addEventListener("click", () => setStars(Number(b.dataset.v))));
+
+function openReview(id, name, item){
+  reviewResId = id;
+  setStars(0);
+  document.getElementById("reviewComment").value = "";
+  reviewMsg.style.display = "none";
+  reviewMsg.className = "msg";
+  document.getElementById("reviewSend").disabled = false;
+  document.getElementById("reviewTitle").textContent = `Review ${name} — ${item}`;
+  reviewOverlay.classList.add("open");
+}
+document.getElementById("reviewCancel").addEventListener("click", () => reviewOverlay.classList.remove("open"));
+
+document.getElementById("reviewSend").addEventListener("click", async () => {
+  if (!reviewStars) { showMsg(reviewMsg, "Pick a star rating first.", "error"); return; }
+  const sendBtn = document.getElementById("reviewSend");
+  sendBtn.disabled = true;
+  const { error } = await supabaseClient.rpc("submit_review", {
+    target_reservation_id: reviewResId,
+    star_rating: reviewStars,
+    review_comment: document.getElementById("reviewComment").value.trim() || null,
+  });
+  if (error) {
+    showMsg(reviewMsg, error.message, "error");
+    sendBtn.disabled = false;
+    return;
+  }
+  reviewOverlay.classList.remove("open");
+  await loadAll(false);
+});
+
+/* ---------- Requests badge (new requests + unseen answers) ---------- */
+async function refreshReqBadge(){
+  try {
+    const { data, error } = await supabaseClient.rpc("reservation_badge_count");
+    if (error) return;
+    document.querySelectorAll(".req-badge").forEach(el => {
+      el.textContent = data > 0 ? data : "";
+      el.style.display = data > 0 ? "inline-block" : "none";
+    });
+  } catch (e) {}
+}
+</script>
+</body>
+</html>

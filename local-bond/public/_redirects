@@ -1,0 +1,8 @@
+# Old addresses keep working (forced, so they apply even if the old file is still there)
+/common-bond-browse.html        /index.html         301!
+/common-bond-account.html       /account.html       301!
+/common-bond-bonds.html         /bonds.html         301!
+/common-bond-guilds.html        /guilds.html        301!
+/common-bond-reservations.html  /requests.html      301!
+/why-local.html                 /shop/why-local.html  301!
+/our-story.html                 /shop/our-story.html  301!

@@ -1,0 +1,462 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Local Bond — Bonds</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Overpass:wght@400;600;700&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<style>
+  :root{
+    --teal:#3D6B7A;
+    --teal-dark:#2A4C57;
+    --cream:#FFFCEB;
+    --ink:#26332F;
+    --line:#DDE3DE;
+    --error:#B3261E;
+    --ok:#2E7D53;
+  }
+  *{box-sizing:border-box;}
+  body{
+    margin:0; font-family:"Overpass",sans-serif; background:var(--cream); color:var(--ink);
+  }
+  .topbar{
+    position:sticky; top:0; background:#fff; border-bottom:1px solid var(--line);
+    display:flex; align-items:center; justify-content:space-between;
+    padding:12px 20px; z-index:10;
+  }
+  .topbar .brand{ display:flex; align-items:center; gap:8px; }
+  .topbar .bamboo{ width:26px; height:29px; color:var(--teal); }
+  .topbar .name{ font-weight:700; font-size:17px; color:var(--teal-dark); }
+  .topbar .right{ display:flex; align-items:center; gap:16px; font-size:13px; font-weight:600; }
+  .topbar .right a{ color:var(--teal-dark); text-decoration:none; }
+  .topbar .right a:hover{ text-decoration:underline; }
+  .topbar .right button{
+    background:none; border:1px solid var(--line); border-radius:6px; padding:6px 10px;
+    font-family:inherit; font-size:13px; font-weight:600; color:var(--teal-dark); cursor:pointer;
+  }
+  .wrap{ max-width:640px; margin:0 auto; padding:24px 16px 60px; }
+  h1{ font-size:20px; color:var(--teal-dark); margin:0 0 4px; }
+  .sub{ font-size:14px; color:#5A6B66; margin:0 0 24px; }
+  .gate{ text-align:center; padding:60px 16px; }
+  .gate a{ color:var(--teal-dark); font-weight:700; text-decoration:underline; }
+  .card{
+    background:#fff; border:1px solid var(--line); border-radius:14px;
+    padding:20px; box-shadow:0 2px 10px rgba(0,0,0,0.04); margin-bottom:22px;
+  }
+  .card h2{ margin:0 0 4px; font-size:16px; color:var(--teal-dark); }
+  .card .desc{ font-size:13px; color:#5A6B66; margin:0 0 14px; }
+  .send-row{ display:flex; gap:8px; }
+  .send-row input{
+    flex:1; padding:10px 12px; border:1px solid var(--line); border-radius:8px;
+    font-family:inherit; font-size:14px;
+  }
+  .send-row input:focus{ outline:2px solid var(--teal); outline-offset:1px; }
+  .send-row button{
+    padding:10px 16px; border:none; border-radius:8px; font-family:inherit;
+    font-size:14px; font-weight:700; cursor:pointer; background:var(--teal); color:#fff;
+  }
+  .send-row button:hover{ background:var(--teal-dark); }
+  .send-row button:disabled{ opacity:0.6; cursor:default; }
+  .msg{ font-size:13px; padding:10px 12px; border-radius:8px; margin-top:12px; display:none; }
+  .msg.error{ background:#FBEAE9; color:var(--error); display:block; }
+  .msg.ok{ background:#E8F5EE; color:var(--ok); display:block; }
+  .list{ list-style:none; margin:0; padding:0; }
+  .list li{
+    display:flex; align-items:center; justify-content:space-between; gap:10px;
+    padding:12px 0; border-bottom:1px solid var(--line);
+  }
+  .list li:last-child{ border-bottom:none; }
+  .list .who{ font-weight:600; font-size:14px; }
+  .list .meta{ font-size:12px; color:#6b7a76; margin-top:2px; }
+  .actions{ display:flex; gap:8px; flex-shrink:0; }
+  .actions button{
+    padding:7px 12px; border-radius:6px; font-family:inherit; font-size:13px;
+    font-weight:600; cursor:pointer; border:1px solid var(--line);
+  }
+  .btn-accept{ background:var(--teal); color:#fff; border:none; }
+  .btn-accept:hover{ background:var(--teal-dark); }
+  .btn-decline, .btn-withdraw, .btn-unbond{ background:#fff; color:var(--error); border-color:#F0CFCC; }
+  .btn-decline:hover, .btn-withdraw:hover, .btn-unbond:hover{ background:#FBEAE9; }
+  .empty{ font-size:13px; color:#6b7a76; padding:4px 0; }
+
+  .req-badge{
+    display:none; background:#B3261E; color:#fff; font-size:11px; font-weight:700;
+    min-width:18px; height:18px; line-height:18px; text-align:center; border-radius:999px;
+    padding:0 5px; margin-left:5px; vertical-align:middle;
+  }
+</style>
+</head>
+<body>
+
+<div class="topbar">
+  <div class="brand">
+    <svg class="bamboo" viewBox="0 0 100 112" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+      <g fill="currentColor">
+        <rect x="37" y="6" width="16" height="27" rx="4"/><rect x="37" y="37" width="16" height="30" rx="4"/>
+        <rect x="37" y="71" width="16" height="35" rx="4"/><rect x="57" y="46" width="15" height="28" rx="4"/>
+        <rect x="57" y="78" width="15" height="28" rx="4"/>
+        <g transform="translate(37,35)"><path transform="rotate(238) scale(26)" d="M0 0 Q0.4 -0.13 1 0 Q0.4 0.13 0 0 z"/>
+        <path transform="rotate(210) scale(31)" d="M0 0 Q0.4 -0.13 1 0 Q0.4 0.13 0 0 z"/>
+        <path transform="rotate(186) scale(34)" d="M0 0 Q0.4 -0.13 1 0 Q0.4 0.13 0 0 z"/>
+        <path transform="rotate(158) scale(27)" d="M0 0 Q0.4 -0.13 1 0 Q0.4 0.13 0 0 z"/></g>
+        <g transform="translate(72,76)"><path transform="rotate(-12) scale(31)" d="M0 0 Q0.4 -0.13 1 0 Q0.4 0.13 0 0 z"/>
+        <path transform="rotate(16) scale(27)" d="M0 0 Q0.4 -0.13 1 0 Q0.4 0.13 0 0 z"/>
+        <path transform="rotate(44) scale(22)" d="M0 0 Q0.4 -0.13 1 0 Q0.4 0.13 0 0 z"/></g>
+      </g>
+    </svg>
+    <span class="name">Local Bond</span>
+  </div>
+  <div class="right" id="topbarRight"></div>
+</div>
+
+<div class="gate" id="gate" style="display:none">
+  You need to be logged in to see your Bonds. <a href="account.html">Log in</a>
+</div>
+
+<div id="app" style="display:none">
+  <div class="wrap">
+    <h1>Your Bonds</h1>
+    <p class="sub">A Bond is a trusted connection with one other person — once accepted, you can each see the other's Bond-shared items in search, regardless of your public-sharing setting.</p>
+
+    <div class="card" id="inviteBanner" style="display:none">
+      <h2 id="inviteBannerTitle">Someone invited you</h2>
+      <p class="desc" id="inviteBannerDesc"></p>
+      <div class="actions" style="justify-content:flex-start">
+        <button class="btn-accept" id="inviteConfirmBtn">Send Bond request</button>
+        <button class="btn-decline" id="inviteDismissBtn">Not now</button>
+      </div>
+      <div class="msg" id="inviteBannerMsg"></div>
+    </div>
+
+    <div class="card">
+      <h2>Send a Bond request by email</h2>
+      <p class="desc">Already have their email? Use this. Otherwise, find your own invite link on <a href="account.html">your profile</a> and share it with them instead — no email needed.</p>
+      <div class="send-row">
+        <input type="email" id="requestEmail" placeholder="their@email.com">
+        <button id="sendBtn">Send request</button>
+      </div>
+      <div class="msg" id="sendMsg"></div>
+    </div>
+
+    <div class="card">
+      <h2>Pending — waiting on you</h2>
+      <p class="desc">People who've sent you a Bond request.</p>
+      <ul class="list" id="incomingList"></ul>
+      <div class="empty" id="incomingEmpty" style="display:none">No pending requests right now.</div>
+    </div>
+
+    <div class="card">
+      <h2>Pending — sent by you</h2>
+      <p class="desc">Requests you've sent that haven't been answered yet.</p>
+      <ul class="list" id="outgoingList"></ul>
+      <div class="empty" id="outgoingEmpty" style="display:none">You haven't sent any requests that are still pending.</div>
+    </div>
+
+    <div class="card">
+      <h2>Your Bonds</h2>
+      <p class="desc">People you're currently bonded with.</p>
+      <ul class="list" id="bondedList"></ul>
+      <div class="empty" id="bondedEmpty" style="display:none">You don't have any Bonds yet.</div>
+    </div>
+  </div>
+</div>
+
+<script>
+/* ============================================================
+   CONFIG — same Supabase project URL and anon key as the other
+   Local Bond pages.
+   ============================================================ */
+const CONFIG = {
+  SUPABASE_URL: "https://ggdpjoirrzxxgxbhyosb.supabase.co",
+  SUPABASE_ANON_KEY: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImdnZHBqb2lycnp4eGd4Ymh5b3NiIiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTA4MTgxOTcsImV4cCI6MjEwNjM5NDE5N30.Kjnl8a_WCnv4Yek7hYCojIWLMNG2Bi69j-O-Q3o91U8",
+};
+
+const supabaseClient = window.supabase.createClient(CONFIG.SUPABASE_URL, CONFIG.SUPABASE_ANON_KEY);
+
+/* ---------- element refs ---------- */
+const gate = document.getElementById("gate");
+const app = document.getElementById("app");
+const topbarRight = document.getElementById("topbarRight");
+const requestEmail = document.getElementById("requestEmail");
+const sendBtn = document.getElementById("sendBtn");
+const sendMsg = document.getElementById("sendMsg");
+const incomingList = document.getElementById("incomingList");
+const incomingEmpty = document.getElementById("incomingEmpty");
+const outgoingList = document.getElementById("outgoingList");
+const outgoingEmpty = document.getElementById("outgoingEmpty");
+const bondedList = document.getElementById("bondedList");
+const bondedEmpty = document.getElementById("bondedEmpty");
+const inviteBanner = document.getElementById("inviteBanner");
+const inviteBannerTitle = document.getElementById("inviteBannerTitle");
+const inviteBannerDesc = document.getElementById("inviteBannerDesc");
+const inviteBannerMsg = document.getElementById("inviteBannerMsg");
+const inviteConfirmBtn = document.getElementById("inviteConfirmBtn");
+const inviteDismissBtn = document.getElementById("inviteDismissBtn");
+
+let currentUser = null;
+
+/* ---------- pick up ?invite=CODE, surviving a detour through the
+   login page ----------
+   Someone can open an invite link while logged out. The gate sends
+   them to account.html to log in or sign up, which has
+   no way to carry a URL param back here — so the code is stashed in
+   localStorage the moment this page sees it, and read back from
+   there too, in case the URL param is gone by the time they return. */
+(function stashInviteCodeFromUrl(){
+  const params = new URLSearchParams(location.search);
+  const code = params.get("invite");
+  if (code) {
+    try { localStorage.setItem("pendingInviteCode", code); } catch (e) {}
+  }
+})();
+
+function getPendingInviteCode(){
+  try { return localStorage.getItem("pendingInviteCode"); } catch (e) { return null; }
+}
+
+function clearPendingInviteCode(){
+  try { localStorage.removeItem("pendingInviteCode"); } catch (e) {}
+  inviteBanner.style.display = "none";
+}
+
+function showMsg(el, text, type){
+  el.textContent = text;
+  el.className = "msg " + type;
+}
+
+/* ---------- auth state ---------- */
+supabaseClient.auth.onAuthStateChange((_event, session) => {
+  if (session) {
+    currentUser = session.user;
+    gate.style.display = "none";
+    app.style.display = "block";
+    topbarRight.innerHTML = `<a href="requests.html">Requests<span class="req-badge"></span></a> <a href="index.html">Browse</a> <a href="guilds.html">Guilds</a> <a href="account.html">My profile</a> <button id="logoutBtn">Log out</button>`;
+    refreshReqBadge();
+    document.getElementById("logoutBtn").addEventListener("click", async () => {
+      await supabaseClient.auth.signOut();
+    });
+    loadBonds();
+    checkPendingInvite();
+  } else {
+    currentUser = null;
+    gate.style.display = "block";
+    app.style.display = "none";
+    topbarRight.innerHTML = `<a href="account.html">Log in</a>`;
+    // Keep the gate's "log in" link pointed at the account page — the
+    // pending invite code is already saved in localStorage above, so
+    // it's still here once they come back logged in.
+    if (getPendingInviteCode()) {
+      gate.innerHTML = `You've been invited to Bond with someone — log in or create an account first, then come back to this page. <a href="account.html">Log in / Sign up</a>`;
+    }
+  }
+});
+
+/* ---------- show the "someone invited you" banner, if there's a
+   pending code ---------- */
+async function checkPendingInvite(){
+  const code = getPendingInviteCode();
+  if (!code) return;
+
+  const { data: inviterName, error } = await supabaseClient.rpc("lookup_invite_code", { invite_code_input: code });
+  if (error || !inviterName) {
+    // Link's gone stale (regenerated, or never valid) — don't show a
+    // banner for something that can't succeed.
+    clearPendingInviteCode();
+    return;
+  }
+
+  inviteBannerTitle.textContent = `${inviterName} invited you to Bond`;
+  inviteBannerDesc.textContent = `Opening this link sends ${inviterName} a Bond request. You can always unbond later if you change your mind.`;
+  inviteBannerMsg.style.display = "none";
+  inviteBanner.style.display = "block";
+}
+
+inviteConfirmBtn.addEventListener("click", async () => {
+  const code = getPendingInviteCode();
+  if (!code) return;
+  inviteConfirmBtn.disabled = true;
+
+  const { error } = await supabaseClient.rpc("send_bond_request_by_code", { invite_code_input: code });
+
+  inviteConfirmBtn.disabled = false;
+  if (error) {
+    showMsg(inviteBannerMsg, error.message, "error");
+    return;
+  }
+  clearPendingInviteCode();
+  loadBonds();
+});
+
+inviteDismissBtn.addEventListener("click", () => {
+  clearPendingInviteCode();
+});
+
+/* ---------- names for the other side of each bond ----------
+   `bonds` RLS only shows rows I'm part of, and `users` RLS only
+   lets me read my own full row — so to show the other person's
+   name we join against the public_profiles view, which exposes
+   just id + display_name for everyone. */
+async function namesFor(ids){
+  if (ids.length === 0) return {};
+  const { data, error } = await supabaseClient
+    .from("public_profiles")
+    .select("id, display_name")
+    .in("id", ids);
+  if (error) return {};
+  const map = {};
+  (data || []).forEach(row => { map[row.id] = row.display_name; });
+  return map;
+}
+
+function fmtDate(iso){
+  if (!iso) return "";
+  const d = new Date(iso);
+  return d.toLocaleDateString(undefined, { month: "short", day: "numeric", year: "numeric" });
+}
+
+/* ---------- load and render all three lists ---------- */
+async function loadBonds(){
+  const { data: rows, error } = await supabaseClient
+    .from("bonds")
+    .select("id, requester_id, recipient_id, status, created_at")
+    .order("created_at", { ascending: false });
+
+  if (error) {
+    incomingEmpty.textContent = "Couldn't load your Bonds right now.";
+    incomingEmpty.style.display = "block";
+    return;
+  }
+
+  const otherIds = (rows || []).map(r =>
+    r.requester_id === currentUser.id ? r.recipient_id : r.requester_id
+  );
+  const names = await namesFor([...new Set(otherIds)]);
+
+  const incoming = (rows || []).filter(r => r.status === "pending" && r.recipient_id === currentUser.id);
+  const outgoing = (rows || []).filter(r => r.status === "pending" && r.requester_id === currentUser.id);
+  const bonded = (rows || []).filter(r => r.status === "accepted");
+
+  renderIncoming(incoming, names);
+  renderOutgoing(outgoing, names);
+  renderBonded(bonded, names);
+}
+
+function renderIncoming(rows, names){
+  incomingList.innerHTML = "";
+  incomingEmpty.style.display = rows.length ? "none" : "block";
+  rows.forEach(r => {
+    const li = document.createElement("li");
+    li.innerHTML = `
+      <div>
+        <div class="who">${names[r.requester_id] || "Someone"}</div>
+        <div class="meta">Requested ${fmtDate(r.created_at)}</div>
+      </div>
+      <div class="actions">
+        <button class="btn-accept" data-id="${r.id}" data-action="accept">Accept</button>
+        <button class="btn-decline" data-id="${r.id}" data-action="decline">Decline</button>
+      </div>`;
+    incomingList.appendChild(li);
+  });
+}
+
+function renderOutgoing(rows, names){
+  outgoingList.innerHTML = "";
+  outgoingEmpty.style.display = rows.length ? "none" : "block";
+  rows.forEach(r => {
+    const li = document.createElement("li");
+    li.innerHTML = `
+      <div>
+        <div class="who">${names[r.recipient_id] || "Someone"}</div>
+        <div class="meta">Sent ${fmtDate(r.created_at)} — waiting for a response</div>
+      </div>
+      <div class="actions">
+        <button class="btn-withdraw" data-id="${r.id}" data-action="withdraw">Withdraw</button>
+      </div>`;
+    outgoingList.appendChild(li);
+  });
+}
+
+function renderBonded(rows, names){
+  bondedList.innerHTML = "";
+  bondedEmpty.style.display = rows.length ? "none" : "block";
+  rows.forEach(r => {
+    const otherId = r.requester_id === currentUser.id ? r.recipient_id : r.requester_id;
+    const li = document.createElement("li");
+    li.innerHTML = `
+      <div>
+        <div class="who">${names[otherId] || "Someone"}</div>
+        <div class="meta">Bonded since ${fmtDate(r.responded_at || r.created_at)}</div>
+      </div>
+      <div class="actions">
+        <button class="btn-unbond" data-id="${r.id}" data-action="unbond">Unbond</button>
+      </div>`;
+    bondedList.appendChild(li);
+  });
+}
+
+/* ---------- send a request ---------- */
+sendBtn.addEventListener("click", async () => {
+  const email = requestEmail.value.trim();
+  if (!email) return;
+  sendBtn.disabled = true;
+  sendMsg.style.display = "none";
+
+  const { error } = await supabaseClient.rpc("send_bond_request", { target_email: email });
+
+  sendBtn.disabled = false;
+  if (error) {
+    showMsg(sendMsg, error.message, "error");
+    return;
+  }
+  showMsg(sendMsg, "Bond request sent.", "ok");
+  requestEmail.value = "";
+  loadBonds();
+});
+
+requestEmail.addEventListener("keydown", (e) => {
+  if (e.key === "Enter") sendBtn.click();
+});
+
+/* ---------- accept / decline / withdraw / unbond ----------
+   All four rely on the RLS policies already set up in
+   schema_phase3.sql — this code just calls the right update or
+   delete and lets the database enforce who's allowed to do what. */
+document.addEventListener("click", async (e) => {
+  const btn = e.target.closest("button[data-action]");
+  if (!btn) return;
+  const id = btn.dataset.id;
+  const action = btn.dataset.action;
+  btn.disabled = true;
+
+  let error = null;
+  if (action === "accept") {
+    ({ error } = await supabaseClient.from("bonds").update({ status: "accepted", responded_at: new Date().toISOString() }).eq("id", id));
+  } else if (action === "decline") {
+    ({ error } = await supabaseClient.from("bonds").update({ status: "declined", responded_at: new Date().toISOString() }).eq("id", id));
+  } else if (action === "withdraw" || action === "unbond") {
+    ({ error } = await supabaseClient.from("bonds").delete().eq("id", id));
+  }
+
+  if (error) {
+    btn.disabled = false;
+    alert(error.message);
+    return;
+  }
+  loadBonds();
+});
+/* ---------- Requests badge (new requests + unseen answers) ---------- */
+async function refreshReqBadge(){
+  try {
+    const { data, error } = await supabaseClient.rpc("reservation_badge_count");
+    if (error) return;
+    document.querySelectorAll(".req-badge").forEach(el => {
+      el.textContent = data > 0 ? data : "";
+      el.style.display = data > 0 ? "inline-block" : "none";
+    });
+  } catch (e) {}
+}
+</script>
+</body>
+</html>
