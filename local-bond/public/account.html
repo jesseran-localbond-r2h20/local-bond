@@ -361,16 +361,15 @@ newInviteBtn.addEventListener("click", async () => {
   showMsg(inviteMsg, "New link ready.", "ok");
 });
 
-/* ---------- geocode an address via the free Census geocoder ---------- */
+/* ---------- geocode an address (via our own server function) ---------- */
 async function geocodeAddress(address){
-  const url = "https://geocoding.geo.census.gov/geocoder/locations/onelineaddress"
-    + "?address=" + encodeURIComponent(address)
-    + "&benchmark=Public_AR_Current&format=json";
-  const res = await fetch(url);
+  // Goes through our own server function: browsers can't call the Census
+  // geocoder directly, but our server can.
+  const res = await fetch("/.netlify/functions/geocode?address=" + encodeURIComponent(address));
+  if (!res.ok) throw new Error("lookup failed");
   const json = await res.json();
-  const match = json.result && json.result.addressMatches && json.result.addressMatches[0];
-  if (!match) return null;
-  return { lat: match.coordinates.y, lng: match.coordinates.x };
+  if (!json.found) return null;
+  return { lat: json.lat, lng: json.lng };
 }
 
 /* ---------- save profile ---------- */
