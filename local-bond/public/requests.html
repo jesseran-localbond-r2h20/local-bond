@@ -7,13 +7,15 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Overpass:wght@400;600;700&display=swap" rel="stylesheet">
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="config.js"></script>
+<script src="lb-client.js"></script>
 <style>
   :root{
-    --teal:#3D6B7A;
-    --teal-dark:#2A4C57;
+    --brand:#D13C32; --coral:#EA4B40; --ink-soft:#6E6E5E; --teal:#3D6B7A;
+    --brand-dark:#B8322A; --teal-dark:#2A4C57;
     --cream:#FFFCEB;
-    --ink:#26332F;
-    --line:#DDE3DE;
+    --ink:#1A1A17;
+    --line:#ECE5CC;
     --error:#B3261E;
     --ok:#2E7D53;
   }
@@ -27,42 +29,42 @@
     padding:12px 20px; z-index:10;
   }
   .topbar .brand{ display:flex; align-items:center; gap:8px; }
-  .topbar .bamboo{ width:26px; height:29px; color:var(--teal); }
-  .topbar .name{ font-weight:700; font-size:17px; color:var(--teal-dark); }
+  .topbar .bamboo{ width:26px; height:29px; color:var(--brand); }
+  .topbar .name{ font-weight:700; font-size:17px; color:var(--brand-dark); }
   .topbar .right{ display:flex; align-items:center; gap:16px; font-size:13px; font-weight:600; }
-  .topbar .right a{ color:var(--teal-dark); text-decoration:none; }
+  .topbar .right a{ color:var(--brand-dark); text-decoration:none; }
   .topbar .right a:hover{ text-decoration:underline; }
   .topbar .right button{
     background:none; border:1px solid var(--line); border-radius:6px; padding:6px 10px;
-    font-family:inherit; font-size:13px; font-weight:600; color:var(--teal-dark); cursor:pointer;
+    font-family:inherit; font-size:13px; font-weight:600; color:var(--brand-dark); cursor:pointer;
   }
   .wrap{ max-width:680px; margin:0 auto; padding:24px 16px 60px; }
-  h1{ font-size:20px; color:var(--teal-dark); margin:0 0 4px; }
-  .sub{ font-size:14px; color:#5A6B66; margin:0 0 24px; }
+  h1{ font-size:20px; color:var(--brand-dark); margin:0 0 4px; }
+  .sub{ font-size:14px; color:#6E6E5E; margin:0 0 24px; }
   .gate{ text-align:center; padding:60px 16px; }
-  .gate a{ color:var(--teal-dark); font-weight:700; text-decoration:underline; }
+  .gate a{ color:var(--brand-dark); font-weight:700; text-decoration:underline; }
   .card{
     background:#fff; border:1px solid var(--line); border-radius:14px;
     padding:20px; box-shadow:0 2px 10px rgba(0,0,0,0.04); margin-bottom:22px;
   }
-  .card h2{ margin:0 0 4px; font-size:16px; color:var(--teal-dark); }
-  .card .desc{ font-size:13px; color:#5A6B66; margin:0 0 14px; }
+  .card h2{ margin:0 0 4px; font-size:16px; color:var(--brand-dark); }
+  .card .desc{ font-size:13px; color:#6E6E5E; margin:0 0 14px; }
   .send-row{ display:flex; gap:8px; }
   .send-row input{
     flex:1; padding:10px 12px; border:1px solid var(--line); border-radius:8px;
     font-family:inherit; font-size:14px;
   }
-  .send-row input:focus{ outline:2px solid var(--teal); outline-offset:1px; }
+  .send-row input:focus{ outline:2px solid var(--brand); outline-offset:1px; }
   .send-row button{
     padding:10px 16px; border:none; border-radius:8px; font-family:inherit;
-    font-size:14px; font-weight:700; cursor:pointer; background:var(--teal); color:#fff; flex-shrink:0;
+    font-size:14px; font-weight:700; cursor:pointer; background:var(--brand); color:#fff; flex-shrink:0;
   }
-  .send-row button:hover{ background:var(--teal-dark); }
+  .send-row button:hover{ background:var(--brand-dark); }
   .send-row button:disabled{ opacity:0.6; cursor:default; }
   .msg{ font-size:13px; padding:10px 12px; border-radius:8px; margin-top:12px; display:none; }
   .msg.error{ background:#FBEAE9; color:var(--error); display:block; }
   .msg.ok{ background:#E8F5EE; color:var(--ok); display:block; }
-  .cap-note{ font-size:12px; color:#6b7a76; margin-top:10px; }
+  .cap-note{ font-size:12px; color:#6E6E5E; margin-top:10px; }
   .list{ list-style:none; margin:0; padding:0; }
   .list li{
     display:flex; align-items:center; justify-content:space-between; gap:10px;
@@ -70,20 +72,20 @@
   }
   .list li:last-child{ border-bottom:none; }
   .list .who{ font-weight:600; font-size:14px; }
-  .list .meta{ font-size:12px; color:#6b7a76; margin-top:2px; }
+  .list .meta{ font-size:12px; color:#6E6E5E; margin-top:2px; }
   .actions{ display:flex; gap:8px; flex-shrink:0; flex-wrap:wrap; justify-content:flex-end; }
   .actions button{
     padding:7px 12px; border-radius:6px; font-family:inherit; font-size:13px;
     font-weight:600; cursor:pointer; border:1px solid var(--line);
   }
-  .btn-accept{ background:var(--teal); color:#fff; border:none; }
-  .btn-accept:hover{ background:var(--teal-dark); }
+  .btn-accept{ background:var(--brand); color:#fff; border:none; }
+  .btn-accept:hover{ background:var(--brand-dark); }
   .btn-decline, .btn-withdraw, .btn-leave, .btn-remove, .btn-delete{ background:#fff; color:var(--error); border-color:#F0CFCC; }
   .btn-decline:hover, .btn-withdraw:hover, .btn-leave:hover, .btn-remove:hover, .btn-delete:hover{ background:#FBEAE9; }
-  .empty{ font-size:13px; color:#6b7a76; padding:4px 0; }
+  .empty{ font-size:13px; color:#6E6E5E; padding:4px 0; }
   .guild-block{ margin-bottom:26px; }
   .guild-header{ display:flex; align-items:center; justify-content:space-between; margin-bottom:6px; }
-  .guild-header .gname{ font-weight:700; font-size:15px; color:var(--teal-dark); }
+  .guild-header .gname{ font-weight:700; font-size:15px; color:var(--brand-dark); }
   .owner-badge{
     font-size:11px; font-weight:700; padding:2px 8px; border-radius:999px;
     background:#EAF2E9; color:#355E3B; margin-left:6px;
@@ -95,9 +97,9 @@
   }
   .invite-row button{
     padding:8px 12px; border:none; border-radius:8px; font-family:inherit;
-    font-size:13px; font-weight:700; cursor:pointer; background:var(--teal); color:#fff;
+    font-size:13px; font-weight:700; cursor:pointer; background:var(--brand); color:#fff;
   }
-  .invite-row button:hover{ background:var(--teal-dark); }
+  .invite-row button:hover{ background:var(--brand-dark); }
 
   .req-badge{
     display:none; background:#B3261E; color:#fff; font-size:11px; font-weight:700;
@@ -105,26 +107,31 @@
     padding:0 5px; margin-left:5px; vertical-align:middle;
   }
 
-  .status{ font-size:11px; font-weight:700; padding:2px 8px; border-radius:999px; margin-left:6px; background:#EFF3EC; color:var(--teal-dark); }
+  .status{ font-size:11px; font-weight:700; padding:2px 8px; border-radius:999px; margin-left:6px; background:#F4EFDC; color:var(--brand-dark); }
   .status.requested{ background:#FFF3D6; color:#7A5B00; }
   .status.confirmed{ background:#E8F5EE; color:var(--ok); }
   .status.declined, .status.cancelled{ background:#FBEAE9; color:var(--error); }
-  .status.completed{ background:#E8F0F2; color:var(--teal-dark); }
-  .note{ font-size:12px; color:#5A6B66; margin-top:4px; font-style:italic; }
+  .status.completed{ background:#FBE6E3; color:var(--brand-dark); }
+  .note{ font-size:12px; color:#6E6E5E; margin-top:4px; font-style:italic; }
   .new-dot{ display:inline-block; width:8px; height:8px; border-radius:50%; background:#B3261E; margin-left:6px; vertical-align:middle; }
-  .btn-secondary-act{ background:#fff; color:var(--teal-dark); }
-  .past-toggle{ background:none; border:none; color:var(--teal-dark); font-family:inherit; font-weight:700; font-size:13px; cursor:pointer; padding:0; margin-top:8px; text-decoration:underline; }
+  .btn-secondary-act{ background:#fff; color:var(--brand-dark); }
+  .past-toggle{ background:none; border:none; color:var(--brand-dark); font-family:inherit; font-weight:700; font-size:13px; cursor:pointer; padding:0; margin-top:8px; text-decoration:underline; }
 
   .stars-txt{ color:#B8860B; font-weight:700; }
-  .rating-chip{ font-size:12px; color:#6b7a76; margin-left:6px; font-weight:600; }
+  .rating-chip{ font-size:12px; color:#6E6E5E; margin-left:6px; font-weight:600; }
   .review-line{ font-size:12px; color:#3b4a46; margin-top:4px; }
   .review-line .stars-txt{ font-size:13px; }
-  .btn-review{ background:var(--teal); color:#fff; border:none; }
-  .btn-review:hover{ background:var(--teal-dark); }
+  .btn-review{ background:var(--brand); color:#fff; border:none; }
+  .btn-review:hover{ background:var(--brand-dark); }
+  .flag-link{ background:none; border:none; padding:0; margin-left:6px; font-family:inherit; font-size:12px; font-weight:700; color:var(--brand-dark); text-decoration:underline; cursor:pointer; }
+  .flag-note{ font-size:12px; color:var(--ink-soft); font-style:italic; }
+  .modal select{ width:100%; font-family:inherit; font-size:14px; padding:10px 12px; border:1px solid var(--line); border-radius:8px; background:#fff; }
+  .admin-banner{ display:none; background:#fff; border:1px solid var(--brand); border-radius:10px; padding:12px 16px; margin-bottom:18px; font-size:14px; }
+  .admin-banner a{ color:var(--brand-dark); font-weight:700; }
   .overlay{ display:none; position:fixed; inset:0; background:rgba(0,0,0,0.35); align-items:flex-start; justify-content:center; padding:40px 16px; overflow-y:auto; z-index:20; }
   .overlay.open{ display:flex; }
   .modal{ background:#fff; border-radius:14px; padding:24px; max-width:420px; width:100%; }
-  .modal h2{ margin:0 0 6px; font-size:18px; color:var(--teal-dark); }
+  .modal h2{ margin:0 0 6px; font-size:18px; color:var(--brand-dark); }
   .modal label{ display:block; font-size:13px; font-weight:700; margin:14px 0 6px; }
   .modal textarea{ width:100%; font-family:inherit; font-size:14px; padding:10px 12px; border:1px solid var(--line); border-radius:8px; min-height:80px; resize:vertical; }
   .star-pick{ display:flex; gap:6px; }
@@ -132,16 +139,33 @@
   .star-pick button.on{ color:#E0A100; }
   .modal-actions{ display:flex; gap:10px; margin-top:18px; }
   .modal-actions button{ flex:1; padding:10px; border-radius:8px; font-family:inherit; font-size:14px; font-weight:700; cursor:pointer; }
-  .modal-actions .cancel{ background:#fff; border:1px solid var(--line); color:var(--teal-dark); }
-  .modal-actions .go{ background:var(--teal); color:#fff; border:none; }
+  .modal-actions .cancel{ background:#fff; border:1px solid var(--line); color:var(--brand-dark); }
+  .modal-actions .go{ background:var(--brand); color:#fff; border:none; }
   .modal-actions .go:disabled{ opacity:.6; }
-  .hint{ font-size:12px; color:#6b7a76; margin-top:4px; }
+  .hint{ font-size:12px; color:#6E6E5E; margin-top:4px; }
+
+  /* ===== Local Bond palette: coral + cream ===== */
+  .topbar{ background:var(--cream); border-bottom:none; padding:16px 20px; }
+  .topbar .brand, .topbar .brand-row{ display:flex; align-items:center; gap:10px; text-decoration:none; color:inherit; }
+  .topbar a.brand, .topbar a.brand-row{ border:none; padding:0; background:none; border-radius:0; }
+  .topbar .bamboo{ width:34px; height:38px; color:var(--ink); flex:none; }
+  .brand-text{ display:flex; flex-direction:column; line-height:1; }
+  .wordmark{ font-weight:800; font-size:25px; color:var(--coral); letter-spacing:-.01em; }
+  .tagline{ font-size:12px; color:var(--ink-soft); margin-top:3px; }
+  #topbarRight{ display:flex; align-items:center; gap:8px; flex-wrap:wrap; justify-content:flex-end; }
+  #topbarRight a, #topbarRight button{
+    font-family:inherit; font-size:13px; font-weight:700; color:var(--brand-dark); background:#fff;
+    border:1px solid var(--line); border-radius:8px; padding:7px 12px; cursor:pointer;
+    text-decoration:none; display:inline-flex; align-items:center;
+  }
+  #topbarRight a:hover, #topbarRight button:hover{ border-color:var(--brand); text-decoration:none; }
+  @media (max-width:560px){ .topbar{ flex-wrap:wrap; gap:10px; } .tagline{ font-size:11px; } }
 </style>
 </head>
 <body>
 
 <div class="topbar">
-  <div class="brand">
+  <a class="brand" href="index.html">
     <svg class="bamboo" viewBox="0 0 100 112" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
       <g fill="currentColor">
         <rect x="37" y="6" width="16" height="27" rx="4"/><rect x="37" y="37" width="16" height="30" rx="4"/>
@@ -156,8 +180,8 @@
         <path transform="rotate(44) scale(22)" d="M0 0 Q0.4 -0.13 1 0 Q0.4 0.13 0 0 z"/></g>
       </g>
     </svg>
-    <span class="name">Local Bond</span>
-  </div>
+    <div class="brand-text"><div class="wordmark">Local Bond</div><div class="tagline">share what you have, borrow what you need</div></div>
+  </a>
   <div class="right" id="topbarRight"></div>
 </div>
 
@@ -170,6 +194,7 @@
     <h1>Requests</h1>
     <p class="sub">Borrow requests for your items, the requests you've made, and reviews after an item comes back. Dates are first-come, first-confirmed — once you confirm a request, those dates are locked for that item.</p>
 
+    <div class="admin-banner" id="adminBanner"></div>
     <div class="msg" id="pageMsg"></div>
 
     <div class="card">
@@ -185,7 +210,7 @@
       <h2>Your borrow requests</h2>
       <p class="desc">Things you've asked to borrow from other people.</p>
       <ul class="list" id="requesterList"></ul>
-      <div class="empty" id="requesterEmpty" style="display:none">You haven't asked to borrow anything yet. <a href="index.html" style="color:var(--teal-dark);font-weight:700">Browse items</a></div>
+      <div class="empty" id="requesterEmpty" style="display:none">You haven't asked to borrow anything yet. <a href="index.html" style="color:var(--brand-dark);font-weight:700">Browse items</a></div>
       <button class="past-toggle" id="requesterPastBtn" style="display:none"></button>
       <ul class="list" id="requesterPast" style="display:none"></ul>
     </div>
@@ -215,18 +240,29 @@
   </div>
 </div>
 
+<!-- ===================== FLAG MODAL ===================== -->
+<div class="overlay" id="flagOverlay">
+  <div class="modal">
+    <h2 id="flagTitle">Flag this review</h2>
+    <div class="hint">Flag a review if it's unfair, inaccurate, or breaks the rules. The review stays visible while it's looked at, and you'll get an email with the decision.</div>
+    <label for="flagReason">What's wrong with it?</label>
+    <select id="flagReason">
+      <option value="inaccurate">It's inaccurate — that's not what happened</option>
+      <option value="retaliatory">It looks like payback for my review</option>
+      <option value="inappropriate">It's abusive or inappropriate</option>
+      <option value="other">Something else</option>
+    </select>
+    <label for="flagNote">Anything we should know? (optional)</label>
+    <textarea id="flagNote" maxlength="500" placeholder="A sentence or two helps."></textarea>
+    <div class="modal-actions">
+      <button type="button" class="cancel" id="flagCancel">Cancel</button>
+      <button type="button" class="go" id="flagSend">Flag review</button>
+    </div>
+    <div class="msg" id="flagMsg"></div>
+  </div>
+</div>
+
 <script>
-/* ============================================================
-   CONFIG — same Supabase project URL and anon key as the other
-   Local Bond pages.
-   ============================================================ */
-const CONFIG = {
-  SUPABASE_URL: "https://ggdpjoirrzxxgxbhyosb.supabase.co",
-  SUPABASE_ANON_KEY: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImdnZHBqb2lycnp4eGd4Ymh5b3NiIiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTA4MTgxOTcsImV4cCI6MjEwNjM5NDE5N30.Kjnl8a_WCnv4Yek7hYCojIWLMNG2Bi69j-O-Q3o91U8",
-};
-
-const supabaseClient = window.supabase.createClient(CONFIG.SUPABASE_URL, CONFIG.SUPABASE_ANON_KEY);
-
 const gate = document.getElementById("gate");
 const app = document.getElementById("app");
 const topbarRight = document.getElementById("topbarRight");
@@ -288,6 +324,7 @@ async function loadAll(markSeen){
     await supabaseClient.rpc("mark_reservations_seen");
   }
   refreshReqBadge();
+  refreshAdminBanner();
 }
 
 function isActive(r){
@@ -319,15 +356,28 @@ function rowHtml(r){
 
 function starsText(n){ return "★".repeat(n) + "☆".repeat(5 - n); }
 
+function flagHtml(r){
+  if (r.their_flag === "pending") return ` <span class="flag-note">You flagged this review — it's being looked at.</span>`;
+  if (r.their_flag === "kept") return ` <span class="flag-note">You flagged this review; it was looked at and kept.</span>`;
+  if (r.their_flag == null && r.their_review_id) {
+    return ` <button type="button" class="flag-link" data-act="flag" data-review="${r.their_review_id}" data-name="${escapeHtml(r.other_party_name)}">Flag this review</button>`;
+  }
+  return "";
+}
+
 function reviewHtml(r){
   if (r.status !== "completed") return "";
   const them = escapeHtml(r.other_party_name);
+  if (r.their_flag === "removed") {
+    const mineTxt = r.i_reviewed ? `You rated <span class="stars-txt">${starsText(r.my_stars)}</span>${r.my_comment ? ` "${escapeHtml(r.my_comment)}"` : ""}<br>` : "";
+    return `<div class="review-line">${mineTxt}<span class="flag-note">${them}'s review was removed after it was flagged.</span></div>`;
+  }
   if (!r.i_reviewed) return `<div class="review-line">Returned — how did it go? Leave a review for ${them}.</div>`;
   const mine = `You rated <span class="stars-txt">${starsText(r.my_stars)}</span>${r.my_comment ? ` "${escapeHtml(r.my_comment)}"` : ""}`;
   if (r.their_stars == null) {
     return `<div class="review-line">${mine}<br>${them}'s review will appear once they've written one (or 14 days after the return).</div>`;
   }
-  return `<div class="review-line">${mine}<br>${them} rated you <span class="stars-txt">${starsText(r.their_stars)}</span>${r.their_comment ? ` "${escapeHtml(r.their_comment)}"` : ""}</div>`;
+  return `<div class="review-line">${mine}<br>${them} rated you <span class="stars-txt">${starsText(r.their_stars)}</span>${r.their_comment ? ` "${escapeHtml(r.their_comment)}"` : ""}${flagHtml(r)}</div>`;
 }
 
 function actionsHtml(r){
@@ -406,6 +456,7 @@ document.addEventListener("click", async (e) => {
   if (!btn) return;
   const act = btn.dataset.act, id = btn.dataset.id;
   if (act === "review") { openReview(id, btn.dataset.name, btn.dataset.item); return; }
+  if (act === "flag") { openFlag(btn.dataset.review, btn.dataset.name); return; }
   if (act === "cancel" && !window.confirm(CONFIRM_TEXT.cancel)) return;
   btn.disabled = true;
   pageMsg.style.display = "none";
@@ -461,6 +512,50 @@ document.getElementById("reviewSend").addEventListener("click", async () => {
   reviewOverlay.classList.remove("open");
   await loadAll(false);
 });
+
+/* ---------- Flag a review ---------- */
+const flagOverlay = document.getElementById("flagOverlay");
+const flagMsg = document.getElementById("flagMsg");
+let flagReviewId = null;
+
+function openFlag(reviewId, name){
+  flagReviewId = reviewId;
+  document.getElementById("flagReason").value = "inaccurate";
+  document.getElementById("flagNote").value = "";
+  flagMsg.style.display = "none";
+  flagMsg.className = "msg";
+  document.getElementById("flagSend").disabled = false;
+  document.getElementById("flagTitle").textContent = `Flag ${name}'s review`;
+  flagOverlay.classList.add("open");
+}
+document.getElementById("flagCancel").addEventListener("click", () => flagOverlay.classList.remove("open"));
+document.getElementById("flagSend").addEventListener("click", async () => {
+  const btn = document.getElementById("flagSend");
+  btn.disabled = true;
+  const { error } = await supabaseClient.rpc("flag_review", {
+    target_review_id: flagReviewId,
+    flag_reason: document.getElementById("flagReason").value,
+    flag_note: document.getElementById("flagNote").value.trim() || null,
+  });
+  if (error) {
+    showMsg(flagMsg, error.message, "error");
+    btn.disabled = false;
+    return;
+  }
+  flagOverlay.classList.remove("open");
+  await loadAll(false);
+});
+
+/* ---------- Admin banner (only shows for admins with flags waiting) ---------- */
+async function refreshAdminBanner(){
+  try {
+    const { data, error } = await supabaseClient.rpc("admin_pending_flag_count");
+    const el = document.getElementById("adminBanner");
+    if (error || !data) { el.style.display = "none"; return; }
+    el.innerHTML = `${data} flagged review${data === 1 ? "" : "s"} waiting for your decision. <a href="admin.html">Open the review queue</a>`;
+    el.style.display = "block";
+  } catch (e) { /* not set up yet — ignore */ }
+}
 
 /* ---------- Requests badge (new requests + unseen answers) ---------- */
 async function refreshReqBadge(){

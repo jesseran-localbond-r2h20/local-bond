@@ -7,13 +7,15 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Overpass:wght@400;600;700&display=swap" rel="stylesheet">
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="config.js"></script>
+<script src="lb-client.js"></script>
 <style>
   :root{
-    --teal:#3D6B7A;
-    --teal-dark:#2A4C57;
+    --brand:#D13C32; --coral:#EA4B40; --ink-soft:#6E6E5E; --teal:#3D6B7A;
+    --brand-dark:#B8322A; --teal-dark:#2A4C57;
     --cream:#FFFCEB;
-    --ink:#26332F;
-    --line:#DDE3DE;
+    --ink:#1A1A17;
+    --line:#ECE5CC;
     --error:#B3261E;
     --ok:#2E7D53;
   }
@@ -24,21 +26,21 @@
   }
   .wrap{ width:100%; max-width:440px; }
   .brand{ text-align:center; margin-bottom:24px; }
-  .brand .bamboo{ width:40px; height:45px; color:var(--teal); margin-bottom:6px; }
-  .brand .name{ font-weight:700; font-size:22px; color:var(--teal-dark); }
-  .brand .tag{ font-size:14px; color:#5A6B66; margin-top:4px; }
+  .brand .bamboo{ width:40px; height:45px; color:var(--brand); margin-bottom:6px; }
+  .brand .name{ font-weight:700; font-size:22px; color:var(--brand-dark); }
+  .brand .tag{ font-size:14px; color:#6E6E5E; margin-top:4px; }
   .card{
     background:#fff; border:1px solid var(--line); border-radius:14px;
     padding:24px; box-shadow:0 2px 10px rgba(0,0,0,0.04);
   }
-  h2{ margin:0 0 16px; font-size:18px; color:var(--teal-dark); }
+  h2{ margin:0 0 16px; font-size:18px; color:var(--brand-dark); }
   label{ display:block; font-size:13px; font-weight:600; margin:14px 0 6px; }
-  .hint{ font-size:12px; color:#6b7a76; margin-top:4px; font-weight:400; }
+  .hint{ font-size:12px; color:#6E6E5E; margin-top:4px; font-weight:400; }
   input[type=text], input[type=email], input[type=password]{
     width:100%; padding:10px 12px; border:1px solid var(--line); border-radius:8px;
     font-family:inherit; font-size:14px;
   }
-  input:focus{ outline:2px solid var(--teal); outline-offset:1px; }
+  input:focus{ outline:2px solid var(--brand); outline-offset:1px; }
   .checkbox-row{ display:flex; align-items:flex-start; gap:8px; margin:16px 0; }
   .checkbox-row input{ margin-top:3px; }
   .checkbox-row .ctext{ font-size:13px; }
@@ -47,28 +49,28 @@
     width:100%; padding:11px; border:none; border-radius:8px; font-family:inherit;
     font-size:14px; font-weight:700; cursor:pointer; margin-top:6px;
   }
-  .btn-primary{ background:var(--teal); color:#fff; }
-  .btn-primary:hover{ background:var(--teal-dark); }
-  .btn-secondary{ background:transparent; color:var(--teal-dark); border:1px solid var(--line) !important; border-width:1px; }
-  .btn-link{ background:none; color:var(--teal-dark); text-decoration:underline; font-weight:600; padding:6px; margin-top:0; }
+  .btn-primary{ background:var(--brand); color:#fff; }
+  .btn-primary:hover{ background:var(--brand-dark); }
+  .btn-secondary{ background:transparent; color:var(--brand-dark); border:1px solid var(--line) !important; border-width:1px; }
+  .btn-link{ background:none; color:var(--brand-dark); text-decoration:underline; font-weight:600; padding:6px; margin-top:0; }
   .tabs{ display:flex; margin-bottom:18px; border-bottom:1px solid var(--line); }
   .tab{
     flex:1; text-align:center; padding:10px 0; cursor:pointer; font-weight:700;
     color:#8a9490; border-bottom:2px solid transparent;
   }
-  .tab.active{ color:var(--teal-dark); border-bottom-color:var(--teal); }
+  .tab.active{ color:var(--brand-dark); border-bottom-color:var(--brand); }
   .msg{ font-size:13px; padding:10px 12px; border-radius:8px; margin-top:14px; display:none; }
   .msg.error{ background:#FBEAE9; color:var(--error); display:block; }
   .msg.ok{ background:#E8F5EE; color:var(--ok); display:block; }
   .row-split{ display:flex; justify-content:space-between; align-items:center; }
-  .muted{ color:#6b7a76; font-size:13px; }
+  .muted{ color:#6E6E5E; font-size:13px; }
   #logoutBtn{ margin-top:20px; }
   .field-group{ padding-top:10px; margin-top:10px; border-top:1px dashed var(--line); }
   .geostatus{ font-size:12px; margin-top:4px; }
   .geostatus.ok{ color:var(--ok); }
   .geostatus.error{ color:var(--error); }
   .nav-row{ display:flex; justify-content:center; gap:18px; margin-bottom:16px; font-size:13px; font-weight:600; }
-  .nav-row a{ color:var(--teal-dark); text-decoration:none; }
+  .nav-row a{ color:var(--brand-dark); text-decoration:none; }
   .nav-row a:hover{ text-decoration:underline; }
 
   .req-badge{
@@ -76,6 +78,16 @@
     min-width:18px; height:18px; line-height:18px; text-align:center; border-radius:999px;
     padding:0 5px; margin-left:5px; vertical-align:middle;
   }
+
+  /* ===== Local Bond palette: coral + cream ===== */
+  .brand .bamboo{ color:var(--ink); }
+  .brand .name{ font-weight:800; font-size:28px; color:var(--coral); letter-spacing:-.01em; }
+  .brand .tag{ color:var(--ink-soft); }
+  .nav-row a{
+    background:#fff; border:1px solid var(--line); border-radius:8px; padding:7px 12px;
+    font-weight:700; color:var(--brand-dark); text-decoration:none;
+  }
+  .nav-row a:hover{ border-color:var(--brand); text-decoration:none; }
 </style>
 </head>
 <body>
@@ -193,18 +205,6 @@
 </div>
 
 <script>
-/* ============================================================
-   CONFIG — fill these in after creating your Supabase project
-   (Project Settings → API). The anon key is safe to put in this
-   public file: it can only do what the RLS policies allow.
-   ============================================================ */
-const CONFIG = {
-  SUPABASE_URL: "https://ggdpjoirrzxxgxbhyosb.supabase.co",
-  SUPABASE_ANON_KEY: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImdnZHBqb2lycnp4eGd4Ymh5b3NiIiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTA4MTgxOTcsImV4cCI6MjEwNjM5NDE5N30.Kjnl8a_WCnv4Yek7hYCojIWLMNG2Bi69j-O-Q3o91U8",
-};
-
-const supabaseClient = window.supabase.createClient(CONFIG.SUPABASE_URL, CONFIG.SUPABASE_ANON_KEY);
-
 /* ---------- element refs ---------- */
 const authCard = document.getElementById("authCard");
 const profileCard = document.getElementById("profileCard");

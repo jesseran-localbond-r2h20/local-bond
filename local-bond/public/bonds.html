@@ -7,13 +7,15 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Overpass:wght@400;600;700&display=swap" rel="stylesheet">
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="config.js"></script>
+<script src="lb-client.js"></script>
 <style>
   :root{
-    --teal:#3D6B7A;
-    --teal-dark:#2A4C57;
+    --brand:#D13C32; --coral:#EA4B40; --ink-soft:#6E6E5E; --teal:#3D6B7A;
+    --brand-dark:#B8322A; --teal-dark:#2A4C57;
     --cream:#FFFCEB;
-    --ink:#26332F;
-    --line:#DDE3DE;
+    --ink:#1A1A17;
+    --line:#ECE5CC;
     --error:#B3261E;
     --ok:#2E7D53;
   }
@@ -27,37 +29,37 @@
     padding:12px 20px; z-index:10;
   }
   .topbar .brand{ display:flex; align-items:center; gap:8px; }
-  .topbar .bamboo{ width:26px; height:29px; color:var(--teal); }
-  .topbar .name{ font-weight:700; font-size:17px; color:var(--teal-dark); }
+  .topbar .bamboo{ width:26px; height:29px; color:var(--brand); }
+  .topbar .name{ font-weight:700; font-size:17px; color:var(--brand-dark); }
   .topbar .right{ display:flex; align-items:center; gap:16px; font-size:13px; font-weight:600; }
-  .topbar .right a{ color:var(--teal-dark); text-decoration:none; }
+  .topbar .right a{ color:var(--brand-dark); text-decoration:none; }
   .topbar .right a:hover{ text-decoration:underline; }
   .topbar .right button{
     background:none; border:1px solid var(--line); border-radius:6px; padding:6px 10px;
-    font-family:inherit; font-size:13px; font-weight:600; color:var(--teal-dark); cursor:pointer;
+    font-family:inherit; font-size:13px; font-weight:600; color:var(--brand-dark); cursor:pointer;
   }
   .wrap{ max-width:640px; margin:0 auto; padding:24px 16px 60px; }
-  h1{ font-size:20px; color:var(--teal-dark); margin:0 0 4px; }
-  .sub{ font-size:14px; color:#5A6B66; margin:0 0 24px; }
+  h1{ font-size:20px; color:var(--brand-dark); margin:0 0 4px; }
+  .sub{ font-size:14px; color:#6E6E5E; margin:0 0 24px; }
   .gate{ text-align:center; padding:60px 16px; }
-  .gate a{ color:var(--teal-dark); font-weight:700; text-decoration:underline; }
+  .gate a{ color:var(--brand-dark); font-weight:700; text-decoration:underline; }
   .card{
     background:#fff; border:1px solid var(--line); border-radius:14px;
     padding:20px; box-shadow:0 2px 10px rgba(0,0,0,0.04); margin-bottom:22px;
   }
-  .card h2{ margin:0 0 4px; font-size:16px; color:var(--teal-dark); }
-  .card .desc{ font-size:13px; color:#5A6B66; margin:0 0 14px; }
+  .card h2{ margin:0 0 4px; font-size:16px; color:var(--brand-dark); }
+  .card .desc{ font-size:13px; color:#6E6E5E; margin:0 0 14px; }
   .send-row{ display:flex; gap:8px; }
   .send-row input{
     flex:1; padding:10px 12px; border:1px solid var(--line); border-radius:8px;
     font-family:inherit; font-size:14px;
   }
-  .send-row input:focus{ outline:2px solid var(--teal); outline-offset:1px; }
+  .send-row input:focus{ outline:2px solid var(--brand); outline-offset:1px; }
   .send-row button{
     padding:10px 16px; border:none; border-radius:8px; font-family:inherit;
-    font-size:14px; font-weight:700; cursor:pointer; background:var(--teal); color:#fff;
+    font-size:14px; font-weight:700; cursor:pointer; background:var(--brand); color:#fff;
   }
-  .send-row button:hover{ background:var(--teal-dark); }
+  .send-row button:hover{ background:var(--brand-dark); }
   .send-row button:disabled{ opacity:0.6; cursor:default; }
   .msg{ font-size:13px; padding:10px 12px; border-radius:8px; margin-top:12px; display:none; }
   .msg.error{ background:#FBEAE9; color:var(--error); display:block; }
@@ -69,29 +71,46 @@
   }
   .list li:last-child{ border-bottom:none; }
   .list .who{ font-weight:600; font-size:14px; }
-  .list .meta{ font-size:12px; color:#6b7a76; margin-top:2px; }
+  .list .meta{ font-size:12px; color:#6E6E5E; margin-top:2px; }
   .actions{ display:flex; gap:8px; flex-shrink:0; }
   .actions button{
     padding:7px 12px; border-radius:6px; font-family:inherit; font-size:13px;
     font-weight:600; cursor:pointer; border:1px solid var(--line);
   }
-  .btn-accept{ background:var(--teal); color:#fff; border:none; }
-  .btn-accept:hover{ background:var(--teal-dark); }
+  .btn-accept{ background:var(--brand); color:#fff; border:none; }
+  .btn-accept:hover{ background:var(--brand-dark); }
   .btn-decline, .btn-withdraw, .btn-unbond{ background:#fff; color:var(--error); border-color:#F0CFCC; }
   .btn-decline:hover, .btn-withdraw:hover, .btn-unbond:hover{ background:#FBEAE9; }
-  .empty{ font-size:13px; color:#6b7a76; padding:4px 0; }
+  .empty{ font-size:13px; color:#6E6E5E; padding:4px 0; }
 
   .req-badge{
     display:none; background:#B3261E; color:#fff; font-size:11px; font-weight:700;
     min-width:18px; height:18px; line-height:18px; text-align:center; border-radius:999px;
     padding:0 5px; margin-left:5px; vertical-align:middle;
   }
+
+  /* ===== Local Bond palette: coral + cream ===== */
+  .topbar{ background:var(--cream); border-bottom:none; padding:16px 20px; }
+  .topbar .brand, .topbar .brand-row{ display:flex; align-items:center; gap:10px; text-decoration:none; color:inherit; }
+  .topbar a.brand, .topbar a.brand-row{ border:none; padding:0; background:none; border-radius:0; }
+  .topbar .bamboo{ width:34px; height:38px; color:var(--ink); flex:none; }
+  .brand-text{ display:flex; flex-direction:column; line-height:1; }
+  .wordmark{ font-weight:800; font-size:25px; color:var(--coral); letter-spacing:-.01em; }
+  .tagline{ font-size:12px; color:var(--ink-soft); margin-top:3px; }
+  #topbarRight{ display:flex; align-items:center; gap:8px; flex-wrap:wrap; justify-content:flex-end; }
+  #topbarRight a, #topbarRight button{
+    font-family:inherit; font-size:13px; font-weight:700; color:var(--brand-dark); background:#fff;
+    border:1px solid var(--line); border-radius:8px; padding:7px 12px; cursor:pointer;
+    text-decoration:none; display:inline-flex; align-items:center;
+  }
+  #topbarRight a:hover, #topbarRight button:hover{ border-color:var(--brand); text-decoration:none; }
+  @media (max-width:560px){ .topbar{ flex-wrap:wrap; gap:10px; } .tagline{ font-size:11px; } }
 </style>
 </head>
 <body>
 
 <div class="topbar">
-  <div class="brand">
+  <a class="brand" href="index.html">
     <svg class="bamboo" viewBox="0 0 100 112" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
       <g fill="currentColor">
         <rect x="37" y="6" width="16" height="27" rx="4"/><rect x="37" y="37" width="16" height="30" rx="4"/>
@@ -106,8 +125,8 @@
         <path transform="rotate(44) scale(22)" d="M0 0 Q0.4 -0.13 1 0 Q0.4 0.13 0 0 z"/></g>
       </g>
     </svg>
-    <span class="name">Local Bond</span>
-  </div>
+    <div class="brand-text"><div class="wordmark">Local Bond</div><div class="tagline">share what you have, borrow what you need</div></div>
+  </a>
   <div class="right" id="topbarRight"></div>
 </div>
 
@@ -164,17 +183,6 @@
 </div>
 
 <script>
-/* ============================================================
-   CONFIG — same Supabase project URL and anon key as the other
-   Local Bond pages.
-   ============================================================ */
-const CONFIG = {
-  SUPABASE_URL: "https://ggdpjoirrzxxgxbhyosb.supabase.co",
-  SUPABASE_ANON_KEY: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImdnZHBqb2lycnp4eGd4Ymh5b3NiIiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTA4MTgxOTcsImV4cCI6MjEwNjM5NDE5N30.Kjnl8a_WCnv4Yek7hYCojIWLMNG2Bi69j-O-Q3o91U8",
-};
-
-const supabaseClient = window.supabase.createClient(CONFIG.SUPABASE_URL, CONFIG.SUPABASE_ANON_KEY);
-
 /* ---------- element refs ---------- */
 const gate = document.getElementById("gate");
 const app = document.getElementById("app");

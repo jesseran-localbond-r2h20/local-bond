@@ -1,0 +1,319 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Review queue — Local Bond</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Overpass:wght@400;600;700&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="config.js"></script>
+<script src="lb-client.js"></script>
+<style>
+  :root{
+    --brand:#D13C32; --coral:#EA4B40; --ink-soft:#6E6E5E; --teal:#3D6B7A;
+    --brand-dark:#B8322A; --teal-dark:#2A4C57;
+    --cream:#FFFCEB;
+    --ink:#1A1A17;
+    --line:#ECE5CC;
+    --error:#B3261E;
+    --ok:#2E7D53;
+  }
+  *{box-sizing:border-box;}
+  body{
+    margin:0; font-family:"Overpass",sans-serif; background:var(--cream); color:var(--ink);
+  }
+  .topbar{
+    position:sticky; top:0; background:#fff; border-bottom:1px solid var(--line);
+    display:flex; align-items:center; justify-content:space-between;
+    padding:12px 20px; z-index:10;
+  }
+  .topbar .brand{ display:flex; align-items:center; gap:8px; }
+  .topbar .bamboo{ width:26px; height:29px; color:var(--brand); }
+  .topbar .name{ font-weight:700; font-size:17px; color:var(--brand-dark); }
+  .topbar .right{ display:flex; align-items:center; gap:16px; font-size:13px; font-weight:600; }
+  .topbar .right a{ color:var(--brand-dark); text-decoration:none; }
+  .topbar .right a:hover{ text-decoration:underline; }
+  .topbar .right button{
+    background:none; border:1px solid var(--line); border-radius:6px; padding:6px 10px;
+    font-family:inherit; font-size:13px; font-weight:600; color:var(--brand-dark); cursor:pointer;
+  }
+  .wrap{ max-width:680px; margin:0 auto; padding:24px 16px 60px; }
+  h1{ font-size:20px; color:var(--brand-dark); margin:0 0 4px; }
+  .sub{ font-size:14px; color:#6E6E5E; margin:0 0 24px; }
+  .gate{ text-align:center; padding:60px 16px; }
+  .gate a{ color:var(--brand-dark); font-weight:700; text-decoration:underline; }
+  .card{
+    background:#fff; border:1px solid var(--line); border-radius:14px;
+    padding:20px; box-shadow:0 2px 10px rgba(0,0,0,0.04); margin-bottom:22px;
+  }
+  .card h2{ margin:0 0 4px; font-size:16px; color:var(--brand-dark); }
+  .card .desc{ font-size:13px; color:#6E6E5E; margin:0 0 14px; }
+  .send-row{ display:flex; gap:8px; }
+  .send-row input{
+    flex:1; padding:10px 12px; border:1px solid var(--line); border-radius:8px;
+    font-family:inherit; font-size:14px;
+  }
+  .send-row input:focus{ outline:2px solid var(--brand); outline-offset:1px; }
+  .send-row button{
+    padding:10px 16px; border:none; border-radius:8px; font-family:inherit;
+    font-size:14px; font-weight:700; cursor:pointer; background:var(--brand); color:#fff; flex-shrink:0;
+  }
+  .send-row button:hover{ background:var(--brand-dark); }
+  .send-row button:disabled{ opacity:0.6; cursor:default; }
+  .msg{ font-size:13px; padding:10px 12px; border-radius:8px; margin-top:12px; display:none; }
+  .msg.error{ background:#FBEAE9; color:var(--error); display:block; }
+  .msg.ok{ background:#E8F5EE; color:var(--ok); display:block; }
+  .cap-note{ font-size:12px; color:#6E6E5E; margin-top:10px; }
+  .list{ list-style:none; margin:0; padding:0; }
+  .list li{
+    display:flex; align-items:center; justify-content:space-between; gap:10px;
+    padding:12px 0; border-bottom:1px solid var(--line);
+  }
+  .list li:last-child{ border-bottom:none; }
+  .list .who{ font-weight:600; font-size:14px; }
+  .list .meta{ font-size:12px; color:#6E6E5E; margin-top:2px; }
+  .actions{ display:flex; gap:8px; flex-shrink:0; flex-wrap:wrap; justify-content:flex-end; }
+  .actions button{
+    padding:7px 12px; border-radius:6px; font-family:inherit; font-size:13px;
+    font-weight:600; cursor:pointer; border:1px solid var(--line);
+  }
+  .btn-accept{ background:var(--brand); color:#fff; border:none; }
+  .btn-accept:hover{ background:var(--brand-dark); }
+  .btn-decline, .btn-withdraw, .btn-leave, .btn-remove, .btn-delete{ background:#fff; color:var(--error); border-color:#F0CFCC; }
+  .btn-decline:hover, .btn-withdraw:hover, .btn-leave:hover, .btn-remove:hover, .btn-delete:hover{ background:#FBEAE9; }
+  .empty{ font-size:13px; color:#6E6E5E; padding:4px 0; }
+  .guild-block{ margin-bottom:26px; }
+  .guild-header{ display:flex; align-items:center; justify-content:space-between; margin-bottom:6px; }
+  .guild-header .gname{ font-weight:700; font-size:15px; color:var(--brand-dark); }
+  .owner-badge{
+    font-size:11px; font-weight:700; padding:2px 8px; border-radius:999px;
+    background:#EAF2E9; color:#355E3B; margin-left:6px;
+  }
+  .invite-row{ display:flex; gap:8px; margin-top:10px; }
+  .invite-row input{
+    flex:1; padding:8px 10px; border:1px solid var(--line); border-radius:8px;
+    font-family:inherit; font-size:13px;
+  }
+  .invite-row button{
+    padding:8px 12px; border:none; border-radius:8px; font-family:inherit;
+    font-size:13px; font-weight:700; cursor:pointer; background:var(--brand); color:#fff;
+  }
+  .invite-row button:hover{ background:var(--brand-dark); }
+
+  .req-badge{
+    display:none; background:#B3261E; color:#fff; font-size:11px; font-weight:700;
+    min-width:18px; height:18px; line-height:18px; text-align:center; border-radius:999px;
+    padding:0 5px; margin-left:5px; vertical-align:middle;
+  }
+
+  .status{ font-size:11px; font-weight:700; padding:2px 8px; border-radius:999px; margin-left:6px; background:#F4EFDC; color:var(--brand-dark); }
+  .status.requested{ background:#FFF3D6; color:#7A5B00; }
+  .status.confirmed{ background:#E8F5EE; color:var(--ok); }
+  .status.declined, .status.cancelled{ background:#FBEAE9; color:var(--error); }
+  .status.completed{ background:#FBE6E3; color:var(--brand-dark); }
+  .note{ font-size:12px; color:#6E6E5E; margin-top:4px; font-style:italic; }
+  .new-dot{ display:inline-block; width:8px; height:8px; border-radius:50%; background:#B3261E; margin-left:6px; vertical-align:middle; }
+  .btn-secondary-act{ background:#fff; color:var(--brand-dark); }
+  .past-toggle{ background:none; border:none; color:var(--brand-dark); font-family:inherit; font-weight:700; font-size:13px; cursor:pointer; padding:0; margin-top:8px; text-decoration:underline; }
+
+  .stars-txt{ color:#B8860B; font-weight:700; }
+  .rating-chip{ font-size:12px; color:#6E6E5E; margin-left:6px; font-weight:600; }
+  .review-line{ font-size:12px; color:#3b4a46; margin-top:4px; }
+  .review-line .stars-txt{ font-size:13px; }
+  .btn-review{ background:var(--brand); color:#fff; border:none; }
+  .btn-review:hover{ background:var(--brand-dark); }
+  .flag-link{ background:none; border:none; padding:0; margin-left:6px; font-family:inherit; font-size:12px; font-weight:700; color:var(--brand-dark); text-decoration:underline; cursor:pointer; }
+  .flag-note{ font-size:12px; color:var(--ink-soft); font-style:italic; }
+  .modal select{ width:100%; font-family:inherit; font-size:14px; padding:10px 12px; border:1px solid var(--line); border-radius:8px; background:#fff; }
+  .admin-banner{ display:none; background:#fff; border:1px solid var(--brand); border-radius:10px; padding:12px 16px; margin-bottom:18px; font-size:14px; }
+  .admin-banner a{ color:var(--brand-dark); font-weight:700; }
+  .overlay{ display:none; position:fixed; inset:0; background:rgba(0,0,0,0.35); align-items:flex-start; justify-content:center; padding:40px 16px; overflow-y:auto; z-index:20; }
+  .overlay.open{ display:flex; }
+  .modal{ background:#fff; border-radius:14px; padding:24px; max-width:420px; width:100%; }
+  .modal h2{ margin:0 0 6px; font-size:18px; color:var(--brand-dark); }
+  .modal label{ display:block; font-size:13px; font-weight:700; margin:14px 0 6px; }
+  .modal textarea{ width:100%; font-family:inherit; font-size:14px; padding:10px 12px; border:1px solid var(--line); border-radius:8px; min-height:80px; resize:vertical; }
+  .star-pick{ display:flex; gap:6px; }
+  .star-pick button{ font-size:30px; line-height:1; background:none; border:none; cursor:pointer; color:#CFCFC4; padding:0 2px; }
+  .star-pick button.on{ color:#E0A100; }
+  .modal-actions{ display:flex; gap:10px; margin-top:18px; }
+  .modal-actions button{ flex:1; padding:10px; border-radius:8px; font-family:inherit; font-size:14px; font-weight:700; cursor:pointer; }
+  .modal-actions .cancel{ background:#fff; border:1px solid var(--line); color:var(--brand-dark); }
+  .modal-actions .go{ background:var(--brand); color:#fff; border:none; }
+  .modal-actions .go:disabled{ opacity:.6; }
+  .hint{ font-size:12px; color:#6E6E5E; margin-top:4px; }
+
+  /* ===== Local Bond palette: coral + cream ===== */
+  .topbar{ background:var(--cream); border-bottom:none; padding:16px 20px; }
+  .topbar .brand, .topbar .brand-row{ display:flex; align-items:center; gap:10px; text-decoration:none; color:inherit; }
+  .topbar a.brand, .topbar a.brand-row{ border:none; padding:0; background:none; border-radius:0; }
+  .topbar .bamboo{ width:34px; height:38px; color:var(--ink); flex:none; }
+  .brand-text{ display:flex; flex-direction:column; line-height:1; }
+  .wordmark{ font-weight:800; font-size:25px; color:var(--coral); letter-spacing:-.01em; }
+  .tagline{ font-size:12px; color:var(--ink-soft); margin-top:3px; }
+  #topbarRight{ display:flex; align-items:center; gap:8px; flex-wrap:wrap; justify-content:flex-end; }
+  #topbarRight a, #topbarRight button{
+    font-family:inherit; font-size:13px; font-weight:700; color:var(--brand-dark); background:#fff;
+    border:1px solid var(--line); border-radius:8px; padding:7px 12px; cursor:pointer;
+    text-decoration:none; display:inline-flex; align-items:center;
+  }
+  #topbarRight a:hover, #topbarRight button:hover{ border-color:var(--brand); text-decoration:none; }
+  @media (max-width:560px){ .topbar{ flex-wrap:wrap; gap:10px; } .tagline{ font-size:11px; } }
+</style>
+<style>
+  .flag-card{ background:#fff; border:1px solid var(--line); border-radius:14px; padding:18px; margin-bottom:16px; box-shadow:0 2px 10px rgba(0,0,0,0.04); }
+  .flag-card h3{ margin:0 0 4px; font-size:15px; }
+  .flag-card .meta{ font-size:12px; color:var(--ink-soft); margin-bottom:10px; }
+  .quote{ background:var(--cream); border-radius:8px; padding:10px 12px; font-size:14px; margin:8px 0; }
+  .quote .stars-txt{ color:#E0A100; }
+  .why{ font-size:13px; margin:6px 0; }
+  .decide textarea{ width:100%; font-family:inherit; font-size:14px; padding:8px 10px; border:1px solid var(--line); border-radius:8px; min-height:56px; margin-top:8px; }
+  .decide .row{ display:flex; gap:10px; margin-top:10px; }
+  .decide button{ flex:1; padding:10px; border-radius:8px; font-family:inherit; font-size:14px; font-weight:700; cursor:pointer; }
+  .btn-keep{ background:#fff; border:1px solid var(--line); color:var(--brand-dark); }
+  .btn-remove{ background:var(--brand); border:none; color:#fff; }
+  .btn-remove:hover{ background:var(--brand-dark); }
+  .pill{ display:inline-block; font-size:11px; font-weight:700; padding:2px 8px; border-radius:99px; background:#fff; border:1px solid var(--line); }
+  .pill.removed{ color:var(--error); } .pill.kept{ color:var(--ok); }
+  .empty{ font-size:14px; color:var(--ink-soft); padding:8px 0; }
+  .msg{ display:none; font-size:13px; margin:8px 0; } .msg.error{ display:block; color:var(--error); } .msg.ok{ display:block; color:var(--ok); }
+</style>
+</head>
+<body>
+
+<div class="topbar">
+  <a class="brand" href="index.html">
+    <svg class="bamboo" viewBox="0 0 100 112" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+      <g fill="currentColor">
+        <rect x="37" y="6" width="16" height="27" rx="4"/><rect x="37" y="37" width="16" height="30" rx="4"/>
+        <rect x="37" y="71" width="16" height="35" rx="4"/><rect x="57" y="46" width="15" height="28" rx="4"/>
+        <rect x="57" y="78" width="15" height="28" rx="4"/>
+        <g transform="translate(37,35)"><path transform="rotate(238) scale(26)" d="M0 0 Q0.4 -0.13 1 0 Q0.4 0.13 0 0 z"/>
+        <path transform="rotate(210) scale(31)" d="M0 0 Q0.4 -0.13 1 0 Q0.4 0.13 0 0 z"/>
+        <path transform="rotate(186) scale(34)" d="M0 0 Q0.4 -0.13 1 0 Q0.4 0.13 0 0 z"/>
+        <path transform="rotate(158) scale(27)" d="M0 0 Q0.4 -0.13 1 0 Q0.4 0.13 0 0 z"/></g>
+        <g transform="translate(72,76)"><path transform="rotate(-12) scale(31)" d="M0 0 Q0.4 -0.13 1 0 Q0.4 0.13 0 0 z"/>
+        <path transform="rotate(16) scale(27)" d="M0 0 Q0.4 -0.13 1 0 Q0.4 0.13 0 0 z"/>
+        <path transform="rotate(44) scale(22)" d="M0 0 Q0.4 -0.13 1 0 Q0.4 0.13 0 0 z"/></g>
+      </g>
+    </svg>
+    <div class="brand-text"><div class="wordmark">Local Bond</div><div class="tagline">share what you have, borrow what you need</div></div>
+  </a>
+  <div class="right" id="topbarRight"></div>
+</div>
+
+<div class="gate" id="gate" style="display:none">
+  Please <a href="account.html">log in</a> to continue.
+</div>
+
+<div id="app" style="display:none">
+  <div class="wrap">
+    <h1>Review queue</h1>
+    <p class="sub">Reviews that people have flagged. Keeping a review leaves it as is; removing it takes it out of ratings and out of everyone else's view. The person who flagged it gets an email with your decision.</p>
+    <div class="msg" id="pageMsg"></div>
+    <div id="pending"></div>
+    <div id="pendingEmpty" class="empty" style="display:none">Nothing waiting. 🎉</div>
+    <h2 style="font-size:15px;color:var(--brand-dark);margin-top:28px">Decided</h2>
+    <div id="done"></div>
+    <div id="doneEmpty" class="empty" style="display:none">No decisions yet.</div>
+  </div>
+</div>
+
+<script>
+const gate = document.getElementById("gate");
+const app = document.getElementById("app");
+const topbarRight = document.getElementById("topbarRight");
+const pageMsg = document.getElementById("pageMsg");
+let loadedOnce = false;
+
+function showMsg(el, text, type){ el.textContent = text; el.className = "msg " + type; }
+function escapeHtml(s){
+  return String(s == null ? "" : s).replace(/[&<>"']/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+}
+function starsText(n){ return "★".repeat(n) + "☆".repeat(5 - n); }
+function fmtDate(iso){ return new Date(iso).toLocaleDateString(undefined, { month:"short", day:"numeric", year:"numeric" }); }
+const REASON = { inaccurate:"Inaccurate", retaliatory:"Looks like payback", inappropriate:"Abusive / inappropriate", other:"Something else" };
+
+supabaseClient.auth.onAuthStateChange((_event, session) => {
+  if (session) {
+    gate.style.display = "none";
+    app.style.display = "block";
+    topbarRight.innerHTML = `<a href="index.html">Browse</a> <a href="requests.html">Requests</a> <a href="account.html">My profile</a> <button id="logoutBtn">Log out</button>`;
+    document.getElementById("logoutBtn").addEventListener("click", () => supabaseClient.auth.signOut());
+    if (!loadedOnce) { loadedOnce = true; load(); }
+  } else {
+    loadedOnce = false;
+    gate.style.display = "block";
+    app.style.display = "none";
+    topbarRight.innerHTML = `<a href="account.html">Log in</a>`;
+  }
+});
+
+async function load(){
+  const { data, error } = await supabaseClient.rpc("admin_flag_queue");
+  if (error) {
+    showMsg(pageMsg, error.message === "Not allowed." ? "This page is for admins only." : "Couldn't load the queue: " + error.message, "error");
+    return;
+  }
+  pageMsg.className = "msg";
+  const rows = data || [];
+  const pending = rows.filter(r => r.status === "pending");
+  const done = rows.filter(r => r.status !== "pending");
+  document.getElementById("pending").innerHTML = pending.map(pendingCard).join("");
+  document.getElementById("pendingEmpty").style.display = pending.length ? "none" : "block";
+  document.getElementById("done").innerHTML = done.map(doneCard).join("");
+  document.getElementById("doneEmpty").style.display = done.length ? "none" : "block";
+}
+
+function quote(r){
+  return `<div class="quote"><span class="stars-txt">${starsText(r.stars)}</span> ${r.comment ? escapeHtml(r.comment) : "<em>(no comment)</em>"}</div>`;
+}
+function head(r){
+  return `<h3>${escapeHtml(r.reviewer_name)} reviewed ${escapeHtml(r.reviewee_name)} — ${escapeHtml(r.item_name)}</h3>
+    <div class="meta">Flagged by ${escapeHtml(r.reviewee_name)} on ${fmtDate(r.flagged_at)}</div>`;
+}
+function why(r){
+  return `<div class="why"><strong>Reason:</strong> ${REASON[r.reason] || escapeHtml(r.reason)}${r.note ? ` — "${escapeHtml(r.note)}"` : ""}</div>`;
+}
+function pendingCard(r){
+  return `<div class="flag-card" data-id="${r.flag_id}">
+    ${head(r)}${quote(r)}${why(r)}
+    <div class="decide">
+      <textarea maxlength="500" placeholder="Optional note to the person who flagged it"></textarea>
+      <div class="row">
+        <button class="btn-keep" data-keep="1">Keep review</button>
+        <button class="btn-remove" data-keep="0">Remove review</button>
+      </div>
+    </div>
+  </div>`;
+}
+function doneCard(r){
+  return `<div class="flag-card">
+    ${head(r)}${quote(r)}${why(r)}
+    <div class="why"><span class="pill ${r.status}">${r.status === "removed" ? "Removed" : "Kept"}</span> ${r.resolved_at ? fmtDate(r.resolved_at) : ""}${r.admin_note ? ` — ${escapeHtml(r.admin_note)}` : ""}</div>
+  </div>`;
+}
+
+document.addEventListener("click", async (e) => {
+  const btn = e.target.closest("[data-keep]");
+  if (!btn) return;
+  const card = btn.closest(".flag-card");
+  const remove = btn.dataset.keep === "0";
+  if (remove && !window.confirm("Remove this review? It will disappear from ratings and from everyone's view.")) return;
+  card.querySelectorAll("button").forEach(b => b.disabled = true);
+  const { error } = await supabaseClient.rpc("resolve_review_flag", {
+    target_flag_id: card.dataset.id,
+    remove_review: remove,
+    decision_note: card.querySelector("textarea").value.trim() || null,
+  });
+  if (error) {
+    showMsg(pageMsg, error.message, "error");
+    card.querySelectorAll("button").forEach(b => b.disabled = false);
+    return;
+  }
+  load();
+});
+</script>
+</body>
+</html>
