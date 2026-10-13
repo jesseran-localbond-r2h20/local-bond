@@ -193,6 +193,7 @@
     <p style="font-size:20px;font-weight:700;color:var(--brand-dark);margin:0 0 10px">Share what you have.<br>Borrow what you need.</p>
     <p style="font-size:14px;line-height:1.5;color:#6E6E5E;margin:0 0 18px">Local Bond connects neighbors who lend and borrow tools, gear, and more &mdash; with people you know first, then others nearby. Create a free account to see what's available near you or list something of your own.</p>
     <a href="account.html" style="display:inline-block;background:var(--brand);color:#fff;text-decoration:none;font-weight:700;font-size:14px;padding:11px 20px;border-radius:8px">Log in or sign up</a>
+    <p style="font-size:13px;margin:14px 0 0"><a href="faq.html" style="color:var(--brand-dark);font-weight:700">How does it work? Read the FAQ</a></p>
   </div>
 
   <!-- shown when logged in -->
@@ -341,7 +342,7 @@ supabaseClient.auth.onAuthStateChange((_event, session) => {
     gate.style.display = "none";
     app.style.display = "block";
     listBtn.style.display = "block";
-    topbarRight.innerHTML = `<a href="requests.html">Requests<span class="req-badge"></span></a> <a href="bonds.html">Bonds</a> <a href="guilds.html">Guilds</a> <a href="account.html">My profile</a> <button id="logoutBtn">Log out</button>`;
+    topbarRight.innerHTML = `<a href="requests.html">Requests<span class="req-badge"></span></a> <a href="bonds.html">Bonds</a> <a href="guilds.html">Guilds</a> <a href="faq.html">FAQ</a> <a href="account.html">My profile</a> <button id="logoutBtn">Log out</button>`;
     refreshReqBadge();
     document.getElementById("logoutBtn").addEventListener("click", async () => {
       await supabaseClient.auth.signOut();
@@ -352,7 +353,7 @@ supabaseClient.auth.onAuthStateChange((_event, session) => {
     gate.style.display = "block";
     app.style.display = "none";
     listBtn.style.display = "none";
-    topbarRight.innerHTML = `<a href="account.html">Log In / Sign Up</a>`;
+    topbarRight.innerHTML = `<a href="faq.html">FAQ</a> <a href="account.html">Log In / Sign Up</a>`;
   }
 });
 

@@ -297,7 +297,7 @@ supabaseClient.auth.onAuthStateChange((_event, session) => {
     currentUser = session.user;
     gate.style.display = "none";
     app.style.display = "block";
-    topbarRight.innerHTML = `<a href="index.html">Browse</a> <a href="bonds.html">Bonds</a> <a href="guilds.html">Guilds</a> <a href="account.html">My profile</a> <button id="logoutBtn">Log out</button>`;
+    topbarRight.innerHTML = `<a href="index.html">Browse</a> <a href="bonds.html">Bonds</a> <a href="guilds.html">Guilds</a> <a href="faq.html">FAQ</a> <a href="account.html">My profile</a> <button id="logoutBtn">Log out</button>`;
     document.getElementById("logoutBtn").addEventListener("click", async () => {
       await supabaseClient.auth.signOut();
     });

@@ -239,7 +239,7 @@ supabaseClient.auth.onAuthStateChange((_event, session) => {
   if (session) {
     gate.style.display = "none";
     app.style.display = "block";
-    topbarRight.innerHTML = `<a href="index.html">Browse</a> <a href="requests.html">Requests</a> <a href="account.html">My profile</a> <button id="logoutBtn">Log out</button>`;
+    topbarRight.innerHTML = `<a href="index.html">Browse</a> <a href="requests.html">Requests</a> <a href="faq.html">FAQ</a> <a href="account.html">My profile</a> <button id="logoutBtn">Log out</button>`;
     document.getElementById("logoutBtn").addEventListener("click", () => supabaseClient.auth.signOut());
     if (!loadedOnce) { loadedOnce = true; load(); }
   } else {

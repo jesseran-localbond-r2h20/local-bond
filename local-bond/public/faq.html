@@ -1,0 +1,229 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>FAQ — Local Bond</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Overpass:wght@400;600;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --brand:#3D6B7A; --coral:#EA4B40; --ink-soft:#6E6E5E; --teal:#3D6B7A;
+    --brand-dark:#2A4C57; --teal-dark:#2A4C57;
+    --cream:#FFFCEB;
+    --ink:#1A1A17;
+    --line:#ECE5CC;
+    --error:#B3261E;
+    --ok:#2E7D53;
+  }
+  *{box-sizing:border-box;}
+  body{
+    margin:0; font-family:"Overpass",sans-serif; background:var(--cream); color:var(--ink);
+  }
+  .topbar{
+    position:sticky; top:0; background:#fff; border-bottom:1px solid var(--line);
+    display:flex; align-items:center; justify-content:space-between;
+    padding:12px 20px; z-index:10;
+  }
+  .topbar .brand{ display:flex; align-items:center; gap:8px; }
+  .topbar .bamboo{ width:26px; height:29px; color:var(--brand); }
+  .topbar .name{ font-weight:700; font-size:17px; color:var(--brand-dark); }
+  .topbar .right{ display:flex; align-items:center; gap:16px; font-size:13px; font-weight:600; }
+  .topbar .right a{ color:var(--brand-dark); text-decoration:none; }
+  .topbar .right a:hover{ text-decoration:underline; }
+  .topbar .right button{
+    background:none; border:1px solid var(--line); border-radius:6px; padding:6px 10px;
+    font-family:inherit; font-size:13px; font-weight:600; color:var(--brand-dark); cursor:pointer;
+  }
+  .wrap{ max-width:680px; margin:0 auto; padding:24px 16px 60px; }
+  h1{ font-size:20px; color:var(--brand-dark); margin:0 0 4px; }
+  .sub{ font-size:14px; color:#6E6E5E; margin:0 0 24px; }
+  .gate{ text-align:center; padding:60px 16px; }
+  .gate a{ color:var(--brand-dark); font-weight:700; text-decoration:underline; }
+  .card{
+    background:#fff; border:1px solid var(--line); border-radius:14px;
+    padding:20px; box-shadow:0 2px 10px rgba(0,0,0,0.04); margin-bottom:22px;
+  }
+  .card h2{ margin:0 0 4px; font-size:16px; color:var(--brand-dark); }
+  .card .desc{ font-size:13px; color:#6E6E5E; margin:0 0 14px; }
+  .send-row{ display:flex; gap:8px; }
+  .send-row input{
+    flex:1; padding:10px 12px; border:1px solid var(--line); border-radius:8px;
+    font-family:inherit; font-size:14px;
+  }
+  .send-row input:focus{ outline:2px solid var(--brand); outline-offset:1px; }
+  .send-row button{
+    padding:10px 16px; border:none; border-radius:8px; font-family:inherit;
+    font-size:14px; font-weight:700; cursor:pointer; background:var(--brand); color:#fff; flex-shrink:0;
+  }
+  .send-row button:hover{ background:var(--brand-dark); }
+  .send-row button:disabled{ opacity:0.6; cursor:default; }
+  .msg{ font-size:13px; padding:10px 12px; border-radius:8px; margin-top:12px; display:none; }
+  .msg.error{ background:#FBEAE9; color:var(--error); display:block; }
+  .msg.ok{ background:#E8F5EE; color:var(--ok); display:block; }
+  .cap-note{ font-size:12px; color:#6E6E5E; margin-top:10px; }
+  .list{ list-style:none; margin:0; padding:0; }
+  .list li{
+    display:flex; align-items:center; justify-content:space-between; gap:10px;
+    padding:12px 0; border-bottom:1px solid var(--line);
+  }
+  .list li:last-child{ border-bottom:none; }
+  .list .who{ font-weight:600; font-size:14px; }
+  .list .meta{ font-size:12px; color:#6E6E5E; margin-top:2px; }
+  .actions{ display:flex; gap:8px; flex-shrink:0; flex-wrap:wrap; justify-content:flex-end; }
+  .actions button{
+    padding:7px 12px; border-radius:6px; font-family:inherit; font-size:13px;
+    font-weight:600; cursor:pointer; border:1px solid var(--line);
+  }
+  .btn-accept{ background:var(--brand); color:#fff; border:none; }
+  .btn-accept:hover{ background:var(--brand-dark); }
+  .btn-decline, .btn-withdraw, .btn-leave, .btn-remove, .btn-delete{ background:#fff; color:var(--error); border-color:#F0CFCC; }
+  .btn-decline:hover, .btn-withdraw:hover, .btn-leave:hover, .btn-remove:hover, .btn-delete:hover{ background:#FBEAE9; }
+  .empty{ font-size:13px; color:#6E6E5E; padding:4px 0; }
+  .guild-block{ margin-bottom:26px; }
+  .guild-header{ display:flex; align-items:center; justify-content:space-between; margin-bottom:6px; }
+  .guild-header .gname{ font-weight:700; font-size:15px; color:var(--brand-dark); }
+  .owner-badge{
+    font-size:11px; font-weight:700; padding:2px 8px; border-radius:999px;
+    background:#EAF2E9; color:#355E3B; margin-left:6px;
+  }
+  .invite-row{ display:flex; gap:8px; margin-top:10px; }
+  .invite-row input{
+    flex:1; padding:8px 10px; border:1px solid var(--line); border-radius:8px;
+    font-family:inherit; font-size:13px;
+  }
+  .invite-row button{
+    padding:8px 12px; border:none; border-radius:8px; font-family:inherit;
+    font-size:13px; font-weight:700; cursor:pointer; background:var(--brand); color:#fff;
+  }
+  .invite-row button:hover{ background:var(--brand-dark); }
+
+  .req-badge{
+    display:none; background:#B3261E; color:#fff; font-size:11px; font-weight:700;
+    min-width:18px; height:18px; line-height:18px; text-align:center; border-radius:999px;
+    padding:0 5px; margin-left:5px; vertical-align:middle;
+  }
+
+  .status{ font-size:11px; font-weight:700; padding:2px 8px; border-radius:999px; margin-left:6px; background:#F4EFDC; color:var(--brand-dark); }
+  .status.requested{ background:#FFF3D6; color:#7A5B00; }
+  .status.confirmed{ background:#E8F5EE; color:var(--ok); }
+  .status.declined, .status.cancelled{ background:#FBEAE9; color:var(--error); }
+  .status.completed{ background:#FBE6E3; color:var(--brand-dark); }
+  .note{ font-size:12px; color:#6E6E5E; margin-top:4px; font-style:italic; }
+  .new-dot{ display:inline-block; width:8px; height:8px; border-radius:50%; background:#B3261E; margin-left:6px; vertical-align:middle; }
+  .btn-secondary-act{ background:#fff; color:var(--brand-dark); }
+  .past-toggle{ background:none; border:none; color:var(--brand-dark); font-family:inherit; font-weight:700; font-size:13px; cursor:pointer; padding:0; margin-top:8px; text-decoration:underline; }
+
+  .stars-txt{ color:#B8860B; font-weight:700; }
+  .rating-chip{ font-size:12px; color:#6E6E5E; margin-left:6px; font-weight:600; }
+  .review-line{ font-size:12px; color:#3b4a46; margin-top:4px; }
+  .review-line .stars-txt{ font-size:13px; }
+  .btn-review{ background:var(--brand); color:#fff; border:none; }
+  .btn-review:hover{ background:var(--brand-dark); }
+  .flag-link{ background:none; border:none; padding:0; margin-left:6px; font-family:inherit; font-size:12px; font-weight:700; color:var(--brand-dark); text-decoration:underline; cursor:pointer; }
+  .flag-note{ font-size:12px; color:var(--ink-soft); font-style:italic; }
+  .modal select{ width:100%; font-family:inherit; font-size:14px; padding:10px 12px; border:1px solid var(--line); border-radius:8px; background:#fff; }
+  .admin-banner{ display:none; background:#fff; border:1px solid var(--brand); border-radius:10px; padding:12px 16px; margin-bottom:18px; font-size:14px; }
+  .admin-banner a{ color:var(--brand-dark); font-weight:700; }
+  .overlay{ display:none; position:fixed; inset:0; background:rgba(0,0,0,0.35); align-items:flex-start; justify-content:center; padding:40px 16px; overflow-y:auto; z-index:20; }
+  .overlay.open{ display:flex; }
+  .modal{ background:#fff; border-radius:14px; padding:24px; max-width:420px; width:100%; }
+  .modal h2{ margin:0 0 6px; font-size:18px; color:var(--brand-dark); }
+  .modal label{ display:block; font-size:13px; font-weight:700; margin:14px 0 6px; }
+  .modal textarea{ width:100%; font-family:inherit; font-size:14px; padding:10px 12px; border:1px solid var(--line); border-radius:8px; min-height:80px; resize:vertical; }
+  .star-pick{ display:flex; gap:6px; }
+  .star-pick button{ font-size:30px; line-height:1; background:none; border:none; cursor:pointer; color:#CFCFC4; padding:0 2px; }
+  .star-pick button.on{ color:#E0A100; }
+  .modal-actions{ display:flex; gap:10px; margin-top:18px; }
+  .modal-actions button{ flex:1; padding:10px; border-radius:8px; font-family:inherit; font-size:14px; font-weight:700; cursor:pointer; }
+  .modal-actions .cancel{ background:#fff; border:1px solid var(--line); color:var(--brand-dark); }
+  .modal-actions .go{ background:var(--brand); color:#fff; border:none; }
+  .modal-actions .go:disabled{ opacity:.6; }
+  .hint{ font-size:12px; color:#6E6E5E; margin-top:4px; }
+
+  /* ===== Local Bond palette: coral + cream ===== */
+  .topbar{ background:var(--cream); border-bottom:none; padding:16px 20px; }
+  .topbar .brand, .topbar .brand-row{ display:flex; align-items:center; gap:10px; text-decoration:none; color:inherit; }
+  .topbar a.brand, .topbar a.brand-row{ border:none; padding:0; background:none; border-radius:0; }
+  .topbar .bamboo{ width:34px; height:38px; color:var(--ink); flex:none; }
+  .brand-text{ display:flex; flex-direction:column; line-height:1; }
+  .wordmark{ font-weight:800; font-size:25px; color:var(--coral); letter-spacing:-.01em; }
+  .tagline{ font-size:12px; color:var(--ink-soft); margin-top:3px; }
+  #topbarRight{ display:flex; align-items:center; gap:8px; flex-wrap:wrap; justify-content:flex-end; }
+  #topbarRight a, #topbarRight button{
+    font-family:inherit; font-size:13px; font-weight:700; color:#fff; background:var(--teal);
+    border:1px solid var(--teal); border-radius:8px; padding:7px 12px; cursor:pointer;
+    text-decoration:none; display:inline-flex; align-items:center;
+  }
+  #topbarRight a:hover, #topbarRight button:hover{ background:var(--teal-dark); border-color:var(--teal-dark); text-decoration:none; }
+  @media (max-width:560px){ .topbar{ flex-wrap:wrap; gap:10px; } .tagline{ font-size:11px; } }
+  .faq h1{ margin-bottom:6px; }
+  .faq .lead{ font-size:15px; line-height:1.55; color:var(--ink); margin:0 0 22px; }
+  .faq h2{ font-size:13px; font-weight:800; letter-spacing:.06em; text-transform:uppercase; color:var(--ink-soft); margin:28px 0 8px; }
+  .faq details{ background:#fff; border:1px solid var(--line); border-radius:12px; padding:0 16px; margin-bottom:8px; }
+  .faq summary{ cursor:pointer; font-weight:700; font-size:15px; padding:14px 0; list-style:none; color:var(--ink); display:flex; justify-content:space-between; gap:12px; }
+  .faq summary::-webkit-details-marker{ display:none; }
+  .faq summary::after{ content:"+"; color:var(--brand); font-size:20px; line-height:1; flex:none; }
+  .faq details[open] summary::after{ content:"\2212"; }
+  .faq details .a{ font-size:14px; line-height:1.6; padding:0 0 14px; color:#33332D; }
+  .faq details .a p{ margin:0 0 10px; }
+  .faq details .a p:last-child{ margin:0; }
+  .faq .cta{ background:#fff; border:1px solid var(--line); border-radius:14px; padding:20px; margin-top:30px; text-align:center; }
+  .faq .cta a{ display:inline-block; background:var(--brand); color:#fff; text-decoration:none; font-weight:700; font-size:14px; padding:11px 20px; border-radius:8px; margin-top:8px; }
+  .faq .cta a:hover{ background:var(--brand-dark); }
+  .faq .note{ font-size:12px; color:var(--ink-soft); margin-top:8px; }
+</style>
+</head>
+<body>
+
+<div class="topbar">
+  <a class="brand" href="index.html">
+    <svg class="bamboo" viewBox="0 0 100 112" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+      <g fill="currentColor">
+        <rect x="37" y="6" width="16" height="27" rx="4"/><rect x="37" y="37" width="16" height="30" rx="4"/>
+        <rect x="37" y="71" width="16" height="35" rx="4"/><rect x="57" y="46" width="15" height="28" rx="4"/>
+        <rect x="57" y="78" width="15" height="28" rx="4"/>
+        <g transform="translate(37,35)"><path transform="rotate(238) scale(26)" d="M0 0 Q0.4 -0.13 1 0 Q0.4 0.13 0 0 z"/>
+        <path transform="rotate(210) scale(31)" d="M0 0 Q0.4 -0.13 1 0 Q0.4 0.13 0 0 z"/>
+        <path transform="rotate(186) scale(34)" d="M0 0 Q0.4 -0.13 1 0 Q0.4 0.13 0 0 z"/>
+        <path transform="rotate(158) scale(27)" d="M0 0 Q0.4 -0.13 1 0 Q0.4 0.13 0 0 z"/></g>
+        <g transform="translate(72,76)"><path transform="rotate(-12) scale(31)" d="M0 0 Q0.4 -0.13 1 0 Q0.4 0.13 0 0 z"/>
+        <path transform="rotate(16) scale(27)" d="M0 0 Q0.4 -0.13 1 0 Q0.4 0.13 0 0 z"/>
+        <path transform="rotate(44) scale(22)" d="M0 0 Q0.4 -0.13 1 0 Q0.4 0.13 0 0 z"/></g>
+      </g>
+    </svg>
+    <div class="brand-text"><div class="wordmark">Local Bond</div><div class="tagline">share what you have, borrow what you need</div></div>
+  </a>
+  <div class="right" id="topbarRight"><a href="index.html">Browse</a> <a href="account.html">Log in / Sign up</a></div>
+</div>
+
+<div class="wrap faq">
+    <h1>Questions &amp; answers</h1>
+    <p class="lead">Local Bond is a tool for neighbors to share what they have and borrow what they need, starting with people they know and expanding out to everyone nearby. No ads, no selling your data.</p>
+
+    <h2>The basics</h2>
+    <details><summary>What is Local Bond?</summary><div class="a"><p>A simple way to share items with the people around you. You list things you own and don't use every day (a ladder, a pressure washer, a tent) and borrow things you only need once in a while. It saves money, saves closet space, and gets neighbors talking.</p></div></details>
+    <details><summary>Do you handle money between neighbors?</summary><div class="a"><p>No. Local Bond is the tool that connects you, not a payment service. If a lender wants to charge a fee for an item, they and the borrower work that out directly between themselves. Many items are simply free to borrow.</p></div></details>
+    <details><summary>What is a Bond?</summary><div class="a"><p>A Bond is a connection between two people who trust each other, like a friend, a neighbor, or a coworker. You create one by sharing your personal invite link or entering someone's invite code, and the other person accepts. Items you share with your Bonds are visible to them.</p></div></details>
+    <details><summary>What is a Guild?</summary><div class="a"><p>A Guild is a group, like a street, a school, a club, or a workplace. People in the same Guild can see the items that members share with Guilds, even if they haven't Bonded one-to-one.</p></div></details>
+    <details><summary>What does &ldquo;share with everyone&rdquo; mean?</summary><div class="a"><p>For every item you list, you choose who can see it: the general public, your Bonds, your Guilds, or any mix. If you turn off public sharing, only your Bonds and Guilds see it. You can also turn off public sharing for all your items at once on your profile page.</p></div></details>
+
+    <h2>Privacy &amp; distance</h2>
+    <details><summary>Is my information private?</summary><div class="a"><p>Yes. Your street address is only used once, when you save it, to work out your location. It is never shown to anyone, including your Bonds and Guild members. Other people see your display name and the items you share, never your email address. We don't sell your data and we don't run ads.</p></div></details>
+    <details><summary>How is distance measured?</summary><div class="a"><p>Distances are calculated from map coordinates (geocoding), not from a mapping or directions service. That means they're &ldquo;as the crow flies,&rdquo; a straight line between two points, so the actual drive or walk is usually longer. Think of it as a rough guide to who is close, not turn-by-turn directions.</p></div></details>
+    <details><summary>Can you add more categories?</summary><div class="a"><p>Yes. We started with a few (tools, outdoor and camping, kitchen and party, kids and baby, sports and recreation), and we'll add more as people tell us what they'd like to share. Have an idea? Tell us.</p></div></details>
+
+    <h2>Pricing</h2>
+    <details><summary>Is Local Bond free?</summary><div class="a"><p>It's free during the pilot. Subscriptions begin in <strong>March 2027</strong> at <strong>$10 per year</strong> (or $1 per month). When subscriptions start, every new member gets a <strong>60-day free trial</strong> to try it out before paying.</p></div></details>
+    <details><summary>Why charge at all?</summary><div class="a"><p>We'd rather be funded by the people who use Local Bond than by advertisers. A small subscription means we can keep it ad-free and keep your information private, with no one paying to get in front of you.</p></div></details>
+    <details><summary>Is $10 a year a good deal?</summary><div class="a"><p>We think so. Borrowing one item just once can save you far more than the cost of the year. For example, renting a hammer drill from a home improvement store can cost around $20 for a four-hour rental, and that's twice the price of a full year of Local Bond. (Rental prices vary by store.)</p></div></details>
+    <details><summary>What if I want to cancel?</summary><div class="a"><p>We'll publish clear cancellation and refund details well before subscriptions begin.</p></div></details>
+
+    <div class="cta">
+      <div style="font-weight:700">Ready to try it?</div>
+      <div class="note" style="margin:4px 0 0">Create a free account and start sharing with your neighbors.</div>
+      <a href="account.html">Log in or sign up</a>
+    </div>
+  </div>
+</body>
+</html>
