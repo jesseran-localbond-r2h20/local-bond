@@ -96,8 +96,9 @@
   .modal textarea{ resize:vertical; min-height:60px; }
   .hint{ font-size:12px; color:#6E6E5E; margin-top:4px; font-weight:400; }
   .checkbox-row{ display:flex; align-items:flex-start; gap:8px; margin:14px 0; }
-  .checkbox-row input{ margin-top:3px; }
-  .checkbox-row .ctext{ font-size:13px; }
+  .checkbox-row input, .modal .checkbox-row input{ width:auto; flex:none; margin:3px 0 0; }
+  .checkbox-row .ctext{ font-size:13px; flex:1; min-width:0; overflow-wrap:anywhere; }
+  .thumb .placeholder-icon{ font-size:54px; line-height:1; }
   .modal-actions{ display:flex; gap:10px; margin-top:18px; }
   .btn-cancel{
     flex:1; background:#fff; border:1px solid var(--line); border-radius:8px; font-weight:700;
@@ -444,6 +445,25 @@ function render(){
   gridEl.innerHTML = items.map(renderCard).join("");
 }
 
+/* ---------- placeholder icon when an item has no photo ---------- */
+const CATEGORY_ICONS = {
+  "Tools & Equipment": "🛠️",
+  "Outdoor & Camping": "⛺",
+  "Kitchen & Party": "🍲",
+  "Kids & Baby": "🧸",
+  "Sports & Recreation": "🛶",
+};
+const KEYWORD_ICONS = [
+  [/ladder/i, "🪜"], [/\bsaw\b/i, "🪚"], [/pressure wash/i, "💦"], [/drill/i, "🛠️"],
+  [/canopy/i, "🏕️"], [/tent/i, "⛺"], [/table|chair/i, "🪑"], [/pot\b|burner|grill|bbq/i, "🍲"],
+  [/car seat|stroller|crib/i, "🧸"], [/kayak|canoe|paddle/i, "🛶"], [/bike|bicycle/i, "🚲"],
+];
+function placeholderIcon(item){
+  const name = item.name || "";
+  for (const [re, icon] of KEYWORD_ICONS) if (re.test(name)) return icon;
+  return CATEGORY_ICONS[item.category_name] || "📦";
+}
+
 function renderCard(item){
   const dist = item.distance_miles != null ? `${item.distance_miles} mi as the crow flies` : "";
   const fee = item.fee_amount ? `$${Number(item.fee_amount).toFixed(2)}` : "Free";
@@ -452,7 +472,7 @@ function renderCard(item){
   const guildTag = (!item.is_mine && item.visibility_tier === "guild") ? `<span class="tag guild">Via a Guild</span>` : "";
   const thumb = item.photo_url
     ? `<img src="${escapeHtml(item.photo_url)}" alt="${escapeHtml(item.name)}" data-zoom="${escapeHtml(item.photo_url)}" data-title="${escapeHtml(item.name)}" tabindex="0" title="Click to enlarge">`
-    : `<span>${item.category_name || ""}</span>`;
+    : `<span class="placeholder-icon" role="img" aria-label="${escapeHtml(item.category_name || "Item")}">${placeholderIcon(item)}</span>`;
   const rt = ratingsByItem[item.id];
   const ratingTxt = rt ? ` · <span style="color:#B8860B;font-weight:700">★ ${Number(rt.avg_stars).toFixed(1)}</span> (${rt.review_count})` : "";
   return `

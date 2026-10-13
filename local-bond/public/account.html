@@ -42,8 +42,8 @@
   }
   input:focus{ outline:2px solid var(--brand); outline-offset:1px; }
   .checkbox-row{ display:flex; align-items:flex-start; gap:8px; margin:16px 0; }
-  .checkbox-row input{ margin-top:3px; }
-  .checkbox-row .ctext{ font-size:13px; }
+  .checkbox-row input{ width:auto; flex:none; margin:3px 0 0; }
+  .checkbox-row .ctext{ font-size:13px; flex:1; min-width:0; overflow-wrap:anywhere; }
   .checkbox-row .ctext .hint{ margin-top:2px; }
   button{
     width:100%; padding:11px; border:none; border-radius:8px; font-family:inherit;
