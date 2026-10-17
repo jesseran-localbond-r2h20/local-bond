@@ -149,6 +149,8 @@
   /* teal kept on purpose: active category chip and the borrow flow */
   .chip.active{ background:var(--teal); color:#fff; border-color:var(--teal); }
   .btn-borrow{ background:var(--teal); }
+  .btn-edit{ width:100%; margin-top:10px; padding:9px; border-radius:8px; border:1px solid var(--teal); background:#fff; color:var(--teal-dark); font-family:inherit; font-size:14px; font-weight:700; cursor:pointer; }
+  .btn-edit:hover{ background:var(--cream); }
   .btn-borrow:hover{ background:var(--teal-dark); }
   #borrowSubmitBtn{ background:var(--teal); }
   #borrowSubmitBtn:hover{ background:var(--teal-dark); }
@@ -216,7 +218,7 @@
 <!-- ===================== LIST-AN-ITEM MODAL ===================== -->
 <div class="overlay" id="overlay">
   <div class="modal">
-    <h2>List an item to share</h2>
+    <h2 id="itemModalTitle">List an item to share</h2>
     <form id="itemForm">
       <label for="itemName">What is it?</label>
       <input type="text" id="itemName" required placeholder="e.g. Pressure washer">
@@ -233,13 +235,27 @@
       <label for="itemFee">Fee (optional)</label>
       <input type="number" id="itemFee" min="0" step="0.01" placeholder="Leave blank if free">
 
-      <label for="itemPhoto">Photo (optional)</label>
+      <label for="itemPhoto" id="itemPhotoLabel">Photo (optional)</label>
       <input type="file" id="itemPhoto" accept="image/*">
+      <div id="editPhotoExtras" style="display:none">
+        <div class="hint" id="editPhotoNote"></div>
+        <div class="checkbox-row" style="margin:8px 0 0">
+          <input type="checkbox" id="itemRemovePhoto">
+          <div class="ctext">Remove the current photo</div>
+        </div>
+      </div>
 
       <div class="hint" style="margin-top:14px">By default this is listed at your own profile location. Only fill in an address below if THIS item is somewhere else (e.g. at a shop, not your home).</div>
       <label for="itemAddress">Different address for this item (optional)</label>
       <input type="text" id="itemAddress" placeholder="Street address">
       <div class="geostatus" id="itemGeoStatus"></div>
+      <div id="editLocExtras" style="display:none">
+        <div class="hint">Leave the address blank to keep this item's current location.</div>
+        <div class="checkbox-row" style="margin:8px 0 0">
+          <input type="checkbox" id="itemUseProfileLoc">
+          <div class="ctext">Use my profile location instead</div>
+        </div>
+      </div>
 
       <div class="checkbox-row">
         <input type="checkbox" id="itemSharePublic" checked>
@@ -267,7 +283,7 @@
 
       <div class="modal-actions">
         <button type="button" class="btn-cancel" id="cancelBtn">Cancel</button>
-        <button type="submit" class="btn-primary">List it</button>
+        <button type="submit" class="btn-primary" id="itemSubmitBtn">List it</button>
       </div>
       <div class="msg" id="itemMsg"></div>
     </form>
@@ -489,7 +505,7 @@ function renderCard(item){
         ${bondTag}
         ${mineTag}
       </div>
-      ${item.is_mine ? "" : `<button class="btn-borrow" data-borrow="${item.id}">Request to borrow</button>`}
+      ${item.is_mine ? `<button class="btn-edit" data-edit="${item.id}">Edit</button>` : `<button class="btn-borrow" data-borrow="${item.id}">Request to borrow</button>`}
     </div>
   </div>`;
 }
@@ -501,8 +517,46 @@ function escapeHtml(s){
 searchInput.addEventListener("input", render);
 
 /* ---------- list-an-item modal ---------- */
+let editingItem = null;   // the items row being edited, or null when listing a new item
+
+function setItemModalMode(editing){
+  document.getElementById("itemModalTitle").textContent = editing ? "Edit your item" : "List an item to share";
+  document.getElementById("itemSubmitBtn").textContent = editing ? "Save changes" : "List it";
+  document.getElementById("editPhotoExtras").style.display = editing ? "block" : "none";
+  document.getElementById("editLocExtras").style.display = editing ? "block" : "none";
+  document.getElementById("itemPhotoLabel").textContent = editing ? "Replace photo (optional)" : "Photo (optional)";
+}
+
 listBtn.addEventListener("click", () => {
+  editingItem = null;
   itemForm.reset();
+  setItemModalMode(false);
+  itemMsg.style.display = "none";
+  itemGeoStatus.textContent = "";
+  overlay.classList.add("open");
+});
+
+gridEl.addEventListener("click", async (e) => {
+  const btn = e.target.closest("[data-edit]");
+  if (!btn) return;
+  btn.disabled = true;
+  const { data, error } = await supabaseClient.from("items").select("*").eq("id", btn.dataset.edit).single();
+  btn.disabled = false;
+  if (error || !data) { window.alert("Couldn't open that item: " + (error ? error.message : "not found")); return; }
+  editingItem = data;
+  itemForm.reset();
+  setItemModalMode(true);
+  document.getElementById("itemName").value = data.name || "";
+  itemCategorySelect.value = data.category_id;
+  document.getElementById("itemNotes").value = data.condition_notes || "";
+  document.getElementById("itemTerms").value = data.lending_terms || "";
+  document.getElementById("itemFee").value = data.fee_amount != null ? data.fee_amount : "";
+  document.getElementById("itemSharePublic").checked = data.share_public;
+  document.getElementById("itemShareBonds").checked = data.share_bonds;
+  document.getElementById("itemShareGuilds").checked = data.share_guilds;
+  document.getElementById("editPhotoNote").textContent = data.photo_url
+    ? "This item has a photo. Choose a new file above to replace it, or tick the box below to remove it."
+    : "This item doesn't have a photo yet. Choose one above to add it.";
   itemMsg.style.display = "none";
   itemGeoStatus.textContent = "";
   overlay.classList.add("open");
@@ -545,16 +599,19 @@ itemForm.addEventListener("submit", async (e) => {
         itemGeoStatus.textContent = "Address found.";
         itemGeoStatus.className = "geostatus ok";
       } else {
-        itemGeoStatus.textContent = "Couldn't find that address — using your profile location instead.";
+        itemGeoStatus.textContent = `Couldn't find that address — ${editingItem ? "keeping the current location" : "using your profile location instead"}.`;
         itemGeoStatus.className = "geostatus error";
       }
     } catch (err) {
-      itemGeoStatus.textContent = "Couldn't look up that address right now — using your profile location instead.";
+      itemGeoStatus.textContent = `Couldn't look up that address right now — ${editingItem ? "keeping the current location" : "using your profile location instead"}.`;
       itemGeoStatus.className = "geostatus error";
     }
   }
 
-  let photoUrl = null;
+  let photoUrl = editingItem ? editingItem.photo_url : null;
+  const removePhoto = editingItem && document.getElementById("itemRemovePhoto").checked;
+  const oldPhotoUrl = editingItem ? editingItem.photo_url : null;
+  if (removePhoto && !photoFile) photoUrl = null;
   if (photoFile) {
     const path = `${currentUser.id}/${Date.now()}-${photoFile.name}`;
     const { error: uploadError } = await supabaseClient.storage
@@ -566,6 +623,39 @@ itemForm.addEventListener("submit", async (e) => {
     }
     const { data: pub } = supabaseClient.storage.from("item-photos").getPublicUrl(path);
     photoUrl = pub.publicUrl;
+  }
+
+  if (editingItem) {
+    const changes = {
+      category_id: categoryId,
+      name,
+      condition_notes: notes || null,
+      lending_terms: terms || null,
+      fee_amount: fee,
+      photo_url: photoUrl,
+      share_public: sharePublic,
+      share_bonds: shareBonds,
+      share_guilds: shareGuilds,
+    };
+    // Location only changes if they entered a new address that was found,
+    // or asked to go back to their profile location.
+    if (document.getElementById("itemUseProfileLoc").checked) { changes.lat = null; changes.lng = null; changes.zip_code = null; }
+    else if (lat != null) { changes.lat = lat; changes.lng = lng; }
+    const { data: updated, error: updError } = await supabaseClient
+      .from("items").update(changes).eq("id", editingItem.id).select("id");
+    if (updError || !updated || !updated.length) {
+      showMsg(itemMsg, updError ? updError.message : "Couldn't save changes.", "error");
+      return;
+    }
+    // Best effort: tidy up the old photo file if it was replaced or removed.
+    if (oldPhotoUrl && oldPhotoUrl !== photoUrl) {
+      const marker = "/item-photos/";
+      const k = oldPhotoUrl.indexOf(marker);
+      if (k > -1) supabaseClient.storage.from("item-photos").remove([decodeURIComponent(oldPhotoUrl.slice(k + marker.length).split("?")[0])]).catch(() => {});
+    }
+    showMsg(itemMsg, "Saved!", "ok");
+    setTimeout(async () => { overlay.classList.remove("open"); editingItem = null; await loadItems(); }, 500);
+    return;
   }
 
   const { error } = await supabaseClient.from("items").insert({
